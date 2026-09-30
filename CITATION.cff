@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the associated preprint."
+title: "Patch Content Fungibility in Vision Transformers"
+type: software
+authors:
+  - family-names: Nghiem
+    given-names: Nhat Minh
+repository-code: "https://github.com/nhatminh-115/Patch-Content-Fungibility"
+license: Apache-2.0
+date-released: 2026-09-30
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.23050375"
+    description: "Canonical Zenodo preprint"
+preferred-citation:
+  type: article
+  title: "Patch Content Fungibility in Vision Transformers: Geometric and Diversity Constraints in Late-Layer Representations"
+  authors:
+    - family-names: Nghiem
+      given-names: Nhat Minh
+  year: 2026
+  publisher:
+    name: Zenodo
+  doi: "10.5281/zenodo.23050375"
