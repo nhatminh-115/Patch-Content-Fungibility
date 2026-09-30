@@ -1,0 +1,91 @@
+name: One-shot migrate fungibility binaries
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/migrate-fungibility-binaries.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout destination
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Copy binary artifacts from source repo
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/nhatminh-115/ResCancel.git /tmp/source
+
+          files=(
+            "outputs/fungibility_v0_6/calibration_statistics.npz"
+            "outputs/fungibility_v0_7/prototype_vectors.npz"
+            "outputs/fungibility_v0_7/small_image_results.parquet"
+            "outputs/fungibility_v0_7/tiny_image_results.parquet"
+            "outputs/fungibility_v0_8/small_image_results.parquet"
+            "outputs/fungibility_v0_8/tiny_image_results.parquet"
+            "outputs/fungibility_v0_9/pca_cache_deit_small_patch16_224.npz"
+            "outputs/fungibility_v0_9/pca_cache_deit_tiny_patch16_224.npz"
+            "outputs/fungibility_v0_9/small_image_results.parquet"
+            "outputs/fungibility_v0_9/tiny_image_results.parquet"
+            "outputs/fungibility_v1/calibration_statistics.npz"
+            "outputs/fungibility_v1/dinov2_image_results.parquet"
+            "outputs/fungibility_v1/vitb_image_results.parquet"
+          )
+
+          for f in "${files[@]}"; do
+            mkdir -p "$(dirname "$f")"
+            cp "/tmp/source/$f" "$f"
+          done
+
+      - name: Verify source blob SHAs
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/expected.tsv <<'EOF'
+          1b0ed6505092ce7cd4fb7b1a388276a7f98f7c37 outputs/fungibility_v0_6/calibration_statistics.npz
+          1122a53a6c2da0079506a380a5b352f4808cab35 outputs/fungibility_v0_7/prototype_vectors.npz
+          c78ca087570a455f808e874407ae48c65657cadd outputs/fungibility_v0_7/small_image_results.parquet
+          a380df7c8de979fdbfe5bc7b5719818646fff26c outputs/fungibility_v0_7/tiny_image_results.parquet
+          74c3aa91727806d4f65a3fa70bd4c6a3aa818bf5 outputs/fungibility_v0_8/small_image_results.parquet
+          34cf11adb0df7384ba4cf9941182f9be409a216b outputs/fungibility_v0_8/tiny_image_results.parquet
+          2d7e96dcc2b12f55e8b30c052265b3fc0fd45325 outputs/fungibility_v0_9/pca_cache_deit_small_patch16_224.npz
+          795d66a5831943354aa08af2c21c1621c292e7b4 outputs/fungibility_v0_9/pca_cache_deit_tiny_patch16_224.npz
+          9dc98fe509fef53cb4bfeaf279cd7935c395f9f2 outputs/fungibility_v0_9/small_image_results.parquet
+          94391387598e9e429aa74687fb53b709b8412a26 outputs/fungibility_v0_9/tiny_image_results.parquet
+          93bad8609d5a46b36e43d70d698fd29c9e04c3a9 outputs/fungibility_v1/calibration_statistics.npz
+          9b4ec38b32da5915ff81ed55811a580432326575 outputs/fungibility_v1/dinov2_image_results.parquet
+          48447594fec87ce1e14fa69b0256521447071d67 outputs/fungibility_v1/vitb_image_results.parquet
+          EOF
+
+          while read -r expected path; do
+            actual="$(git hash-object "$path")"
+            test "$actual" = "$expected" || {
+              echo "SHA mismatch: $path expected=$expected actual=$actual"
+              exit 1
+            }
+          done < /tmp/expected.tsv
+
+      - name: Commit migrated binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -f             outputs/fungibility_v0_6/calibration_statistics.npz             outputs/fungibility_v0_7/prototype_vectors.npz             outputs/fungibility_v0_7/small_image_results.parquet             outputs/fungibility_v0_7/tiny_image_results.parquet             outputs/fungibility_v0_8/small_image_results.parquet             outputs/fungibility_v0_8/tiny_image_results.parquet             outputs/fungibility_v0_9/pca_cache_deit_small_patch16_224.npz             outputs/fungibility_v0_9/pca_cache_deit_tiny_patch16_224.npz             outputs/fungibility_v0_9/small_image_results.parquet             outputs/fungibility_v0_9/tiny_image_results.parquet             outputs/fungibility_v1/calibration_statistics.npz             outputs/fungibility_v1/dinov2_image_results.parquet             outputs/fungibility_v1/vitb_image_results.parquet
+
+          if git diff --cached --quiet; then
+            echo "No binary changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Complete binary result artifact migration"
+          git push origin HEAD:main
