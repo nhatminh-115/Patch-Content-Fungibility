@@ -13,7 +13,7 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
-from rescancel.dataset import ImageNetValidationSubset
+from patch_fungibility.dataset import ImageNetValidationSubset
 from patch_fungibility.pipeline import PatchFungibilityPipeline
 from patch_fungibility.decision import evaluate_fungibility_decision
 from patch_fungibility.validation import run_fungibility_v0_validations
