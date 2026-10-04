@@ -207,20 +207,20 @@ $$
 
 The expected per-token norm and marginal distribution are therefore matched; the principal manipulated variable is whether different spatial slots carry distinct values. Writing \(\Sigma_\ell=\operatorname{diag}(\sigma_\ell^2)\), both conditions satisfy
 
-$
+$$
 R_i^{(\ell)}\sim\mathcal{N}(\mu_\ell,\Sigma_\ell),
-$
+$$
 
 but their cross-token covariance differs. For \(i\neq j\),
 
-$
+$$
 \operatorname{Cov}\!\left(R_i^{(\ell)},R_j^{(\ell)}\right)
 =
 \begin{cases}
 \Sigma_\ell, & \text{shared},\\
 0, & \text{independent}.
 \end{cases}
-$
+$$
 
 Thus, the comparison preserves the one-token marginal while changing the joint structure of the replacement stream. This is the key causal isolation behind the diversity claim.
 
@@ -240,7 +240,7 @@ $$
 
 For a random unit direction \(u\) independent of the PCA basis, the matched-energy control is
 
-$
+$$
 R_{i,\mathrm{rand}}^{(\ell)}
 =
 \mu_\ell
@@ -248,11 +248,13 @@ R_{i,\mathrm{rand}}^{(\ell)}
 z_i\sqrt{\lambda_k}\,u,
 \qquad
 \|u\|_2=1,
-$
+$$
 
 so the learned and random one-dimensional conditions have the same injected scalar variance \(\lambda_k\) and differ primarily in direction. Because the response depends on both direction and amplitude, we treat low-dimensional recovery as a directional probe rather than claiming generic rank-one sufficiency.
 
 Table 1 summarizes the causal factorization implemented by the intervention family. Entries refer to the **replaced subset**; under partial replacement, unreplaced real patches continue to contribute image-specific variation.
+
+**Table 1. Factor isolation across the intervention family.**
 
 | Intervention | Current-image content in replaced slots | Learned coordinate alignment | Token-to-token variation in replaced slots | Primary causal question |
 |---|---|---|---|---|
@@ -300,15 +302,15 @@ $$
 
 Recovery is treated as not applicable when zero damage is negligible. We additionally summarize the dense fraction sweep through **accuracy retention**,
 
-$
+$$
 \rho_R(\ell,f)
 =
 \frac{A_R(\ell,f)}{A_{\mathrm{clean}}},
-$
+$$
 
 and define the empirical retention threshold
 
-$
+$$
 F_\tau(R,\ell)
 =
 \max_{f\in\mathcal{F}}
@@ -316,17 +318,17 @@ F_\tau(R,\ell)
 f:
 \rho_R(\ell,f)\ge \tau
 \right\},
-$
+$$
 
 where \(\mathcal{F}\) is the evaluated replacement-fraction grid and \(\tau\in\{0.95,0.90,0.80\}\). Thus, \(F_{90}=0.78\), for example, means that the largest tested fraction retaining at least 90% of clean Top-1 accuracy is approximately 78%; it is not a fitted phase-transition point.
 
 For paired margin contrasts we use the evaluation image as the independent unit. If \(\delta_x=m_A(x)-m_B(x)\) is an image-wise paired difference, the standardized paired effect size is
 
-$
+$$
 d_z
 =
 \frac{\overline{\delta}}{s_\delta}.
-$
+$$
 
 We report percentile-bootstrap confidence intervals together with paired parametric and nonparametric tests, and exact McNemar tests for paired correctness changes. Multiple stochastic replacement seeds are summarized before inferential comparisons rather than pooled as independent images.
 
@@ -436,7 +438,7 @@ These results establish two points. First, useful token diversity need not requi
 
 The central pattern replicates across four frozen ViT settings spanning model size, patch resolution, and training paradigm.
 
-**Table 1. Cross-architecture synthesis of the primary fungibility window.**
+**Table 2. Cross-architecture synthesis of the primary fungibility window.**
 
 | Model | Primary depth | Clean Top-1 | 25% zero | 25% valid surrogate | Zero-damage recovery | Dense \(F_{90}\) for best surrogate | Complete-replacement diversity evidence |
 |---|---:|---:|---:|---:|---:|---:|---|
@@ -473,17 +475,17 @@ The fixed-length design deliberately isolates representational necessity from se
 
 When many replaced patches are assigned the same centroid, their downstream states remain identical in the evaluated permutation-equivariant ViT blocks. The collapse has a simple attention-level derivation. For one query and one attention head, suppose \(m\) duplicate tokens share key \(k\), value \(v\), and pre-softmax score \(a=q^\top k/\sqrt{d_h}\). Their joint contribution in the presence of other tokens \(j\) is
 
-$
+$$
 \frac{
 m e^a v + \sum_j e^{a_j}v_j
 }{
 m e^a + \sum_j e^{a_j}
 }.
-$
+$$
 
 Replacing those \(m\) duplicates by one carrier with the same key and value but additive logit bias \(+\log m\) gives
 
-$
+$$
 \frac{
 e^{a+\log m}v + \sum_j e^{a_j}v_j
 }{
@@ -495,7 +497,7 @@ m e^a v + \sum_j e^{a_j}v_j
 }{
 m e^a + \sum_j e^{a_j}
 }.
-$
+$$
 
 The attention contribution is therefore exactly preserved in real arithmetic. Because identical tokens remain identical under the evaluated permutation-equivariant downstream blocks, propagating the multiplicity and using multiplicity-aware pooling extends this equivalence through the tail network. Numerically, collapsing \(m\) identical centroid tokens into one multiplicity-aware carrier reproduces the uncompressed centroid intervention with 100% prediction agreement and maximum absolute logit error \(4.49\times10^{-5}\). This establishes an exact computational redundancy within the intervention setting.
 
