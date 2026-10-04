@@ -1,6 +1,6 @@
 # Publication Figure & Table Plan: Patch Content Fungibility
 
-**Repository:** `https://github.com/nhatminh-115/ResCancel`  
+**Repository:** `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
 **Date:** 2026-09-30  
 **Status:** Final submission-facing figure map  
 **Style guide:** `docs/PAPER_FIGURE_STYLE.md`
