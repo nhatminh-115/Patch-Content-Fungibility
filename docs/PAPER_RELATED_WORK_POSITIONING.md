@@ -1,6 +1,6 @@
 # Related Work & Conceptual Positioning: Patch Content Fungibility
 
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
 **Date**: 2026-09-29  
 
 ---
