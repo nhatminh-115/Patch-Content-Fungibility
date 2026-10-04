@@ -1,6 +1,6 @@
 # Paper Claims Audit: Patch Content Fungibility in Vision Transformers
 
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
 **Date**: 2026-09-29  
 **Core Paper Question**:  
 > *"What information must remain in late spatial patch activations for downstream Vision Transformer classification to function?"*
