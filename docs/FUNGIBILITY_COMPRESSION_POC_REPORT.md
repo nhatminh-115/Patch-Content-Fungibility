@@ -2,8 +2,8 @@
 
 **Experiment Name**: `FUNGIBILITY-TO-COMPRESSION POC: WEIGHTED CENTROID CARRIER`  
 **Execution Date**: 2026-09-29  
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
-**Protocol Reference**: [`docs/FUNGIBILITY_COMPRESSION_POC_PROTOCOL.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_COMPRESSION_POC_PROTOCOL.md)  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
+**Protocol Reference**: [`docs/FUNGIBILITY_COMPRESSION_POC_PROTOCOL.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_COMPRESSION_POC_PROTOCOL.md)  
 **Equivalence Verdict**: **`Outcome A — EXACT CARRIER WORKS`**  
 **Utility Classification**: **`NOT COMPETITIVE`** (as practical compression) / **`MECHANISTIC DEMONSTRATION ONLY`** (as mechanistic equivalence proof)  
 **Hardware Target**: NVIDIA GeForce RTX 5070 Laptop GPU  
@@ -195,17 +195,17 @@ Measured end-to-end (full image $\to$ final logits) across 30 timed CUDA iterati
 
 ## 6. Generated Publication Figures
 
-All 4 required figures are saved in [`figures/fungibility_compression_poc/`](file:///d:/Study/ResCancel/figures/fungibility_compression_poc/):
-1. [`accuracy_vs_tail_tokens.png`](file:///d:/Study/ResCancel/figures/fungibility_compression_poc/accuracy_vs_tail_tokens.png): Accuracy vs Downstream Patch Tokens ($B$) comparing Weighted Centroid Carrier against baselines.
-2. [`accuracy_vs_total_flops.png`](file:///d:/Study/ResCancel/figures/fungibility_compression_poc/accuracy_vs_total_flops.png): Pareto efficiency frontier of Top-1 Accuracy vs Total Model GFLOPs.
-3. [`accuracy_vs_latency.png`](file:///d:/Study/ResCancel/figures/fungibility_compression_poc/accuracy_vs_latency.png): Physical execution benchmarks on RTX 5070 GPU for BS=1 and BS=16.
-4. [`equivalence_error.png`](file:///d:/Study/ResCancel/figures/fungibility_compression_poc/equivalence_error.png): Mathematical audit verifying logit error $\le 4.49 \times 10^{-5}$ and 100% prediction agreement.
+All 4 required figures are saved in [`figures/fungibility_compression_poc/`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_compression_poc/):
+1. [`accuracy_vs_tail_tokens.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_compression_poc/accuracy_vs_tail_tokens.png): Accuracy vs Downstream Patch Tokens ($B$) comparing Weighted Centroid Carrier against baselines.
+2. [`accuracy_vs_total_flops.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_compression_poc/accuracy_vs_total_flops.png): Pareto efficiency frontier of Top-1 Accuracy vs Total Model GFLOPs.
+3. [`accuracy_vs_latency.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_compression_poc/accuracy_vs_latency.png): Physical execution benchmarks on RTX 5070 GPU for BS=1 and BS=16.
+4. [`equivalence_error.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_compression_poc/equivalence_error.png): Mathematical audit verifying logit error $\le 4.49 \times 10^{-5}$ and 100% prediction agreement.
 
 ---
 
 ## 7. Machine-Readable Artifacts
 
-The complete artifact suite is committed in [`outputs/fungibility_compression_poc/`](file:///d:/Study/ResCancel/outputs/fungibility_compression_poc/):
+The complete artifact suite is committed in [`outputs/fungibility_compression_poc/`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_compression_poc/):
 - `equivalence_results.csv`: Phase A exact numerical validation across all fractions and models ($N=64$).
 - `full_eval_results.csv`: Phase B full 1,000-image evaluation across 5 mask seeds.
 - `baseline_comparison.csv`: Phase C matched-budget comparison table ($B = M+1$).

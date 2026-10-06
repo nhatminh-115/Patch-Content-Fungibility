@@ -2,8 +2,8 @@
 
 **Experiment Name**: `GEOMETRY-DIVERSITY BANK POC`  
 **Execution Date**: 2026-09-29  
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
-**Protocol Reference**: [`docs/FUNGIBILITY_GEOMETRY_BANK_PROTOCOL.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_GEOMETRY_BANK_PROTOCOL.md)  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
+**Protocol Reference**: [`docs/FUNGIBILITY_GEOMETRY_BANK_PROTOCOL.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_GEOMETRY_BANK_PROTOCOL.md)  
 **Decision Verdict**: **`KILL APPLICATION`**  
 **Latency Benchmarking Triggered**: **No** (terminated per pre-registered protocol)  
 **Hardware Target**: NVIDIA GeForce RTX 5070 Laptop GPU  
@@ -153,12 +153,12 @@ Across all architectures and budgets:
 
 ## 5. Artifact Suite
 
-- Manifest: [`outputs/fungibility_geometry_bank/experiment_manifest.json`](file:///d:/Study/ResCancel/outputs/fungibility_geometry_bank/experiment_manifest.json)
-- Validation Results: [`outputs/fungibility_geometry_bank/validation_results.json`](file:///d:/Study/ResCancel/outputs/fungibility_geometry_bank/validation_results.json)
-- Full Trial Data: [`outputs/fungibility_geometry_bank/all_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_geometry_bank/all_results.csv) (440 evaluations)
-- Matched Budget Summary: [`outputs/fungibility_geometry_bank/matched_budget_summary.csv`](file:///d:/Study/ResCancel/outputs/fungibility_geometry_bank/matched_budget_summary.csv)
-- Delta Table: [`outputs/fungibility_geometry_bank/delta_vs_pruning.csv`](file:///d:/Study/ResCancel/outputs/fungibility_geometry_bank/delta_vs_pruning.csv)
+- Manifest: [`outputs/fungibility_geometry_bank/experiment_manifest.json`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_geometry_bank/experiment_manifest.json)
+- Validation Results: [`outputs/fungibility_geometry_bank/validation_results.json`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_geometry_bank/validation_results.json)
+- Full Trial Data: [`outputs/fungibility_geometry_bank/all_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_geometry_bank/all_results.csv) (440 evaluations)
+- Matched Budget Summary: [`outputs/fungibility_geometry_bank/matched_budget_summary.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_geometry_bank/matched_budget_summary.csv)
+- Delta Table: [`outputs/fungibility_geometry_bank/delta_vs_pruning.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_geometry_bank/delta_vs_pruning.csv)
 - Publication Figures:
-  - [`accuracy_vs_token_budget.png`](file:///d:/Study/ResCancel/figures/fungibility_geometry_bank/accuracy_vs_token_budget.png)
-  - [`delta_vs_pruning.png`](file:///d:/Study/ResCancel/figures/fungibility_geometry_bank/delta_vs_pruning.png)
-  - [`pca_vs_kmeans.png`](file:///d:/Study/ResCancel/figures/fungibility_geometry_bank/pca_vs_kmeans.png)
+  - [`accuracy_vs_token_budget.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_geometry_bank/accuracy_vs_token_budget.png)
+  - [`delta_vs_pruning.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_geometry_bank/delta_vs_pruning.png)
+  - [`pca_vs_kmeans.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_geometry_bank/pca_vs_kmeans.png)

@@ -3,7 +3,7 @@
 
 **Author:** DeepMind Antigravity Team  
 **Date:** September 28, 2026  
-**Repository:** [https://github.com/nhatminh-115/ResCancel](https://github.com/nhatminh-115/ResCancel)  
+**Repository:** [https://github.com/nhatminh-115/Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Status:** Completed & Validated  
 **Final Scientific Verdict:** **OUTCOME C — DEPTH-TRANSITION PHENOMENON**
 
@@ -47,7 +47,7 @@ In V0.6, we evaluated DeiT-Tiny and DeiT-Small across $N_{\text{calib}} = 1,000$
 - **Evaluation Split ($N_{\text{eval}} = 1,000$):** Deterministic seed `9201`, stratified 1 per class, sampled from remaining images.
 - **Overlap Verification:**
   $$\text{Intersection}(\text{IDs}_{\text{calib}}, \text{IDs}_{\text{eval}}) = \emptyset \quad (\text{Exact } 0 \text{ overlap})$$
-  Manifests persisted in [`outputs/fungibility_v0_6/calibration_split.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/calibration_split.csv) and [`outputs/fungibility_v0_6/evaluation_split.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/evaluation_split.csv).
+  Manifests persisted in [`outputs/fungibility_v0_6/calibration_split.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/calibration_split.csv) and [`outputs/fungibility_v0_6/evaluation_split.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/evaluation_split.csv).
 - **Clean Evaluation Baseline Accuracy:**
   - DeiT-Tiny: **67.90%** (Mean Logit Margin = **1.1681**)
   - DeiT-Small: **76.10%** (Mean Logit Margin = **2.2423**)
@@ -181,17 +181,17 @@ All 14 pre-registered assertions passed on both architectures:
 ## 5. Artifact Manifest
 
 - **Data Tables & Manifests (Saved to `outputs/fungibility_v0_6/`):**
-  - [`calibration_split.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/calibration_split.csv)
-  - [`evaluation_split.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/evaluation_split.csv)
-  - [`calibration_statistics.npz`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/calibration_statistics.npz)
-  - [`summary_all_models.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/summary_all_models.csv)
-  - [`tiny_depth_fraction_summary.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv)
-  - [`small_depth_fraction_summary.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/small_depth_fraction_summary.csv)
-  - [`tiny_seed_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/tiny_seed_results.csv)
-  - [`small_seed_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/small_seed_results.csv)
-  - [`tiny_condition_comparisons.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/tiny_condition_comparisons.csv)
-  - [`small_condition_comparisons.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/small_condition_comparisons.csv)
-  - [`experiment_manifest.json`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/experiment_manifest.json)
+  - [`calibration_split.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/calibration_split.csv)
+  - [`evaluation_split.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/evaluation_split.csv)
+  - [`calibration_statistics.npz`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/calibration_statistics.npz)
+  - [`summary_all_models.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/summary_all_models.csv)
+  - [`tiny_depth_fraction_summary.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv)
+  - [`small_depth_fraction_summary.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/small_depth_fraction_summary.csv)
+  - [`tiny_seed_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/tiny_seed_results.csv)
+  - [`small_seed_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/small_seed_results.csv)
+  - [`tiny_condition_comparisons.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/tiny_condition_comparisons.csv)
+  - [`small_condition_comparisons.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/small_condition_comparisons.csv)
+  - [`experiment_manifest.json`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/experiment_manifest.json)
 - **Figures (Saved to `figures/fungibility_v0_6/`):**
   - `gaussian_recovery_by_depth.png` (Recovery fraction across depths and budgets)
   - `damage_by_depth_fraction.png` (Causal damage curves across depths)

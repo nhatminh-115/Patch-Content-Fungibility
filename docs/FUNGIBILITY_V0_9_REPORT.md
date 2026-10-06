@@ -1,7 +1,7 @@
 # Patch Fungibility V0.9: Natural Low-Rank Variance & Downstream Rank-Expansion Report
 
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
-**Protocol Document**: [`docs/FUNGIBILITY_V0_9_PROTOCOL.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_9_PROTOCOL.md)  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
+**Protocol Document**: [`docs/FUNGIBILITY_V0_9_PROTOCOL.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_9_PROTOCOL.md)  
 **Execution Timestamp**: 2026-09-29  
 **Models**: Pretrained `deit_tiny_patch16_224` ($D=192$), `deit_small_patch16_224` ($D=384$)  
 **Intervention Site**: Depth 8 (output Block 8 / input Block 9), CLS token strictly untouched  

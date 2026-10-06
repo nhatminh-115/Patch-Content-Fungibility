@@ -1,0 +1,27 @@
+{
+  "source_repo": "https://github.com/nhatminh-115/ResCancel",
+  "source_head": "6bc6b6ea9f6b0e95b8f202c13b2bb7ccfef66179",
+  "target_repo": "https://github.com/nhatminh-115/Patch-Content-Fungibility",
+  "target_pre_migration_head": "4eb557b20654f80028ea08e2a4b00dcf71bc8a67",
+  "target_branch": "migrate/rescancel-pcf-2026-10-06",
+  "safety_checks": {
+    "paper_draft_unchanged": true,
+    "python_syntax_pass_count": 104,
+    "python_syntax_fail_count": 0,
+    "package_import_smoke_test": "PASS",
+    "active_legacy_dependencies_count": 0,
+    "historical_provenance_references_count": 420
+  },
+  "script_smoke_results": {
+    "scripts/audit_multiplicity_flashattention.py": "PASS (Valid AST, 5 functions defined)",
+    "scripts/eval_hybrid_grouping.py": "PASS (Valid AST, 3 functions defined)",
+    "scripts/profile_batched_operator.py": "PASS (Valid AST, 6 functions defined)",
+    "scripts/eval_batched_operator.py": "PASS (Valid AST, 5 functions defined)",
+    "scripts/run_practical_operator_compression.py": "PASS (Valid AST, 6 functions defined)",
+    "scripts/profile_operator_compression.py": "PASS (Valid AST, 2 functions defined)",
+    "scripts/audit_amortized_operator.py": "PASS (Valid AST, 4 functions defined)",
+    "scripts/eval_amortized_operator.py": "PASS (Valid AST, 3 functions defined)",
+    "scripts/train_amortized_operator.py": "PASS (Valid AST, 1 functions defined)",
+    "scripts/generate_operator_targets.py": "PASS (Valid AST, 1 functions defined)"
+  }
+}

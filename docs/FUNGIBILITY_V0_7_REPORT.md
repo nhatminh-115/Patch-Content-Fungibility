@@ -3,7 +3,7 @@
 
 **Author:** DeepMind Antigravity Team  
 **Date:** September 28, 2026  
-**Repository:** [https://github.com/nhatminh-115/ResCancel](https://github.com/nhatminh-115/ResCancel)  
+**Repository:** [https://github.com/nhatminh-115/Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Status:** Completed, Programmatically Validated & Fully Audited  
 **Pre-Registered Decision:** **OUTCOME A — GENERIC LATE-LAYER CENTROID / FALSIFICATION OF DEPTH-8 ISOLATION**  
 
@@ -84,8 +84,8 @@ Using $N_{\text{calib}} = 1,000$ and $N_{\text{eval}} = 1,000$ strictly disjoint
 ## 1. Disjoint Dataset Split Verification
 
 - **Source:** ImageNet-1k Validation Set (50,000 images).
-- **Calibration Split ($N_{\text{calib}} = 1,000$):** Exactly reused from V0.6 ([`outputs/fungibility_v0_6/calibration_split.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/calibration_split.csv), seed `9101`).
-- **Evaluation Split ($N_{\text{eval}} = 1,000$):** Exactly reused from V0.6 ([`outputs/fungibility_v0_6/evaluation_split.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/evaluation_split.csv), seed `9201`).
+- **Calibration Split ($N_{\text{calib}} = 1,000$):** Exactly reused from V0.6 ([`outputs/fungibility_v0_6/calibration_split.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/calibration_split.csv), seed `9101`).
+- **Evaluation Split ($N_{\text{eval}} = 1,000$):** Exactly reused from V0.6 ([`outputs/fungibility_v0_6/evaluation_split.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/evaluation_split.csv), seed `9201`).
 - **Overlap Verification:**
   $$\text{Intersection}(\text{IDs}_{\text{calib}}, \text{IDs}_{\text{eval}}) = \emptyset \quad (\text{Exact } 0 \text{ overlap confirmed})$$
 - **Clean Evaluation Baseline Accuracy:**
@@ -212,25 +212,25 @@ Testing stream asymmetry by keeping all 196 patches untouched and intervening on
 ## 3. Publication Figures
 
 ### Figure 1: Accuracy Trajectory Across Replacement Budgets
-![Prototype Performance by Fraction](file:///d:/Study/ResCancel/figures/fungibility_v0_7/prototype_performance_by_fraction.png)
+![Prototype Performance by Fraction](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_v0_7/prototype_performance_by_fraction.png)
 
 ### Figure 2: Wrong-Depth Means vs Block-8 Prototype
-![Wrong Depth Mean Comparison](file:///d:/Study/ResCancel/figures/fungibility_v0_7/wrong_depth_mean_comparison.png)
+![Wrong Depth Mean Comparison](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_v0_7/wrong_depth_mean_comparison.png)
 
 ### Figure 3: Prototype Scale Sweep
-![Prototype Scale Sweep](file:///d:/Study/ResCancel/figures/fungibility_v0_7/prototype_scale_sweep.png)
+![Prototype Scale Sweep](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_v0_7/prototype_scale_sweep.png)
 
 ### Figure 4: Controlled Cosine Alignment Sweep
-![Prototype Cosine Sweep](file:///d:/Study/ResCancel/figures/fungibility_v0_7/prototype_cosine_sweep.png)
+![Prototype Cosine Sweep](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_v0_7/prototype_cosine_sweep.png)
 
 ### Figure 5: Feature Coordinate Sign Inversion Dose-Response
-![Prototype Sign Flip Sweep](file:///d:/Study/ResCancel/figures/fungibility_v0_7/prototype_sign_flip_sweep.png)
+![Prototype Sign Flip Sweep](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_v0_7/prototype_sign_flip_sweep.png)
 
 ### Figure 6: Complete 100% Spatial Patch Stream Replacement
-![Full Patch Replacement](file:///d:/Study/ResCancel/figures/fungibility_v0_7/full_patch_replacement.png)
+![Full Patch Replacement](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_v0_7/full_patch_replacement.png)
 
 ### Figure 7: Stream Asymmetry Test (CLS vs Patch Replacement)
-![CLS vs Patch Replacement](file:///d:/Study/ResCancel/figures/fungibility_v0_7/cls_vs_patch_replacement.png)
+![CLS vs Patch Replacement](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_v0_7/cls_vs_patch_replacement.png)
 
 ---
 

@@ -1,7 +1,7 @@
 # Patch Fungibility V1: Cross-Model and Training-Regime Generalization Report
 
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
-**Protocol Document**: [`docs/FUNGIBILITY_V1_PROTOCOL.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V1_PROTOCOL.md)  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
+**Protocol Document**: [`docs/FUNGIBILITY_V1_PROTOCOL.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V1_PROTOCOL.md)  
 **Execution Timestamp**: 2026-09-29  
 **Models Evaluated**:
 1. **Model A (Supervised Vanilla ViT)**: `vit_base_patch16_224.augreg_in1k` ($D=768$, 12 blocks, 196 patches, AugReg supervised recipe)

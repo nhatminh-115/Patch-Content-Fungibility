@@ -3,7 +3,7 @@
 
 **Author:** DeepMind Antigravity Team  
 **Date:** September 28, 2026  
-**Repository:** [https://github.com/nhatminh-115/ResCancel](https://github.com/nhatminh-115/ResCancel)  
+**Repository:** [https://github.com/nhatminh-115/Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Status:** Completed & Validated  
 **Final Scientific Verdict:** **OUTCOME B — DISTRIBUTION MATTERS, CONTENT DOES NOT**
 
@@ -162,15 +162,15 @@ All 14 pre-registered assertions passed on both architectures:
 ## 6. Artifacts Manifest
 
 - **Data Tables (Outputs):**
-  - [`outputs/fungibility_v0_5/experiment_manifest.json`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/experiment_manifest.json)
-  - [`outputs/fungibility_v0_5/tiny_image_results.parquet`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/tiny_image_results.parquet)
-  - [`outputs/fungibility_v0_5/small_image_results.parquet`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/small_image_results.parquet)
-  - [`outputs/fungibility_v0_5/tiny_seed_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/tiny_seed_results.csv)
-  - [`outputs/fungibility_v0_5/small_seed_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/small_seed_results.csv)
-  - [`outputs/fungibility_v0_5/tiny_condition_comparison.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/tiny_condition_comparison.csv)
-  - [`outputs/fungibility_v0_5/small_condition_comparison.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/small_condition_comparison.csv)
-  - [`outputs/fungibility_v0_5/tiny_activation_diagnostics.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/tiny_activation_diagnostics.csv)
-  - [`outputs/fungibility_v0_5/small_activation_diagnostics.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_5/small_activation_diagnostics.csv)
+  - [`outputs/fungibility_v0_5/experiment_manifest.json`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/experiment_manifest.json)
+  - [`outputs/fungibility_v0_5/tiny_image_results.parquet`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/tiny_image_results.parquet)
+  - [`outputs/fungibility_v0_5/small_image_results.parquet`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/small_image_results.parquet)
+  - [`outputs/fungibility_v0_5/tiny_seed_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/tiny_seed_results.csv)
+  - [`outputs/fungibility_v0_5/small_seed_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/small_seed_results.csv)
+  - [`outputs/fungibility_v0_5/tiny_condition_comparison.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/tiny_condition_comparison.csv)
+  - [`outputs/fungibility_v0_5/small_condition_comparison.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/small_condition_comparison.csv)
+  - [`outputs/fungibility_v0_5/tiny_activation_diagnostics.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/tiny_activation_diagnostics.csv)
+  - [`outputs/fungibility_v0_5/small_activation_diagnostics.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_5/small_activation_diagnostics.csv)
 - **Figures:**
   - `figures/fungibility_v0_5/condition_margin_damage.png` (Comparison of margin damage across nulls)
   - `figures/fungibility_v0_5/condition_accuracy.png` (Top-1 accuracy across nulls)

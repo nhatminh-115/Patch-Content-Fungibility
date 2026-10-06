@@ -2,14 +2,14 @@
 
 **Author:** DeepMind Antigravity Team  
 **Date:** September 28, 2026  
-**Repository:** [https://github.com/nhatminh-115/ResCancel](https://github.com/nhatminh-115/ResCancel)  
+**Repository:** [https://github.com/nhatminh-115/Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Status:** Audit Completed & Discrepancy Resolved  
 
 ---
 
 ## 1. Executive Summary & Audit Question
 
-In the Patch Content Fungibility V0.6 Scientific Report ([`docs/FUNGIBILITY_V0_6_REPORT.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_6_REPORT.md)), the pre-registered definition of Gaussian Recovery Fraction was:
+In the Patch Content Fungibility V0.6 Scientific Report ([`docs/FUNGIBILITY_V0_6_REPORT.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_6_REPORT.md)), the pre-registered definition of Gaussian Recovery Fraction was:
 $$\text{Recovery}(l,f) = \frac{\text{Damage}_{\text{zero}}(l,f) - \text{Damage}_{\text{gaussian}}(l,f)}{\text{Damage}_{\text{zero}}(l,f)}$$
 
 However, an audit of Table 2.1 revealed several entries that appear mathematically inconsistent with this formula:
@@ -30,7 +30,7 @@ The objective of this audit was to determine whether:
 ## 2. Root Cause Analysis
 
 ### 2.1 Code & Protocol Investigation
-Inspection of the implementation in [`patch_fungibility/v0_6_pipeline.py`](file:///d:/Study/ResCancel/patch_fungibility/v0_6_pipeline.py#L330-L335) shows the exact logic:
+Inspection of the implementation in [`patch_fungibility/v0_6_pipeline.py`](file:///d:/Study/Patch-Content-Fungibility/patch_fungibility/v0_6_pipeline.py#L330-L335) shows the exact logic:
 ```python
 # Gaussian Recovery Fraction
 zero_dmg = cond_stats["zero"]["mean_damage"]
@@ -41,7 +41,7 @@ else:
     recovery_frac = 0.0
 ```
 
-Cross-referencing with the pre-registered protocol in [`docs/FUNGIBILITY_V0_6_PROTOCOL.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_6_PROTOCOL.md#L100-L102) reveals:
+Cross-referencing with the pre-registered protocol in [`docs/FUNGIBILITY_V0_6_PROTOCOL.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_6_PROTOCOL.md#L100-L102) reveals:
 ```markdown
 - **Gaussian Recovery Fraction:**
   $$\text{Recovery}(l,f) = \frac{\text{Damage}_{\text{zero}}(l,f) - \text{Damage}_{\text{gaussian}}(l,f)}{\text{Damage}_{\text{zero}}(l,f)}$$
@@ -81,8 +81,8 @@ The table below audits all conditions where $\text{Damage}_{\text{zero}} < 0.10$
 ## 4. Remediation Actions
 
 1. **No Rerunning of Raw Experiments:**
-   All underlying per-image margin outputs, accuracies, paired differences ($\Delta m$), Cohen's $d_z$, bootstrap confidence intervals, and BH-FDR $q$-values in [`outputs/fungibility_v0_6/`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/) are completely correct and untouched.
-2. **Correction in Scientific Report ([`docs/FUNGIBILITY_V0_6_REPORT.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_6_REPORT.md)):**
+   All underlying per-image margin outputs, accuracies, paired differences ($\Delta m$), Cohen's $d_z$, bootstrap confidence intervals, and BH-FDR $q$-values in [`outputs/fungibility_v0_6/`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/) are completely correct and untouched.
+2. **Correction in Scientific Report ([`docs/FUNGIBILITY_V0_6_REPORT.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_6_REPORT.md)):**
    - In Table 2.1, all 8 sub-threshold cells are updated from `0.0%` to **`N/A*`**.
    - An explanatory footnote is appended to Table 2.1:
      > `* N/A`: Condition has $\text{Damage}_{\text{zero}} < 0.10$, below the pre-registered threshold for stable recovery fraction calculation. For transparency: Tiny $l=6, 10\%$ unthresholded raw recovery is $+42.3\%$; Small $l=6, 10\%$ is $+35.2\%$; Tiny $l=10$ ranges from $+45.6\%$ to $+63.2\%$; Small $l=10$ has negative zero damage (ill-conditioned denominator).

@@ -2,7 +2,7 @@
 
 **Document Status:** FROZEN  
 **Date:** 2026-09-28  
-**Repository:** `https://github.com/nhatminh-115/ResCancel`  
+**Repository:** `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
 **Research Line:** Patch Content Fungibility V0 — Mechanistic Falsification of Depth-Wise Token Content Dependence  
 
 ---

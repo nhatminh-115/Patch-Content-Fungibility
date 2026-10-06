@@ -2,7 +2,7 @@
 
 **Experiment Name**: `FUNGIBILITY-TO-COMPRESSION POC: WEIGHTED CENTROID CARRIER`  
 **Date**: 2026-09-29  
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
 **Execution Branch**: `main`  
 **Scope**: Tightly scoped proof-of-concept application directly derived from the established Patch Content Fungibility mechanism.
 

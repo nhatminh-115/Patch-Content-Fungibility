@@ -1,7 +1,7 @@
 # Patch Fungibility V0.8: Token-Diversity / Effective-Rank Sufficiency Report
 
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
-**Protocol Document**: [`docs/FUNGIBILITY_V0_8_PROTOCOL.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_8_PROTOCOL.md)  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
+**Protocol Document**: [`docs/FUNGIBILITY_V0_8_PROTOCOL.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_8_PROTOCOL.md)  
 **Execution Timestamp**: 2026-09-28 / 2026-09-29  
 **Models**: Pretrained `deit_tiny_patch16_224` ($D=192$), `deit_small_patch16_224` ($D=384$)  
 **Intervention Point**: Depth 8 (output of Block 8 / input to Block 9), CLS token strictly untouched  

@@ -1,6 +1,6 @@
 # Patch Fungibility: Dense Fraction & Spatial-Mask Robustness Sweep Protocol
 
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
 **Protocol Version**: 1.0 (Frozen Pre-Registration)  
 **Date**: 2026-09-29  
 **Experiment Name**: `PATCH FUNGIBILITY — DENSE FRACTION / MASK ROBUSTNESS SWEEP`  

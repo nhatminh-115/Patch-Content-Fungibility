@@ -1,7 +1,7 @@
 # Patch Fungibility — Dense Fraction / Mask Robustness Sweep Report
 
 **Status:** Completed & Validated  
-**Pre-Registered Protocol:** [`docs/FUNGIBILITY_DENSE_FRACTION_PROTOCOL.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_DENSE_FRACTION_PROTOCOL.md)  
+**Pre-Registered Protocol:** [`docs/FUNGIBILITY_DENSE_FRACTION_PROTOCOL.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_DENSE_FRACTION_PROTOCOL.md)  
 **Scientific Decision:** **ROBUST**  
 **Execution Timestamp:** 2026-09-29  
 **Hardware:** NVIDIA GeForce RTX 5070 Laptop GPU (Peak VRAM: 1.20 GB / Limit: 6.8 GB)  
@@ -170,11 +170,11 @@ Largest adjacent 1% fraction drop:
 ## 6. Publication Figures
 
 All 5 publication figures have been rendered at 300 DPI and verified:
-1. [`figures/fungibility_dense_fraction/dense_fraction_accuracy.png`](file:///d:/Study/ResCancel/figures/fungibility_dense_fraction/dense_fraction_accuracy.png): 4-panel Top-1 Accuracy vs Actual Replacement Fraction with $\pm 1$ SD mask bands and clean baseline.
-2. [`figures/fungibility_dense_fraction/dense_fraction_margin.png`](file:///d:/Study/ResCancel/figures/fungibility_dense_fraction/dense_fraction_margin.png): 4-panel True-Class Margin dynamics across the continuous fraction grid.
-3. [`figures/fungibility_dense_fraction/dense_fraction_recovery.png`](file:///d:/Study/ResCancel/figures/fungibility_dense_fraction/dense_fraction_recovery.png): Damage Recovery fraction $R(f)$ (masked where Zero damage $< 0.10$).
-4. [`figures/fungibility_dense_fraction/mask_seed_robustness.png`](file:///d:/Study/ResCancel/figures/fungibility_dense_fraction/mask_seed_robustness.png): 5 individual spatial mask curves overlaid with the bold mean trajectory demonstrating spatial invariance.
-5. [`figures/fungibility_dense_fraction/threshold_summary.png`](file:///d:/Study/ResCancel/figures/fungibility_dense_fraction/threshold_summary.png): Grouped bar chart comparing $F_{95}, F_{90}, F_{80}$ thresholds across models and conditions with mask-seed error bars.
+1. [`figures/fungibility_dense_fraction/dense_fraction_accuracy.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_dense_fraction/dense_fraction_accuracy.png): 4-panel Top-1 Accuracy vs Actual Replacement Fraction with $\pm 1$ SD mask bands and clean baseline.
+2. [`figures/fungibility_dense_fraction/dense_fraction_margin.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_dense_fraction/dense_fraction_margin.png): 4-panel True-Class Margin dynamics across the continuous fraction grid.
+3. [`figures/fungibility_dense_fraction/dense_fraction_recovery.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_dense_fraction/dense_fraction_recovery.png): Damage Recovery fraction $R(f)$ (masked where Zero damage $< 0.10$).
+4. [`figures/fungibility_dense_fraction/mask_seed_robustness.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_dense_fraction/mask_seed_robustness.png): 5 individual spatial mask curves overlaid with the bold mean trajectory demonstrating spatial invariance.
+5. [`figures/fungibility_dense_fraction/threshold_summary.png`](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_dense_fraction/threshold_summary.png): Grouped bar chart comparing $F_{95}, F_{90}, F_{80}$ thresholds across models and conditions with mask-seed error bars.
 
 ---
 

@@ -2,6 +2,8 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23050375.svg)](https://doi.org/10.5281/zenodo.23050375)
 
+**Canonical Repository:** https://github.com/nhatminh-115/Patch-Content-Fungibility
+
 This repository contains the code, experiment records, analysis artifacts, and paper-development material for:
 
 **Patch Content Fungibility in Vision Transformers: Geometric and Diversity Constraints in Late-Layer Representations**

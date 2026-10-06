@@ -1,7 +1,7 @@
 # Patch Content Fungibility V0: Mechanistic Falsification Report
 
 **Date:** September 28, 2026  
-**Repository:** [https://github.com/nhatminh-115/ResCancel](https://github.com/nhatminh-115/ResCancel)  
+**Repository:** [https://github.com/nhatminh-115/Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Research Line:** Patch Content Fungibility V0 (Mechanistic Falsification)  
 **Status:** Completed & Validated  
 **Final Scientific Verdict:** **OUTCOME C — CONTENT FUNGIBILITY** (Replicated at Depth 8)
@@ -30,8 +30,8 @@ Because Depth 8 satisfies all pre-registered criteria on **both** architectures 
 
 ## 1. Prior-Art Audit & Pre-Registration
 
-- **Prior-Art Audit:** Documented in [docs/FUNGIBILITY_V0_PRIOR_ART.md](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_PRIOR_ART.md). Prior works (e.g. DINO register tokens, Token Merging, causal patch patching) either study unconditioned global token pruning, attention masking, or interpretability heatmaps. No prior study mapped whether standard spatial patch tokens remain causally necessary while becoming content-fungible across depth. Result: **NO PRIOR-ART KILL**.
-- **Protocol:** Pre-registered in [docs/FUNGIBILITY_V0_PROTOCOL.md](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_PROTOCOL.md).
+- **Prior-Art Audit:** Documented in [docs/FUNGIBILITY_V0_PRIOR_ART.md](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_PRIOR_ART.md). Prior works (e.g. DINO register tokens, Token Merging, causal patch patching) either study unconditioned global token pruning, attention masking, or interpretability heatmaps. No prior study mapped whether standard spatial patch tokens remain causally necessary while becoming content-fungible across depth. Result: **NO PRIOR-ART KILL**.
+- **Protocol:** Pre-registered in [docs/FUNGIBILITY_V0_PROTOCOL.md](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_PROTOCOL.md).
 - **Git Commit Range:**
   - Audit & Protocol freeze: `c7906c5` (`docs(fungibility-v0): prior-art audit and freeze falsification protocol`)
   - Execution & Report: `feat(fungibility-v0): execute patch content fungibility experiment`
@@ -168,10 +168,10 @@ All 14 programmatic assertions were executed and passed on both architectures:
 
 All artifacts are persisted in the repository:
 - **Manifest & Results:**
-  - [outputs/fungibility_v0/results_manifest.json](file:///d:/Study/ResCancel/outputs/fungibility_v0/results_manifest.json)
-  - [outputs/fungibility_v0/decision_summary.json](file:///d:/Study/ResCancel/outputs/fungibility_v0/decision_summary.json)
-  - [outputs/fungibility_v0/image_records_tiny.parquet](file:///d:/Study/ResCancel/outputs/fungibility_v0/image_records_tiny.parquet)
-  - [outputs/fungibility_v0/image_records_small.parquet](file:///d:/Study/ResCancel/outputs/fungibility_v0/image_records_small.parquet)
+  - [outputs/fungibility_v0/results_manifest.json](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0/results_manifest.json)
+  - [outputs/fungibility_v0/decision_summary.json](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0/decision_summary.json)
+  - [outputs/fungibility_v0/image_records_tiny.parquet](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0/image_records_tiny.parquet)
+  - [outputs/fungibility_v0/image_records_small.parquet](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0/image_records_small.parquet)
 - **Figures:**
   - `figures/fungibility_v0/fungibility_gap_by_depth.png`
   - `figures/fungibility_v0/margin_damage_by_condition.png`

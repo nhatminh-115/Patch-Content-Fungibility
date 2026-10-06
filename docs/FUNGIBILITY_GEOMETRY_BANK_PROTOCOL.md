@@ -2,7 +2,7 @@
 
 **Experiment Name**: `GEOMETRY-DIVERSITY BANK POC`  
 **Execution Date**: 2026-09-29  
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
 **Status**: Pre-registered and Frozen  
 
 ---

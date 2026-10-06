@@ -1,6 +1,6 @@
 # Patch Fungibility V1: Cross-Version Synthesis Audit & Discrepancy Log
 
-**Repository**: `https://github.com/nhatminh-115/ResCancel`  
+**Repository**: `https://github.com/nhatminh-115/Patch-Content-Fungibility`  
 **Date**: 2026-09-29  
 **Audit Purpose**: Reconcile cross-version DeiT values in the V1 synthesis table against canonical frozen machine-readable outputs and audited reports (V0.6–V0.9).
 
@@ -8,7 +8,7 @@
 
 ## 1. Summary of Identified Synthesis Errors
 
-In the initial draft of [`docs/FUNGIBILITY_V1_REPORT.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V1_REPORT.md), the cross-family comparison table contained several historical values that blended statistics from earlier exploratory iterations (V0/V0.1/V0.5) instead of strictly citing the canonical frozen outputs from V0.6, V0.7, V0.8, and V0.9.
+In the initial draft of [`docs/FUNGIBILITY_V1_REPORT.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V1_REPORT.md), the cross-family comparison table contained several historical values that blended statistics from earlier exploratory iterations (V0/V0.1/V0.5) instead of strictly citing the canonical frozen outputs from V0.6, V0.7, V0.8, and V0.9.
 
 Below is the exhaustive item-by-item audit of discrepancies, root causes, and corrected canonical values.
 
@@ -20,9 +20,9 @@ Below is the exhaustive item-by-item audit of discrepancies, root causes, and co
 - **Discrepancy in V1 Draft**: Listed DeiT-Tiny clean margin as `+2.78` and DeiT-Small clean margin as `+3.32`.
 - **Root Cause**: These numbers were taken from an earlier uncalibrated or exploratory split (V0/V0.1), rather than the canonical 1,000-image disjoint evaluation set established in V0.6 and preserved throughout V0.7–V0.9.
 - **Canonical Source**:
-  - [`docs/FUNGIBILITY_V0_7_REPORT.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_7_REPORT.md) Section 1 (Lines 91–93).
-  - [`docs/FUNGIBILITY_V0_8_REPORT.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_8_REPORT.md) and [`docs/FUNGIBILITY_V0_9_REPORT.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_9_REPORT.md).
-  - Machine-readable files: [`outputs/fungibility_v0_8/shared_vs_independent_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_8/shared_vs_independent_results.csv).
+  - [`docs/FUNGIBILITY_V0_7_REPORT.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_7_REPORT.md) Section 1 (Lines 91–93).
+  - [`docs/FUNGIBILITY_V0_8_REPORT.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_8_REPORT.md) and [`docs/FUNGIBILITY_V0_9_REPORT.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_9_REPORT.md).
+  - Machine-readable files: [`outputs/fungibility_v0_8/shared_vs_independent_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_8/shared_vs_independent_results.csv).
 - **Audit Verification**:
   - DeiT-Tiny Clean Margin: **`1.1681`** (Clean Accuracy: **`67.90%`**)
   - DeiT-Small Clean Margin: **`2.2423`** (Clean Accuracy: **`76.10%`**)
@@ -34,8 +34,8 @@ Below is the exhaustive item-by-item audit of discrepancies, root causes, and co
 - **Discrepancy in V1 Draft**: Listed Tiny as Shared `2.5%`, Independent `14.4%` (gain `+11.9%`); Small as Shared `3.8%`, Independent `38.2%` (gain `+34.4%`).
 - **Root Cause**: These values were approximate figures recalled from an intermediate analysis script rather than the canonical multi-seed table.
 - **Canonical Source**:
-  - [`outputs/fungibility_v0_8/shared_vs_independent_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_8/shared_vs_independent_results.csv).
-  - [`docs/FUNGIBILITY_V0_8_REPORT.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_8_REPORT.md) Section 3.1.
+  - [`outputs/fungibility_v0_8/shared_vs_independent_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_8/shared_vs_independent_results.csv).
+  - [`docs/FUNGIBILITY_V0_8_REPORT.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_8_REPORT.md) Section 3.1.
 - **Audit Verification (5 Seeds: 14001..14005)**:
   - **DeiT-Tiny**:
     - Static Centroid: **10.20%** (Margin: `-1.2640`)
@@ -55,7 +55,7 @@ Below is the exhaustive item-by-item audit of discrepancies, root causes, and co
 - **Discrepancy in V1 Draft**: Listed Tiny Centroid Recovery as `96.6%` (Gauss `88.5%`), Small Centroid Recovery as `100.0%` (Gauss `93.0%`).
 - **Root Cause**: These recovery rates were derived from V0.7 prototype comparisons or earlier V0.6 narrative summaries that used different baseline rounding.
 - **Canonical Source**:
-  - Directly computed from [`outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv) (Row 12: Depth 8, 25%) and [`outputs/fungibility_v0_6/small_depth_fraction_summary.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_6/small_depth_fraction_summary.csv) (Row 12: Depth 8, 25%).
+  - Directly computed from [`outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv) (Row 12: Depth 8, 25%) and [`outputs/fungibility_v0_6/small_depth_fraction_summary.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_6/small_depth_fraction_summary.csv) (Row 12: Depth 8, 25%).
 - **Audit Verification**:
   - **DeiT-Tiny (Depth 8, 25% Spatial Replacement)**:
     - $\text{Damage}_{\text{zero}} = 0.763182$
@@ -76,9 +76,9 @@ Below is the exhaustive item-by-item audit of discrepancies, root causes, and co
 ### Item 4: DeiT Low-Dimensional 1D Variation (PC1 vs. Random 1D)
 - **Discrepancy in V1 Draft**: Synthesized numbers correctly from V0.9, but did not explicitly distinguish natural unscaled variance from the confounded V0.8 energy-matched numbers in the explanatory notes.
 - **Canonical Source**:
-  - [`outputs/fungibility_v0_9/pc_identity_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_9/pc_identity_results.csv).
-  - [`outputs/fungibility_v0_9/random_direction_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v0_9/random_direction_results.csv).
-  - [`docs/FUNGIBILITY_V0_9_REPORT.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V0_9_REPORT.md) Section 6.
+  - [`outputs/fungibility_v0_9/pc_identity_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_9/pc_identity_results.csv).
+  - [`outputs/fungibility_v0_9/random_direction_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v0_9/random_direction_results.csv).
+  - [`docs/FUNGIBILITY_V0_9_REPORT.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_9_REPORT.md) Section 6.
 - **Audit Verification**:
   - **DeiT-Tiny**:
     - Natural PC1 ($\lambda_1 = 15.50$): **`18.64% ± 0.17%`** (Margin: `-1.5246`)
@@ -96,8 +96,8 @@ Below is the exhaustive item-by-item audit of discrepancies, root causes, and co
 - **Discrepancy in V1 Draft**: The narrative stated that "Independent Gaussian noise rescues classification in DINOv2", which was inaccurate because Top-1 accuracy in DINOv2 remains at floor ($0.12\%$ vs $0.24\%$) under 100% spatial patch replacement.
 - **Root Cause**: Over-generalizing the diversity benefit from margin space to accuracy space. DINOv2's 1-layer classification head directly consumes $[\text{CLS}_{\text{norm}} \ ; \ \text{mean}(\text{Patch}_{\text{norm}})]$. When 100% of spatial patches are replaced, the second half of the head's input is perturbed, preventing Top-1 accuracy recovery even though block-level attention dynamics improve.
 - **Canonical Source**:
-  - [`outputs/fungibility_v1/dinov2_diversity_results.csv`](file:///d:/Study/ResCancel/outputs/fungibility_v1/dinov2_diversity_results.csv).
-  - Protocol pre-registration rule in [`docs/FUNGIBILITY_V1_PROTOCOL.md`](file:///d:/Study/ResCancel/docs/FUNGIBILITY_V1_PROTOCOL.md) Section 4.3.
+  - [`outputs/fungibility_v1/dinov2_diversity_results.csv`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_v1/dinov2_diversity_results.csv).
+  - Protocol pre-registration rule in [`docs/FUNGIBILITY_V1_PROTOCOL.md`](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V1_PROTOCOL.md) Section 4.3.
 - **Audit Verification**:
   - Shared Gaussian (5 seeds): Accuracy = `0.24% ± 0.17%`, Margin = `-9.077 ± 0.28`.
   - Independent Gaussian (5 seeds): Accuracy = `0.12% ± 0.04%`, Margin = `-7.953 ± 0.07`.
