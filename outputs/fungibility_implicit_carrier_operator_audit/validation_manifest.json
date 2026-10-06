@@ -1,0 +1,28 @@
+{
+  "audit_commit": "Patch-Content-Fungibility",
+  "timestamp": "2026-10-06T21:10:15Z",
+  "claims_summary": {
+    "Claim_A": "ARTIFACT",
+    "Claim_B": "REVISED",
+    "Claim_C": "CONFIRMED",
+    "Claim_D": "CONFIRMED",
+    "Claim_E": "CONFIRMED",
+    "Claim_F": "CONFIRMED"
+  },
+  "artifacts_generated": [
+    "outputs/fungibility_implicit_carrier_operator_audit/recovery_denominator_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/paired_sample_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/conditioning_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/stabilized_full_oracle.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/random_basis_distribution.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/pca_control_ablation.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/q_scaling_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/static_alpha_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/predicted_alpha_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/gate_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/runtime_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/frontier_audit.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/claim_classification.csv",
+    "outputs/fungibility_implicit_carrier_operator_audit/validation_manifest.json"
+  ]
+}

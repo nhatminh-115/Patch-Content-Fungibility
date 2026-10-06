@@ -176,6 +176,7 @@ def compute_restricted_carrier_oracle_quantities(
     r = V_true.shape[-1]
     device = P.device
     dtype = P.dtype
+    V_true = V_true.to(dtype=dtype, device=device)
 
     # 1. Base Group Mean and Residual
     m_safe = m.view(1, B_tok, 1).clamp(min=1.0)
@@ -184,18 +185,15 @@ def compute_restricted_carrier_oracle_quantities(
     recon = torch.bmm(S_b, C_mean) # (BS, N, D)
     e_0 = (P - recon).reshape(BS, ND, 1) # (BS, ND, 1)
 
-    # 2. Compute A_S R: for each k in 1..q, (A_S R)_k = vec(S * R_k)
-    # R is (BS, B, D, q) -> permute to (q, BS, B, D)
-    AS_R_list = []
+    # 2. Compute K_R = V_true^T (A_S R) in R^(BS x r x q) directly without materializing AS_R
+    K_R_list = []
     for k in range(q):
         R_k = R[:, :, :, k] # (BS, B, D)
         SR_k = torch.bmm(S_b, R_k) # (BS, N, D)
-        AS_R_list.append(SR_k.reshape(BS, ND))
-    # AS_R: (BS, ND, q)
-    AS_R = torch.stack(AS_R_list, dim=-1)
-
-    # 3. Compute K_R = V_true^T (A_S R) in R^(BS x r x q)
-    K_R = torch.bmm(V_true.transpose(1, 2), AS_R) # (BS, r, q)
+        vec_SR_k = SR_k.reshape(BS, ND, 1)
+        kr_k = torch.bmm(V_true.transpose(1, 2), vec_SR_k).squeeze(-1) # (BS, r)
+        K_R_list.append(kr_k)
+    K_R = torch.stack(K_R_list, dim=-1) # (BS, r, q)
 
     # 4. Form exact H_q = K_R^T K_R and g_q = K_R^T (V_true^T e_0)
     H_q = torch.bmm(K_R.transpose(1, 2), K_R) # (BS, q, q)
