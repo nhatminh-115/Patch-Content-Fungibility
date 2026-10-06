@@ -20,9 +20,26 @@ The source-backed map is `docs/PAPER_SAMPLE_SIZE_MAP.md`.
 
 ## REAL ACCURACY
 
-No new `outputs/fungibility_real_final/real_accuracy_per_image.csv` or summary exists, so no new real-final Top-1/correct-count results are reported. Historical strict confirmatory outputs remain separate and report actual model execution at N=1,000; they are not repackaged here because their raw schema does not include the requested saved logits and full per-image fields.
+The complete requested real-final per-image schema (including predictions, logits, margins, and flips) has not been generated. However, the already-audited strict confirmatory raw output contains binary per-image correctness for the actual model methods. I reused those N=1,000 rows without rerunning them and wrote integer-count summaries to `outputs/fungibility_real_final/historical_confirmatory_accuracy_counts.csv`. The values below are **historical confirmatory Top-1 correct counts out of 1,000**, not a completed `real_accuracy_summary.csv` for the new benchmark.
 
-**UNMEASURED:** new real-final Clean, Random/Norm/Attention Pruning, tested ToMe, Hybrid Group Mean, Static Feature-PCA q=16/q=32, and Selective Feature-PCA classification metrics across the requested budgets.
+| Architecture | Budget | Clean | Rand | Norm | Attention | ToMe | Group Mean | Oracle | Rank-16 | Rank-32 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| DeiT-Tiny | 98 | 679 | 638 | 653 | 665 | 676 | 673 | 679 | 678 | 678 |
+| DeiT-Tiny | 49 | 679 | 611 | 593 | 625 | 665 | 682 | 680 | 682 | 682 |
+| DeiT-Tiny | 32 | 679 | 586 | 505 | 575 | 658 | 665 | 671 | 671 | 679 |
+| DeiT-Small | 98 | 761 | 739 | 751 | 759 | 765 | 765 | 761 | 763 | 761 |
+| DeiT-Small | 49 | 761 | 716 | 717 | 738 | 768 | 763 | 760 | 758 | 760 |
+| DeiT-Small | 32 | 761 | 711 | 642 | 716 | 764 | 764 | 758 | 765 | 765 |
+| ViT-B/16 | 98 | 761 | 733 | 728 | 737 | 744 | 751 | 758 | 756 | 756 |
+| ViT-B/16 | 49 | 761 | 705 | 678 | 688 | 729 | 746 | 752 | 748 | 751 |
+| ViT-B/16 | 32 | 761 | 692 | 583 | 628 | 730 | 732 | 744 | 737 | 742 |
+| DINOv2 ViT-S/14 | 128 | 788 | 760 | 743 | 771 | 762 | 782 | 790 | 786 | 784 |
+| DINOv2 ViT-S/14 | 64 | 788 | 696 | 640 | 678 | 737 | 752 | 771 | 756 | 753 |
+| DINOv2 ViT-S/14 | 42 | 788 | 615 | 562 | 603 | 694 | 722 | 735 | 732 | 730 |
+
+Columns abbreviate Random Pruning, Norm Pruning, Attention Pruning, ToMe (BSM), Group-Mean Merging, Operator-Aware (Oracle), Operator-Aware (Rank-16), and Operator-Aware (Rank-32), respectively. Values are direct sums of the raw binary `top1_acc` field, with one row per image/method/budget; Clean sums one distinct `clean_correct` row per image. The source manifest records N=1,000, eval seed 9201, and the strict confirmatory report identifies the real-model execution protocol.
+
+**UNMEASURED:** new real-final Clean, Random/Norm/Attention Pruning, tested ToMe, Hybrid Group Mean, Static Feature-PCA q=16/q=32, and Selective Feature-PCA classification metrics across the requested budgets. Historical Hybrid Group Mean, static carrier, and selective-gate metrics are not present in the confirmatory raw output.
 
 ## STATIC CARRIER
 
@@ -50,7 +67,7 @@ Historical `||JE||`, Feature-PCA versus matched random-basis comparisons, restri
 
 ## FINAL VALIDATION
 
-**FAIL / NOT RUN TO PASS.** Required real-final outputs and raw traceability are absent, so the 12 publication assertions cannot pass. No PASS is claimed. See `outputs/fungibility_real_final/validation_manifest.json`.
+**FAIL (4/12 assertions PASS).** Required real-final outputs and raw traceability are absent, so the 12 publication assertions do not pass. The recorded results are in `outputs/fungibility_real_final/validation_manifest.json`; no overall PASS is claimed. See `outputs/fungibility_real_final/validation_manifest.json`.
 
 ## UNMEASURED
 
@@ -63,8 +80,8 @@ Historical `||JE||`, Feature-PCA versus matched random-basis comparisons, restri
 
 ## FINAL COMMIT SHA
 
-Pending commit.
+Audit deliverables committed on canonical `main`; final commit SHA is in the delivery response.
 
 ## PUSH STATUS
 
-Pending push to canonical `origin/main`.
+Push status is reported in the delivery response after remote verification.
