@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-10-06T22:07:29Z",
+  "architectures_evaluated": [
+    "deit_tiny",
+    "deit_small",
+    "vit_base",
+    "dinov2"
+  ],
+  "calibration_samples": 500,
+  "heldout_eval_samples": 100,
+  "figures_generated": [
+    "figures/paper_final_v2/figure1_conceptual_overview.png",
+    "figures/paper_final_v2/figure2_depthwise_fungibility.png",
+    "figures/paper_final_v2/figure3_geometry_diversity_constraints.png",
+    "figures/paper_final_v2/figure4_functional_geometry.png",
+    "figures/paper_final_v2/figure5_local_vs_end_to_end_jacobian.png",
+    "figures/paper_final_v2/figure6_operator_aware_compression_frontier.png",
+    "figures/paper_final_v2/figure7_carrier_space_formulation.png",
+    "figures/paper_final_v2/figure8_accuracy_throughput_frontier.png"
+  ]
+}

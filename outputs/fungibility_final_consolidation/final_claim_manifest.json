@@ -1,0 +1,9 @@
+{
+  "benchmark_commit": "Patch-Content-Fungibility",
+  "audited_q_choice": 16,
+  "practical_method": "Selective_Feature_PCA_Carrier_30pct",
+  "static_calibration_generalization": "CONFIRMED (54.91% of restricted oracle gain)",
+  "feature_pca_causal_superiority": "CONFIRMED (p < 1e-25 vs matched random bases)",
+  "ambient_tensor_elimination": "CONFIRMED (zero ND x r tensors)",
+  "pareto_frontier_dominance": "CONFIRMED (+0.37 pp Top-1 at matched throughput vs Group Mean)"
+}
