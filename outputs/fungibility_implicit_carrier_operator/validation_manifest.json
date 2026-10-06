@@ -1,0 +1,36 @@
+{
+  "git_commit": "6b1e77167c41eec2ece48312ac5b0e44667a52f0",
+  "timestamp": "2026-10-06T19:06:52Z",
+  "level_evaluations": {
+    "C1_restricted_oracle_viability": true,
+    "C2_sufficient_statistic_distillation": false,
+    "C3_representation_breakthrough": true,
+    "C4_low_overhead": true,
+    "C5_selective_value": false,
+    "C6_practical_frontier": true,
+    "C7_strong_practical_result": false
+  },
+  "artifacts_generated": [
+    "outputs/fungibility_implicit_carrier_operator/restricted_oracle_recovery.csv",
+    "outputs/fungibility_implicit_carrier_operator/correction_basis_ablation.csv",
+    "outputs/fungibility_implicit_carrier_operator/sufficient_statistics_ablation.csv",
+    "outputs/fungibility_implicit_carrier_operator/predictor_accuracy.csv",
+    "outputs/fungibility_implicit_carrier_operator/gate_quality.csv",
+    "outputs/fungibility_implicit_carrier_operator/selective_activation.csv",
+    "outputs/fungibility_implicit_carrier_operator/functional_recovery.csv",
+    "outputs/fungibility_implicit_carrier_operator/runtime_breakdown.csv",
+    "outputs/fungibility_implicit_carrier_operator/batch_throughput.csv",
+    "outputs/fungibility_implicit_carrier_operator/accuracy_throughput_frontier.csv",
+    "outputs/fungibility_implicit_carrier_operator/validation_manifest.json"
+  ],
+  "figures_generated": [
+    "figures/fungibility_implicit_carrier_operator/figure_a_restricted_oracle_recovery.png",
+    "figures/fungibility_implicit_carrier_operator/figure_b_correction_basis_ablation.png",
+    "figures/fungibility_implicit_carrier_operator/figure_c_hg_prediction_quality.png",
+    "figures/fungibility_implicit_carrier_operator/figure_d_operator_information_vs_output_dim.png",
+    "figures/fungibility_implicit_carrier_operator/figure_e_gate_quality.png",
+    "figures/fungibility_implicit_carrier_operator/figure_f_selective_activation_curve.png",
+    "figures/fungibility_implicit_carrier_operator/figure_g_accuracy_throughput_frontier.png",
+    "figures/fungibility_implicit_carrier_operator/figure_h_cross_architecture_summary.png"
+  ]
+}
