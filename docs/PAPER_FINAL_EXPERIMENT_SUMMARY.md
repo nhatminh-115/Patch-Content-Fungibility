@@ -2,7 +2,7 @@
 
 **Repository:** [Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Date:** October 7, 2026  
-**Status:** Authoritative Post-Audit Release  
+**Status:** Authoritative Post-Audit Release (Fully Reconciled)  
 **Primary Outputs:** [`outputs/fungibility_final_consolidation/`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_final_consolidation/)  
 **Primary Figures:** [`figures/paper_final_v2/`](file:///d:/Study/Patch-Content-Fungibility/figures/paper_final_v2/)  
 
@@ -21,62 +21,66 @@ The empirical evaluation covers four diverse Vision Transformer models spanning 
 
 ---
 
-## 2. Static $q$-Ablation Across Architectures
+## 2. Static $q$-Ablation Across Architectures (Authoritative Final Consolidation)
 
-Evaluating carrier correction across subspace dimensions $q \in \{8, 16, 32, 64\}$ against the properly stabilized full oracle reference ($\lambda = 10^{-3}$) on 100 held-out evaluation images:
+Evaluating carrier correction across subspace dimensions $q \in \{8, 16, 32, 64\}$ against the properly stabilized full oracle reference ($\lambda = 10^{-3}$) on 100 held-out evaluation images (from `final_q_ablation.csv`):
 
 | Architecture | Budget | Baseline Group Mean $\|JE\|$ | Stabilized Full Oracle $\|JE\|$ | Static $\bar{\alpha}$ ($q=8$) | Static $\bar{\alpha}$ ($q=16$) | Static $\bar{\alpha}$ ($q=32$) | Static $\bar{\alpha}$ ($q=64$) | Full Oracle Recovery ($q=16$) | Restricted Oracle Recovery ($q=16$) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **DeiT-Tiny** | 50% (98) | 4.1586 | 0.0098 | 3.8210 | 3.7532 | 3.6840 | 3.6510 | 9.77% | 26.06% |
-| **DeiT-Small** | 50% (98) | 12.5234 | 0.0135 | 9.5840 | **9.2724** | 9.1240 | 9.0810 | **25.99%** | **54.91%** |
-| **ViT-B/16** | 50% (98) | 18.5889 | 0.0204 | 17.4820 | **17.1633** | 16.9210 | 16.8120 | 7.68% | 21.03% |
-| **DINOv2** | 50% (128) | 0.7220 | 0.0012 | 0.6610 | **0.6452** | 0.6380 | 0.6340 | 10.65% | 29.92% |
+| **DeiT-Tiny** | 50% (98) | 4.1586 | 0.0067 | 3.7791 | 3.7532 | 3.6512 | 3.6192 | 9.76% | 26.06% |
+| **DeiT-Small** | 50% (98) | 12.5234 | 0.0196 | 9.4336 | **9.2724** | 9.0642 | 9.0594 | **26.00%** | **54.91%** |
+| **ViT-B/16** | 50% (98) | 18.5889 | 0.0278 | 17.2455 | **17.1633** | 17.1788 | 17.2940 | 7.68% | 21.03% |
+| **DINOv2** | 50% (128) | 0.7220 | 0.0012 | 0.6481 | **0.6452** | 0.6342 | 0.6284 | 10.66% | 29.92% |
 
 ### Key Insights:
 - $q=16$ provides the optimal Pareto point between error reduction and parameter/computation cost.
-- Moving from $q=16$ to $q=64$ with static calibration yields only marginal additional gain ($9.27 \rightarrow 9.08$ on DeiT-Small) while increasing basis dimensions $4\text{x}$.
-- Static $\bar{\alpha}$ captures **$54.91\%$** of the restricted oracle gain on DeiT-Small with zero FLOPs.
+- Moving from $q=16$ to $q=64$ with static calibration yields only marginal additional gain ($9.27 \rightarrow 9.06$ on DeiT-Small) while increasing basis dimensions $4\text{x}$.
+- Static $\bar{\alpha}$ captures **$54.91\%$** of the restricted oracle gain ($26.00\%$ of full oracle gain) on DeiT-Small with zero learned predictor FLOPs.
 
 ---
 
 ## 3. Matched Random Control Distribution (25 Seeds per Architecture)
 
+From `final_random_basis_control.csv` ($N=100$ held-out images):
+
 | Architecture | Subspace Dim ($q$) | Feature-PCA $\|JE\|$ | Random Bases Mean $\|JE\|$ | Random Bases Std | Paired $t$-stat | $p$-value | Cohen's $d$ Effect Size |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **DeiT-Tiny** | $q=16$ | **2.6029** | 3.2155 | 0.0267 | -14.62 | $1.83 \times 10^{-26}$ | 1.84 |
-| | $q=32$ | **1.2878** | 2.1480 | 0.0312 | -21.40 | $3.12 \times 10^{-38}$ | 2.15 |
-| **DeiT-Small** | $q=16$ | **6.6023** | 10.1842 | 0.0801 | -25.98 | **$5.23 \times 10^{-46}$** | **2.45** |
-| | $q=32$ | **3.5164** | 7.4210 | 0.0914 | -32.15 | **$1.08 \times 10^{-52}$** | **2.98** |
-| **ViT-B/16** | $q=16$ | **11.8086** | 15.9855 | 0.0782 | -17.66 | $2.30 \times 10^{-32}$ | 1.95 |
-| | $q=32$ | **6.5166** | 12.1450 | 0.0845 | -24.80 | $8.45 \times 10^{-44}$ | 2.52 |
-| **DINOv2** | $q=16$ | **0.4651** | 0.6028 | 0.0031 | -16.14 | $1.76 \times 10^{-29}$ | 1.91 |
-| | $q=32$ | **0.3003** | 0.4812 | 0.0042 | -22.30 | $4.15 \times 10^{-39}$ | 2.30 |
+| **DeiT-Tiny** | $q=16$ | **2.6029** | 3.2107 | 0.0202 | -14.55 | $2.45 \times 10^{-26}$ | 1.46 |
+| | $q=32$ | **1.2878** | 2.3586 | 0.0209 | -24.03 | $4.20 \times 10^{-43}$ | 2.42 |
+| **DeiT-Small** | $q=16$ | **6.6023** | 10.1829 | 0.0671 | -26.49 | **$9.96 \times 10^{-47}$** | **2.66** |
+| | $q=32$ | **3.5164** | 8.1902 | 0.0670 | -30.00 | **$1.72 \times 10^{-51}$** | **3.01** |
+| **ViT-B/16** | $q=16$ | **11.8086** | 16.0150 | 0.0737 | -17.56 | $3.51 \times 10^{-32}$ | 1.77 |
+| | $q=32$ | **6.5166** | 13.8614 | 0.1087 | -25.91 | $6.78 \times 10^{-46}$ | 2.60 |
+| **DINOv2** | $q=16$ | **0.4651** | 0.6042 | 0.0039 | -15.82 | $7.29 \times 10^{-29}$ | 1.59 |
+| | $q=32$ | **0.3003** | 0.5035 | 0.0042 | -17.93 | $7.36 \times 10^{-33}$ | 1.80 |
 
-**Conclusion:** Across all models and tested dimensions ($q=16, 32$), Feature-PCA decisively outperforms matched random bases ($p < 10^{-25}$, Cohen's $d > 1.8$), proving that data-generating feature covariance directions are functionally privileged for token compression error correction.
+**Conclusion:** Across all models and tested dimensions ($q=16, 32$), Feature-PCA decisively outperforms matched random bases ($p < 10^{-25}$, Cohen's $d \in [1.46, 2.66]$ at $q=16$), supporting the functional relevance of learned feature covariance directions for token compression error correction.
 
 ---
 
 ## 4. End-to-End Accuracy vs. Throughput Frontier (BS=64, 50% Budget)
 
-| Architecture | Method | Throughput (img/sec) | Speedup vs Clean | Top-1 Accuracy (%) | Top-1 Drop vs Clean | Pareto Dominance vs Group Mean |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **DeiT-Tiny** | Clean | 11,250.7 | 1.00x | 72.20% | 0.00 pp | Reference |
-| | Attention Pruning | 14,683.9 | 1.31x | 70.24% | -1.96 pp | High speed / poor acc |
-| | ToMe | 14,655.2 | 1.30x | 70.86% | -1.34 pp | High speed / moderate acc |
-| | Hybrid Group Mean | 6,856.2 | 0.61x | 71.16% | -1.04 pp | Baseline |
-| | **Selective Restricted (30%)** | **6,735.1** | **0.60x** | **71.28%** | **-0.92 pp** | **Pareto Superior (+0.12 pp Top-1)** |
-| **DeiT-Small** | Clean | 5,552.0 | 1.00x | 79.80% | 0.00 pp | Reference |
-| | Attention Pruning | 7,332.7 | 1.32x | 73.88% | -5.92 pp | Severe accuracy damage |
-| | ToMe | 7,306.1 | 1.32x | 75.77% | -4.03 pp | Large accuracy drop |
-| | Hybrid Group Mean | 4,199.9 | 0.76x | 76.67% | -3.13 pp | Baseline |
-| | **Selective Restricted (30%)** | **4357.8** | **0.78x** | **77.04%** | **-2.76 pp** | **Pareto Dominant (+0.37 pp, faster)** |
-| **ViT-B/16** | Clean | 2,564.0 | 1.00x | 81.80% | 0.00 pp | Reference |
-| | Attention Pruning | 3,608.2 | 1.41x | 73.02% | -8.78 pp | Catastrophic drop |
-| | ToMe | 3,545.4 | 1.38x | 75.81% | -5.99 pp | Heavy drop |
-| | Hybrid Group Mean | 2,609.2 | 1.02x | 77.15% | -4.65 pp | Baseline |
-| | **Selective Restricted (30%)** | **2,495.3** | **0.97x** | **77.71%** | **-4.09 pp** | **Pareto Dominant (+0.56 pp Top-1)** |
-| **DINOv2** | Clean | 3,179.4 | 1.00x | 84.50% | 0.00 pp | Reference |
-| | Attention Pruning | 4,108.6 | 1.29x | 84.16% | -0.34 pp | High speed |
-| | ToMe | 4,024.6 | 1.27x | 84.27% | -0.23 pp | Moderate accuracy |
-| | Hybrid Group Mean | 2,953.4 | 0.93x | 84.32% | -0.18 pp | Baseline |
-| | **Selective Restricted (30%)** | **2,808.3** | **0.88x** | **84.34%** | **-0.16 pp** | **Pareto Superior (+0.02 pp Top-1)** |
+From `final_pareto_frontier.csv` (Authoritative Final Benchmark):
+
+| Architecture | Method | Throughput (img/sec) | Latency (ms/img) | Speedup vs Clean | Top-1 Accuracy (%) | Top-1 Drop vs Clean | Frontier Characterization |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **DeiT-Tiny** | Clean | 11059.8 | 0.090 | 1.00x | 72.20% | 0.00 pp | Reference |
+| | Attention Pruning | 14477.0 | 0.069 | 1.31x | 70.24% | -1.96 pp | High speed / lower acc |
+| | ToMe | 14377.8 | 0.070 | 1.30x | 70.86% | -1.34 pp | High speed / moderate acc |
+| | Hybrid Group Mean | 14076.3 | 0.071 | 1.27x | 71.16% | -1.04 pp | High speed baseline |
+| | **Selective Restricted (30%)** | **11967.2** | **0.084** | **1.08x** | **71.28%** | **-0.92 pp** | **Accuracy Tradeoff (+0.12 pp Top-1)** |
+| **DeiT-Small** | Clean | 5194.0 | 0.193 | 1.00x | 79.80% | 0.00 pp | Reference |
+| | Attention Pruning | 7289.5 | 0.137 | 1.40x | 73.88% | -5.92 pp | Severe accuracy damage |
+| | ToMe | 7273.2 | 0.137 | 1.40x | 75.77% | -4.03 pp | Large accuracy drop |
+| | Hybrid Group Mean | 7153.5 | 0.140 | 1.38x | 76.67% | -3.13 pp | High speed baseline |
+| | **Selective Restricted (30%)** | **4432.0** | **0.226** | **0.85x** | **77.20%** | **-2.60 pp** | **Accuracy Tradeoff (+0.53 pp vs GM, +1.43 pp vs ToMe)** |
+| **ViT-B/16** | Clean | 2538.6 | 0.394 | 1.00x | 81.80% | 0.00 pp | Reference |
+| | Attention Pruning | 3563.6 | 0.281 | 1.40x | 73.02% | -8.78 pp | Catastrophic drop |
+| | ToMe | 3493.7 | 0.286 | 1.38x | 75.81% | -5.99 pp | Heavy drop |
+| | Hybrid Group Mean | 3474.6 | 0.288 | 1.37x | 77.15% | -4.65 pp | High speed baseline |
+| | **Selective Restricted (30%)** | **2051.3** | **0.488** | **0.81x** | **77.60%** | **-4.20 pp** | **Accuracy Tradeoff (+0.45 pp vs GM, +1.79 pp vs ToMe)** |
+| **DINOv2** | Clean | 3181.5 | 0.314 | 1.00x | 84.50% | 0.00 pp | Reference |
+| | Attention Pruning | 4118.0 | 0.243 | 1.29x | 84.16% | -0.34 pp | High speed |
+| | ToMe | 4089.0 | 0.245 | 1.29x | 84.27% | -0.23 pp | Moderate accuracy |
+| | Hybrid Group Mean | 4049.6 | 0.247 | 1.27x | 84.32% | -0.18 pp | High speed baseline |
+| | **Selective Restricted (30%)** | **3494.2** | **0.286** | **1.10x** | **84.34%** | **-0.16 pp** | **Accuracy Tradeoff (+0.02 pp Top-1)** |
