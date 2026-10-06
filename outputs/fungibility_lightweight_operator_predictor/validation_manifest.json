@@ -1,0 +1,31 @@
+{
+  "investigation": "Lightweight Operator Predictors: Shared Envelope Geometry, Factor Asymmetry, and Batched Throughput Crossover",
+  "timestamp": "2026-10-06 17:44:09 UTC",
+  "git_commit": "1578d3f38d3847cedd81e3b5dfe2e12b7a7ca5cd",
+  "hardware": "NVIDIA GeForce RTX 5070 Laptop GPU (8.15 GB VRAM, sm_120)",
+  "deliverables": [
+    "outputs/fungibility_lightweight_operator_predictor/envelope_capture.csv",
+    "outputs/fungibility_lightweight_operator_predictor/factor_variability.csv",
+    "outputs/fungibility_lightweight_operator_predictor/predictor_architecture_ablation.csv",
+    "outputs/fungibility_lightweight_operator_predictor/subspace_prediction.csv",
+    "outputs/fungibility_lightweight_operator_predictor/principal_angles.csv",
+    "outputs/fungibility_lightweight_operator_predictor/functional_recovery.csv",
+    "outputs/fungibility_lightweight_operator_predictor/oracle_recovery.csv",
+    "outputs/fungibility_lightweight_operator_predictor/runtime_breakdown.csv",
+    "outputs/fungibility_lightweight_operator_predictor/batch_throughput.csv",
+    "outputs/fungibility_lightweight_operator_predictor/crossover_results.csv",
+    "outputs/fungibility_lightweight_operator_predictor/accuracy_throughput_frontier.csv",
+    "outputs/fungibility_lightweight_operator_predictor/direct_carrier_control.csv"
+  ],
+  "figures": [
+    "figures/fungibility_lightweight_operator_predictor/figure_a_oracle_envelope_spectrum.png",
+    "figures/fungibility_lightweight_operator_predictor/figure_b_envelope_capture.png",
+    "figures/fungibility_lightweight_operator_predictor/figure_c_token_vs_feature_variability.png",
+    "figures/fungibility_lightweight_operator_predictor/figure_d_predictor_overlap_vs_cost.png",
+    "figures/fungibility_lightweight_operator_predictor/figure_e_functional_recovery.png",
+    "figures/fungibility_lightweight_operator_predictor/figure_f_accuracy_vs_throughput.png",
+    "figures/fungibility_lightweight_operator_predictor/figure_g_batch_crossover.png",
+    "figures/fungibility_lightweight_operator_predictor/figure_h_cross_architecture_summary.png"
+  ],
+  "status": "VALIDATED"
+}

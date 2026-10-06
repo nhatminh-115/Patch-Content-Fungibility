@@ -1,0 +1,5 @@
+architecture,depth,crossover_bs_group_mean,crossover_bs_tome,crossover_bs_reference_operator,crossover_bs_lightweight_operator,level_l5_passed,level_l6_passed
+deit_tiny,8,1,>64,>64,>64,False,False
+deit_small,8,1,>64,>64,>64,False,False
+vit_base,7,1,>64,>64,>64,False,False
+dinov2,8,1,>64,>64,>64,False,False
