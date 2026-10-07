@@ -1,12 +1,12 @@
 # Figure Review v4
 
-**Verdict: accepted after visual iteration.** The seven quantitative figures and supplement were generated from the deterministic code pipeline and inspected at full resolution and in the contact sheet. Figure 1 uses the user-supplied overview image, preserved pixel-for-pixel and embedded in an SVG wrapper. The scientific claims and data were not changed. The v3 files remain preserved.
+**Verdict: accepted after visual iteration.** The seven quantitative figures and supplement were generated from the deterministic code pipeline and inspected at full resolution and in the contact sheet. Figure 1 uses the latest user-supplied overview image, including panel (c) on anisotropic transmission, preserved pixel-for-pixel and embedded in an SVG wrapper. The scientific claims and data were not changed. The v3 files remain preserved.
 
 Scores use a 1–5 scale (5 is strongest).
 
 | Figure | Before / after | Readability | Scientific clarity | Aesthetic quality | Set consistency | Revision needed | Final verdict |
 |---|---|---:|---:|---:|---:|---|---|
-| 1. Overview | Replaced the previous schematic with the user-supplied composite overview of intervention, sensitive directions, geometry/diversity constraints, and Value-path cancellation. | — | — | — | — | No edits to the supplied image. | Accepted as requested. |
+| 1. Overview | Latest supplied composite overview: (a) intervention, (b) replacement constraints and Value-path cancellation, and (c) anisotropic transmission. | — | — | — | — | Source image reproduced unchanged. | Accepted as requested. |
 | 2. Depth-wise replacement | Plots audited V1 CSV rows plus a separately recorded depth-6 follow-up, with clean references and Gaussian seed variability. | 5 | 5 | 4 | 5 | Follow-up added at the user's request. | Accepted; depth 6 is visible and the late-layer failure of zero replacement remains easy to see. |
 | 3. Geometry and diversity | Panel (a) shows V1 50% geometry controls for ViT-B/16 and DINOv2; panel (b) shows the V0.8 grouped-diversity K sweep for DeiT-Tiny/Small. The caption marks the distinct cohorts. | 5 | 5 | 4 | 5 | Reduced from three panels to two at the user's request; the panel-(a) legend remains below the plot. | Accepted; K sweep retained and relabeled as (b). |
 | 4. Anisotropic geometry | Replaced an unnamed trend line with a direction-sensitivity heatmap and a compact vector explanation. | 4 | 5 | 4 | 5 | Yes: switched the ratio scale to logarithmic and increased precision so sub-unity values did not round to zero. | Accepted; values and direction are legible. |
@@ -75,4 +75,11 @@ Scores use a 1–5 scale (5 is strongest).
 - No experiment, model execution, or scientific claim was added or altered.
 - Quantitative panels use the exact source files and row filters recorded in `figures/paper_final_v4/FIGURE_MANIFEST.md`.
 - The main manuscript was updated only after this visual review was accepted; changes are limited to figure paths, captions, and the sentence assigning figure roles.
-- No extended DOCX manuscript was present in the repository or searched local project paths. The Word export is therefore generated from the canonical manuscript Markdown and the reviewed v4 PNG figures.
+- The editable Word export is generated from the canonical manuscript Markdown and the reviewed v4 PNG figures. Its eight embedded images and updated Figure 1 caption were structurally verified; page layout was not visually verified because this host lacks a DOCX renderer.
+
+
+## Figure 1 overview update requested on 2026-10-07
+
+- Replaced the supplied overview source with the latest `D:/Download/Figure1_overview.png`, which adds panel (c), “Anisotropic Transmission.” The PNG and preview preserve the supplied source bytes, and the SVG embeds the same image.
+- Updated the manuscript alt text and caption, and the figure manifest, to describe all three panels.
+- Updated contact-sheet rendering to composite transparent pixels over white, avoiding a false black edge while preserving the supplied source and standalone PNG bytes exactly. No empirical data or scientific result changed.

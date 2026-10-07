@@ -14,8 +14,8 @@ Vision transformers process images as sequences of patch tokens \citep{dosovitsk
 These results form a sequence of tests rather than a blanket claim of redundancy. Fixed-slot replacement isolates patch content and shows a late-layer regime in which some content is tolerated; geometry and diversity controls then identify conditions under which replacement fails. The transmission studies explain why equal-sized perturbations need not have equal consequences: sensitivity is anisotropic, and coherent patch changes can accumulate through the attention Value path while sign-varying changes partly cancel. Finally, a separate multi-block audit shows that the composed end-to-end operator predicts held-out perturbation damage better than a one-block map in the tested settings. This mechanistic chain motivates operator-aware compression, which we evaluate separately on 1,000 held-out images per architecture.
 
 This contribution is deliberately narrow. Jacobians, singular-value decompositions, anisotropy, and token reduction are established tools. The contribution is their connected ViT-specific empirical chain: causal patch-content replacement, geometry and diversity constraints, attention-mediated cancellation, downstream-persistent functional transmission, and operator-aware token compression. Prior token pruning and merging work changes the sequence, whereas our intervention isolates activation content; our compression result is evaluated separately against those methods.\
-![Figure 1: Causal patch-content substitution and the evidence chain](../figures/paper_final_v4/figure1_overview.svg)
-*Figure 1. Conceptual intervention and analysis path. The schematic is not a quantitative result.*
+![Figure 1: Fixed-slot patch-content intervention, replacement constraints, and anisotropic transmission](../figures/paper_final_v4/figure1_overview.svg)
+*Figure 1. Conceptual overview of (a) fixed-slot late-layer patch-content substitution, (b) geometry, token-diversity, and Value-path cancellation constraints, and (c) anisotropic downstream transmission. The schematic summarizes the paper’s mechanisms and is not a quantitative result.*
 
 ## 2. Related Work
 

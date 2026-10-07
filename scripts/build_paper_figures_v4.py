@@ -518,7 +518,7 @@ FIGURE_SOURCES = {
 
 def write_manifest(out: Path) -> None:
     titles = {
-          "figure1_overview": ("PCF overview and replacement constraints", "User-supplied composite overview of late-layer patch-content intervention, sensitive directions, geometry/diversity constraints, and Value-path cancellation."),
+          "figure1_overview": ("PCF intervention, replacement constraints, and anisotropic transmission", "User-supplied composite overview of (a) fixed-slot late-layer patch-content intervention, (b) geometry/diversity constraints and Value-path cancellation, and (c) anisotropic transmission."),
         "figure2_depthwise": ("Depth-wise replacement controls", "Replots original V1 results and an isolated depth-6 follow-up, exposes Gaussian seed variation, and zooms the boxed panel-(a) region with Clean, Zero, Centroid, and Gaussian curves."),
         "figure3_geometry_diversity": ("Geometry and diversity constraints", "Two-panel figure: V1 geometry controls at 50% replacement for ViT-B/16 and DINOv2, and V0.8 accuracy versus K for DeiT-Tiny/Small. The cohorts are distinct; interpret contrasts within panels."),
         "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Shows audited feature-direction sensitivity ratio with a concise geometric explanation."),
@@ -547,7 +547,10 @@ def contact_sheet(out: Path) -> None:
     thumbs = []
     canvas_w = 900; cell_w = 430; cell_h = 300; pad = 20
     for path in paths:
-        im = Image.open(path).convert("RGB")
+        rgba = Image.open(path).convert("RGBA")
+        im = Image.new("RGBA", rgba.size, "white")
+        im.alpha_composite(rgba)
+        im = im.convert("RGB")
         im.thumbnail((cell_w-2*pad, cell_h-52), Image.Resampling.LANCZOS)
         cell = Image.new("RGB", (cell_w, cell_h), "white")
         x = (cell_w-im.width)//2; y = 35+(cell_h-52-im.height)//2
