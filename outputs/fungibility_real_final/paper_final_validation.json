@@ -3,7 +3,7 @@
   "checks": {
     "required_manuscript_and_audit_docs": {
       "status": "PASS",
-      "detail": "Draft, claims, traceability, sample-size map, and readiness record must exist."
+      "detail": "Draft, claims, traceability, sample-size map, readiness, citation, bibliography, and final consistency records must exist."
     },
     "no_proxy_accuracy_timing_or_frontier_sources": {
       "status": "PASS",
@@ -47,7 +47,7 @@
     },
     "bibliography_resolves_without_duplicates": {
       "status": "PASS",
-      "detail": "12 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
+      "detail": "50 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
     },
     "all_manuscript_figures_exist_and_are_v4_svg": {
       "status": "PASS",
@@ -64,8 +64,52 @@
     "quantitative_claims_traceable": {
       "status": "PASS",
       "detail": "Numeric evidence families absent from traceability map: []."
+    },
+    "bibliography_has_50_complete_unique_published_records": {
+      "status": "PASS",
+      "detail": "Entries=50; complete fields=True; duplicate normalized titles=0; duplicate DOIs=0."
+    },
+    "bibliography_numbering_matches_first_citation_and_sidecar": {
+      "status": "PASS",
+      "detail": "First-citation ordering=True; external BibTeX synchronized=True."
+    },
+    "ieee_citation_order_and_ranges_match_docx": {
+      "status": "PASS",
+      "detail": "Citation clusters=25; ordering issues=[]; reference heading found=True; source/rendered tokens=31/31; ranges=7; exact match=True."
+    },
+    "abstract_uses_no_defined_abbreviations": {
+      "status": "PASS",
+      "detail": "Acronym tokens in Abstract: []."
+    },
+    "main_text_defines_abbreviations_at_first_use": {
+      "status": "PASS",
+      "detail": "Missing or late definitions: []."
+    },
+    "figure_cross_references_resolve_and_precede_objects": {
+      "status": "PASS",
+      "detail": "Figure objects=['1', '2', '3', '4', '5', '6', '7', 'S1']; captions=['1', '2', '3', '4', '5', '6', '7', 'S1']; callouts=['1', '2', '3', '4', '5', '6', '7', 'S1']; placement=True."
+    },
+    "table_cross_references_resolve_and_precede_objects": {
+      "status": "PASS",
+      "detail": "Table headings=['I', 'II', 'III']; captions=['I', 'II', 'III']; callouts=['I', 'II', 'III']; placement=True."
+    },
+    "six_display_equations_have_explanatory_text": {
+      "status": "PASS",
+      "detail": "Display equation blocks=6; Value-path, Jacobian, and regularization explanations present."
+    },
+    "table_II_and_abstract_match_confirmatory_csv": {
+      "status": "PASS",
+      "detail": "Parsed rows=4; best-pruning row and all five compression columns checked; oracle/low-rank gain range=4.200000000000004\u201312.0 pp."
+    },
+    "table_III_counts_and_differences_match_real_classifier_csv": {
+      "status": "PASS",
+      "detail": "Parsed rows=4; integer correct counts, N=1,000 percentages, and percentage-point changes checked."
+    },
+    "editable_docx_contains_three_tables_eight_figures_six_equations_and_50_ieee_refs": {
+      "status": "PASS",
+      "detail": "DOCX package must contain 3 Word tables, 8 embedded figures, 6 math objects, and reference numbers [1]\u2013[50]."
     }
   },
-  "passed_count": 16,
-  "assertion_count": 16
+  "passed_count": 27,
+  "assertion_count": 27
 }
