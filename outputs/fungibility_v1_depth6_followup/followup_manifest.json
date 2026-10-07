@@ -1,0 +1,27 @@
+{
+  "study": "post hoc depth-6 follow-up to V1 25% patch replacement sweep",
+  "depth": 6,
+  "evaluation_images_per_architecture": 1000,
+  "calibration_images_per_architecture": 1000,
+  "split_seeds": {
+    "calibration": 9101,
+    "evaluation": 9201
+  },
+  "conditions": [
+    "CLEAN",
+    "ZERO",
+    "CENTROID",
+    "DIAGONAL_GAUSSIAN"
+  ],
+  "gaussian_seeds": [
+    22001,
+    22002,
+    22003
+  ],
+  "replacement_fraction": 0.25,
+  "mask_seed": 21001,
+  "device": "cuda",
+  "output_directory": "outputs\\fungibility_v1_depth6_followup",
+  "original_v1_results_modified": false,
+  "elapsed_seconds": 44.29
+}

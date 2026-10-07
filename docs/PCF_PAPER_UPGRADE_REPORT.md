@@ -1,6 +1,6 @@
 # PCF Manuscript Upgrade Review
 
-**Scope:** Evidence-preserving manuscript revision after the `pcf-paper-upgrade` dry-run passed. No experiments or raw-output changes were made.
+**Scope:** Evidence-preserving manuscript revision after the `pcf-paper-upgrade` dry-run passed. That revision phase made no experiment or raw-output changes. A subsequently user-authorized, isolated depth-6 follow-up is documented at the end of this report; original V1 outputs remain unchanged.
 
 ## Structure diagnosis
 
@@ -33,13 +33,17 @@ Numeric and scientific claims were checked against the claims table, traceabilit
 | ViT efficiency: do improvements over pruning imply general superiority over merging or a deployable speedup? | VALID | Related result language preserves the three-of-four frontier scope and the DeiT-S tie; limitations clarify the oracle and hardware/batch-specific runtime boundary. |
 | General ML: are the N=100 mechanism studies conflated with N=1,000 classification evidence or with repeated condition rows? | VALID | The scope paragraph now enumerates each sample unit; confirmatory condition rows remain explicitly dependent on reused images in the existing text. |
 | General ML: could Jacobian/SVD/anisotropy or token reduction themselves be the novelty? | ALREADY ADDRESSED | The related-work section explicitly disclaims these primitives and states the connected ViT-specific causal chain. |
-| Any reviewer: broader architectures/tasks or practical predictor deployment need new measurements. | REQUIRES NEW RESEARCH | Kept as an explicit limitation/future-work boundary; no experiment was run or added to this paper. |
+| Any reviewer: broader architectures/tasks or practical predictor deployment need new measurements. | REQUIRES NEW RESEARCH | Kept as an explicit limitation/future-work boundary; the separate depth-6 follow-up addresses only the specific missing layer point and does not broaden model/task coverage or claim deployment gains. |
 
 No OUT OF SCOPE request was accepted as a manuscript change. No new evidence was requested by the dry-run; the broader-coverage item remains a limitation.
 
 ## Figure and table audit
 
-The eight current v4 figures were checked against `figures/paper_final_v4/FIGURE_MANIFEST.md`, the deterministic generator/source mappings, the SVG and 300-dpi PNG pairs, and `docs/PAPER_FIGURE_REVIEW_V4.md`. I visually inspected the current contact sheet: the sequence from causal intervention through geometry, Value-path cancellation, end-to-end transmission, confirmatory compression, and the mixed carrier boundary reads coherently; labels and panel hierarchy are legible at contact-sheet scale. The previous per-figure review records detailed 100%/zoom inspection and iterative fixes for label collisions, footers, scale precision, facet selection, and annotations. The figures remain unchanged because the current set is already code-generated, source-traceable, and reviewed.
+The eight current v4 figures were checked against `figures/paper_final_v4/FIGURE_MANIFEST.md`, the deterministic generator/source mappings, the SVG and 300-dpi PNG pairs, and `docs/PAPER_FIGURE_REVIEW_V4.md`. In the 2026-10-07 style revision, figure-level headlines and embedded bottom captions were removed while concise panel titles were retained; Figure 2's clean label was removed from the dashed-line path, and Figure 5 was changed from paired point markers to paired bars without changing source values. The Figure 7 legend was repositioned into a reserved bottom margin. These requested presentation changes are documented in the visual review; no scientific data or claims changed.
+
+## User-requested depth-6 follow-up
+
+After the initial upgrade, the user asked whether the missing depth 6 could be measured quickly. An isolated run completed in 44.29 seconds on the NVIDIA GeForce RTX 5070 Laptop GPU, using the same disjoint split seeds, 25% replacement mask, control conditions, and Gaussian seeds as V1. It evaluated 1,000 held-out images and used 1,000 calibration images per architecture. The results and per-image records live in `outputs/fungibility_v1_depth6_followup/`; the original V1 outputs were not modified. Figure 2, the manuscript, sample-size map, number traceability, and figure review now identify depth 6 as a post hoc follow-up. Details are in `docs/FUNGIBILITY_V1_DEPTH6_FOLLOWUP.md`.
 
 ## Selective revisions and quality assessment
 

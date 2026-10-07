@@ -5,6 +5,7 @@ No model execution or new empirical measurement is performed.
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
 import json
 import re
@@ -14,7 +15,8 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Circle
+from matplotlib.lines import Line2D
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Circle, Rectangle, ConnectionPatch
 from matplotlib.colors import LogNorm
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 
@@ -101,9 +103,6 @@ def polish_axis(ax, *, grid: str | None = "y") -> None:
     ax.tick_params(length=3, color="#87929A", labelcolor=INK)
 
 
-def note(fig, text: str, y: float = 0.025) -> None:
-    fig.text(0.04, y, text, ha="left", va="bottom", fontsize=7.6, color=MUTED)
-
 
 def save_figure(fig, output_dir: Path, stem: str) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -119,54 +118,23 @@ def save_figure(fig, output_dir: Path, stem: str) -> None:
     plt.close(fig)
 
 
-def fig1(out: Path) -> None:
-    fig, ax = plt.subplots(figsize=(11.2, 4.5))
-    ax.set_xlim(0, 11.2); ax.set_ylim(0, 4.5); ax.axis("off")
-    # Four precise stages; patch grids are vector primitives, not generic icons.
-    stages = [(0.35, 2.72, 1.65, 0.9, "Image", "patchify"),
-              (2.55, 2.72, 1.85, 0.9, "Patch stream at ℓ", "CLS and positions fixed"),
-              (5.05, 2.72, 1.90, 0.9, "Replace content", "slots and weights fixed"),
-              (7.62, 2.72, 1.60, 0.9, "Downstream J", "functional map"),
-              (9.72, 2.72, 1.18, 0.9, "Readout", "measure Δz")]
-    for i, (x, y, w, h, title, sub) in enumerate(stages):
-        edge = BLUE if i in (1, 3) else TEAL if i == 2 else "#9AA5AD"
-        box = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.04,rounding_size=0.08",
-                             facecolor=LIGHT, edgecolor=edge, linewidth=1.25)
-        ax.add_patch(box)
-        ax.text(x + w/2, y + 0.57, title, ha="center", va="center", color=INK, fontsize=9.5, weight="semibold")
-        ax.text(x + w/2, y + 0.27, sub, ha="center", va="center", color=MUTED, fontsize=7.4)
-    for a, b in [(2.0, 2.55), (4.4, 5.05), (6.95, 7.62), (9.22, 9.72)]:
-        ax.add_patch(FancyArrowPatch((a, 3.17), (b, 3.17), arrowstyle="-|>", mutation_scale=10,
-                                     color="#6F7C85", linewidth=1.15))
-    # Image/patch stream tile swatches.
-    for r in range(3):
-        for c in range(4):
-            color = ["#B9CCD6", "#DAE3E8", "#9DBBC8", "#E8EEF1"][(r*3+c) % 4]
-            ax.add_patch(plt.Rectangle((0.66+c*0.24, 1.94-r*0.24), 0.19, 0.19,
-                                      facecolor=color, edgecolor=PAPER, linewidth=0.4))
-            ax.add_patch(plt.Rectangle((3.02+c*0.25, 1.94-r*0.24), 0.19, 0.19,
-                                      facecolor=[BLUE, "#A9C6D1", TEAL, "#D6E2E7"][(r+c) % 4],
-                                      edgecolor=PAPER, linewidth=0.4))
-    ax.text(0.95, 1.13, "pixels → patch tokens", ha="center", color=MUTED, fontsize=8)
-    ax.text(3.48, 1.13, "class token + slots held fixed", ha="center", color=MUTED, fontsize=8)
-    # Three candidate replacement rules.
-    ax.text(5.97, 2.10, "candidate content", ha="center", color=INK, fontsize=8, weight="semibold")
-    swatches = [("zero", RED), ("centroid", BLUE), ("Gaussian", ORANGE)]
-    for j, (name, color) in enumerate(swatches):
-        yy = 1.70-j*0.36
-        ax.add_patch(Circle((5.34, yy), 0.075, facecolor=color, edgecolor="none"))
-        ax.text(5.52, yy, name, ha="left", va="center", color=INK, fontsize=8)
-    ax.text(8.42, 2.06, "geometry + diversity", ha="center", color=BLUE, fontsize=8.5, weight="semibold")
-    ax.text(8.42, 1.70, "constrain transmission", ha="center", color=MUTED, fontsize=8)
-    ax.text(10.28, 2.06, "damage /", ha="center", color=INK, fontsize=8.5, weight="semibold")
-    ax.text(10.28, 1.70, "compression", ha="center", color=INK, fontsize=8.5, weight="semibold")
-    ax.add_patch(FancyArrowPatch((6.98, 1.48), (7.63, 1.48), arrowstyle="-|>", mutation_scale=10,
-                                 color=TEAL, linewidth=1.2))
-    ax.text(5.6, 0.48, "Mechanism: N=100 images · Multi-block: N=100 perturbations · Confirmatory: N=1,000 images/model",
-            color=MUTED, fontsize=8, ha="center")
-    fig.suptitle("Patch-content replacement is a controlled intervention", x=0.04, y=0.98,
-                 ha="left", fontsize=13, weight="semibold", color=INK)
-    save_figure(fig, out, "figure1_overview")
+def fig1(root: Path, out: Path) -> None:
+    """Publish the user-supplied overview without altering its raster pixels."""
+    source = root / "figures/paper_final_v4/source/figure1_overview_user.png"
+    image_bytes = source.read_bytes()
+    with Image.open(source) as image:
+        width, height = image.size
+    (out / "previews").mkdir(parents=True, exist_ok=True)
+    (out / "figure1_overview.png").write_bytes(image_bytes)
+    (out / "previews/figure1_overview.png").write_bytes(image_bytes)
+    encoded = base64.b64encode(image_bytes).decode("ascii")
+    svg = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}">\n'
+        f'<image width="{width}" height="{height}" href="data:image/png;base64,{encoded}" '
+        'preserveAspectRatio="none"/>\n</svg>\n'
+    )
+    (out / "figure1_overview.svg").write_text(svg, encoding="utf-8", newline="\n")
 
 
 def grouped(rows: list[dict[str, str]], key_fields: tuple[str, ...], value_field: str) -> dict[tuple[str, ...], list[float]]:
@@ -182,15 +150,23 @@ def fig2(root: Path, out: Path) -> None:
         "ViT-B/16 AugReg": root/"outputs/fungibility_v1/vitb_depth_results.csv",
         "DINOv2 ViT-S/14": root/"outputs/fungibility_v1/dinov2_depth_results.csv",
     }
+    followup_paths = {
+        "ViT-B/16 AugReg": root/"outputs/fungibility_v1_depth6_followup/vitb_depth6_results.csv",
+        "DINOv2 ViT-S/14": root/"outputs/fungibility_v1_depth6_followup/dinov2_depth6_results.csv",
+    }
     conditions = [("ZERO", "Zero", RED, "--"), ("CENTROID", "Centroid", BLUE, "-"),
                   ("DIAGONAL_GAUSSIAN", "Gaussian", TEAL, "-")]
     fig, axs = plt.subplots(1, 2, figsize=(10.6, 4.2), sharey=True)
+    plotted_by_model = {}
+    clean_by_model = {}
     for ax, (model, path) in zip(axs, paths.items()):
         rows = read_csv(path)
+        followup = read_csv(followup_paths[model])
+        rows.extend(r for r in followup if r["condition"] != "CLEAN")
         clean = next(float(r["top1_accuracy"])*100 for r in rows if r["condition"] == "CLEAN")
-        xclean = [5, 10]
-        ax.axhline(clean, color=GRAY, linewidth=1.1, linestyle=(0, (3, 2)), label="Clean reference")
-        ax.text(10.12, clean, f"clean {clean:.1f}", color=MUTED, fontsize=7.5, va="center")
+        clean_by_model[model] = clean
+        ax.axhline(clean, color=GRAY, linewidth=1.1, linestyle=(0, (3, 2)), label="Clean reference (dashed)")
+        plotted = {}
         for cond, name, color, ls in conditions:
             agg = grouped([r for r in rows if r["condition"] == cond], ("depth",), "top1_accuracy")
             depths, means, errs = [], [], []
@@ -203,90 +179,146 @@ def fig2(root: Path, out: Path) -> None:
                     errs.append(0.0)
             ax.errorbar(depths, means, yerr=errs, marker="o", markersize=4.8, linewidth=1.8,
                         capsize=2.5, color=color, linestyle=ls, label=name)
+            plotted[name] = (depths, means, errs, color, ls)
+        plotted_by_model[model] = plotted
         ax.set_title(model, loc="left", color=INK, pad=10)
         ax.set_xlabel("Intervention depth")
-        ax.set_xticks([5, 7, 8, 9, 10])
+        ax.set_xticks([5, 6, 7, 8, 9, 10])
         ax.set_xlim(4.6, 10.7); ax.set_ylim(0, 86)
         polish_axis(ax, grid="y")
+    # Zoom a central region that contains every replacement curve and the clean reference.
+    zoom_x = (4.8, 8.3)
+    zoom_y = (69.0, 77.5)
+    inset = axs[0].inset_axes([.35, .23, .50, .42])
+    inset.set_facecolor(PAPER)
+    inset.patch.set_alpha(1.0)
+    inset.set_zorder(10)
+    inset.axhline(clean_by_model["ViT-B/16 AugReg"], color=GRAY, linewidth=1.0,
+                  linestyle=(0, (3, 2)), zorder=1)
+    for name, (depths, means, errs, color, ls) in plotted_by_model["ViT-B/16 AugReg"].items():
+        inset.errorbar(depths, means, yerr=errs, marker="o", markersize=3.2, linewidth=1.35,
+                       capsize=1.8, color=color, linestyle=ls, zorder=3)
+    inset.set_xlim(*zoom_x); inset.set_ylim(*zoom_y)
+    inset.set_xticks([5, 6, 7, 8]); inset.set_yticks([70, 72, 74, 76])
+    inset.yaxis.tick_right()
+    inset.tick_params(labelsize=6.8, length=2, pad=1.5)
+    inset.grid(axis="y", color=GRID, linewidth=.55)
+    for spine in inset.spines.values():
+        spine.set_edgecolor(BLUE); spine.set_linewidth(1.1)
+    axs[0].add_patch(Rectangle((zoom_x[0], zoom_y[0]), zoom_x[1]-zoom_x[0], zoom_y[1]-zoom_y[0],
+                               fill=False, edgecolor=BLUE, linewidth=1.2, zorder=5))
+    for source_x, target_x in ((zoom_x[0], 0), (zoom_x[1], 1)):
+        fig.add_artist(ConnectionPatch((source_x, zoom_y[0]), (target_x, 1),
+                                       coordsA="data", axesA=axs[0],
+                                       coordsB="axes fraction", axesB=inset,
+                                       color=BLUE, linestyle=(0, (3, 2)),
+                                       linewidth=.85, alpha=.8, zorder=8))
     axs[0].set_ylabel("Top-1 accuracy (%)")
-    axs[0].legend(frameon=False, ncol=2, loc="lower left", bbox_to_anchor=(0, 0.01))
+    handles, labels = axs[0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, ncol=4, loc="lower center",
+               bbox_to_anchor=(.5, .012), fontsize=8.5)
     panel_label(axs[0], "a"); panel_label(axs[1], "b")
-    note(fig, "25% spatial-patch replacement; N=1,000 images/model. Error bars show SD across logged seeds; clean reference is the raw CLEAN row.")
-    fig.suptitle("Late-layer replacement depends on the surrogate", x=0.04, y=1.02,
-                 ha="left", fontsize=13, weight="semibold", color=INK)
-    fig.tight_layout(rect=(0, 0.09, 1, 0.95), w_pad=2.2)
+    fig.tight_layout(rect=(0, .06, 1, .98), w_pad=2.2)
     save_figure(fig, out, "figure2_depthwise")
 
 
 def fig3(root: Path, out: Path) -> None:
-    files = [("ViT-B/16", root/"outputs/fungibility_v1/vitb_geometry_results.csv"),
-             ("DINOv2 ViT-S/14", root/"outputs/fungibility_v1/dinov2_geometry_results.csv")]
-    fig, axs = plt.subplots(1, 3, figsize=(13.0, 4.7), gridspec_kw={"width_ratios": [1.15, 1.1, 1.15]})
-    # (a) Feature-coordinate geometry control; individual randomized permutation seeds remain visible.
+    fig, axs = plt.subplots(1, 2, figsize=(11.8, 5.0), gridspec_kw={"width_ratios": [1.0, 1.12]})
+    model_specs = [
+        ("ViT-B/16", "ViT-B/16", BLUE, "o"),
+        ("DINOv2 ViT-S/14", "DINOv2", TEAL, "s"),
+    ]
+    legend_handles = [
+        Line2D([0], [0], marker="o", linestyle="none", markerfacecolor=BLUE,
+               markeredgecolor="white", label="ViT-B/16"),
+        Line2D([0], [0], marker="s", linestyle="none", markerfacecolor=TEAL,
+               markeredgecolor="white", label="DINOv2"),
+        Line2D([0], [0], color=GRAY, linestyle="--", linewidth=1.2, label="Clean reference"),
+    ]
+
+    def draw_seed_bar(ax, x: float, values: list[float], color: str, marker: str, width: float = .32):
+        mean = sum(values) / len(values)
+        sd = (sum((v - mean) ** 2 for v in values) / (len(values) - 1)) ** .5 if len(values) > 1 else 0.0
+        ax.bar(x, mean, width=width, color=color, alpha=.24, edgecolor=color, linewidth=.8, zorder=2)
+        if sd:
+            ax.errorbar(x, mean, yerr=sd, color=color, linewidth=.9, capsize=2.2, zorder=3)
+        jitter = [0.0] if len(values) == 1 else [((j / (len(values) - 1)) - .5) * width * .58 for j in range(len(values))]
+        ax.scatter([x + dx for dx in jitter], values, s=25, marker=marker, color=color,
+                   edgecolor=PAPER, linewidth=.55, zorder=4)
+
+    # (a) Change the geometry of the replacement while keeping a 50% replacement rate.
     ax = axs[0]
-    conditions = [("CENTROID", "Centroid"), ("COORDINATE_PERMUTED_CENTROID", "Permuted"),
-                  ("SIGN_FLIPPED_CENTROID", "Sign-flipped")]
-    offsets = {"ViT-B/16": -0.10, "DINOv2 ViT-S/14": 0.10}
-    for model, path in files:
-        rows = [r for r in read_csv(path) if abs(float(r["fraction"])-0.5) < 1e-9]
-        for i, (condition, _) in enumerate(conditions):
-            vals = [float(r["top1_accuracy"])*100 for r in rows if r["condition"] == condition]
-            xs = [i+offsets[model]+(j-(len(vals)-1)/2)*0.035 for j in range(len(vals))]
-            color = BLUE if model == "ViT-B/16" else TEAL
-            ax.scatter(xs, vals, s=28, color=color, edgecolor=PAPER, linewidth=0.5, zorder=3,
-                       marker="o" if model == "ViT-B/16" else "s")
-            if vals:
-                mean = sum(vals)/len(vals)
-                ax.plot([i+offsets[model]-0.07, i+offsets[model]+0.07], [mean, mean], color=INK, lw=1.5)
-    ax.set_xticks(range(3), [x[1] for x in conditions], rotation=15, ha="right")
-    ax.set_ylabel("Top-1 accuracy (%)"); ax.set_ylim(0, 82)
-    ax.set_title("Coordinate geometry · 50% replacement", loc="left", color=INK)
-    ax.scatter([], [], color=BLUE, marker="o", label="ViT-B/16")
-    ax.scatter([], [], color=TEAL, marker="s", label="DINOv2")
-    ax.legend(frameon=False, loc="lower left", ncol=1)
+    geometry_files = {
+        "ViT-B/16": root / "outputs/fungibility_v1/vitb_geometry_results.csv",
+        "DINOv2 ViT-S/14": root / "outputs/fungibility_v1/dinov2_geometry_results.csv",
+    }
+    geometry_conditions = [
+        ("CENTROID", "Centroid\n(mean)"),
+        ("COORDINATE_PERMUTED_CENTROID", "Shuffled\ncoordinates"),
+        ("SIGN_FLIPPED_CENTROID", "Sign-flipped\nvector"),
+    ]
+    clean_sources = {
+        "ViT-B/16": root / "outputs/fungibility_v1/vitb_depth_results.csv",
+        "DINOv2 ViT-S/14": root / "outputs/fungibility_v1/dinov2_depth_results.csv",
+    }
+    for model, path in clean_sources.items():
+        clean = next(float(row["top1_accuracy"]) * 100 for row in read_csv(path) if row["condition"] == "CLEAN")
+        ax.axhline(clean, color=GRAY, linewidth=.9, linestyle=(0, (3, 2)), alpha=.75, zorder=1)
+    for i, (condition, _) in enumerate(geometry_conditions):
+        for mi, (model, _, color, marker) in enumerate(model_specs):
+            path = geometry_files[model]
+            rows = [r for r in read_csv(path) if abs(float(r["fraction"]) - .5) < 1e-9 and r["condition"] == condition]
+            values = [float(row["top1_accuracy"]) * 100 for row in rows]
+            draw_seed_bar(ax, i + (-.19 if mi == 0 else .19), values, color, marker, width=.32)
+    ax.set_xticks(range(3), [title for _, title in geometry_conditions])
+    ax.set_xlim(-.58, 2.58); ax.set_ylim(0, 84)
+    ax.set_ylabel("Top-1 accuracy (%)")
+    ax.set_title("Geometry at 50% replacement", loc="left", color=INK, pad=10)
     polish_axis(ax)
 
-    # (b) Shared versus independently sampled surrogates; each seed is shown.
+    # (b) Show accuracy as the number K of unique replacement vectors increases.
     ax = axs[1]
-    rows = read_csv(root/"outputs/fungibility_v0_8/shared_vs_independent_results.csv")
+    rows = read_csv(root / "outputs/fungibility_v0_8/grouped_diversity_results.csv")
+    v08_clean = read_csv(root / "outputs/fungibility_v0_8/statistical_comparisons.csv")
     model_order = ["deit_tiny_patch16_224", "deit_small_patch16_224"]
-    types = [("shared_noise", "Shared"), ("independent_noise", "Independent")]
-    for mi, model in enumerate(model_order):
-        for ti, (cond, _) in enumerate(types):
-            vals = [100*float(r["accuracy"]) for r in rows if r["model"] == model and r["condition_type"] == cond]
-            x = mi*3+ti
-            color = BLUE if mi == 0 else TEAL
-            ax.scatter([x+(j-(len(vals)-1)/2)*0.045 for j in range(len(vals))], vals,
-                       s=25, color=color, alpha=.9, edgecolor=PAPER, linewidth=.4)
-            if vals:
-                mean = sum(vals)/len(vals)
-                ax.plot([x-.22, x+.22], [mean, mean], color=INK, lw=1.2)
-    ax.set_xticks([0, 1, 3, 4], ["Shared\nTiny", "Independent\nTiny", "Shared\nSmall", "Independent\nSmall"], rotation=0, ha="center")
-    ax.set_xlim(-.6, 4.6); ax.set_ylim(0, 82); ax.set_ylabel("Top-1 accuracy (%)")
-    ax.set_title("Complete-stream surrogates", loc="left", color=INK)
-    polish_axis(ax)
-
-    # (c) More carrier groups help but do not imply full recovery.
-    ax = axs[2]
-    rows = read_csv(root/"outputs/fungibility_v0_8/grouped_diversity_results.csv")
-    for model, color, marker in [("deit_tiny_patch16_224", BLUE, "o"), ("deit_small_patch16_224", TEAL, "s")]:
+    model_style = {
+        "deit_tiny_patch16_224": (BLUE, "o", "Tiny"),
+        "deit_small_patch16_224": (TEAL, "s", "Small"),
+    }
+    for model in model_order:
+        clean = next(100 * float(r["accuracy"]) for r in v08_clean
+                     if r["model"] == model and r["condition"] == "clean")
+        ax.axhline(clean, color=GRAY, linewidth=.9, linestyle=(0, (3, 2)), alpha=.75, zorder=1)
+    for model in model_order:
+        color, marker, short_name = model_style[model]
         by_k = grouped([r for r in rows if r["model"] == model], ("k",), "accuracy")
         ks, means, errs = [], [], []
         for k in sorted({int(key[0]) for key in by_k}):
-            vals = by_k[(str(k),)]; mean = sum(vals)/len(vals)
-            ks.append(k); means.append(mean*100)
-            errs.append(((sum((v-mean)**2 for v in vals)/(len(vals)-1))**0.5*100) if len(vals)>1 else 0)
-        ax.errorbar(ks, means, yerr=errs, marker=marker, markersize=4.5, linewidth=1.6,
-                    capsize=2, color=color, label=label(model))
-    ax.set_xscale("log", base=2); ax.set_xticks([1, 2, 4, 8, 16, 32, 64, 196], ["1", "2", "4", "8", "16", "32", "64", "196"])
-    ax.set_ylim(0, 82); ax.set_xlabel("Distinct carrier groups (K)"); ax.set_ylabel("Top-1 accuracy (%)")
-    ax.set_title("Grouped-stream diversity", loc="left", color=INK); ax.legend(frameon=False, loc="lower right")
+            vals = by_k[(str(k),)]
+            mean = sum(vals) / len(vals)
+            ks.append(k); means.append(mean * 100)
+            errs.append(((sum((v - mean) ** 2 for v in vals) / (len(vals) - 1)) ** .5 * 100)
+                        if len(vals) > 1 else 0.0)
+        ax.errorbar(ks, means, yerr=errs, marker=marker, markersize=4.8, linewidth=1.7,
+                    capsize=2.2, color=color, label=f"DeiT-{short_name}", zorder=3)
+    ax.set_xscale("log", base=2)
+    ax.set_xticks([1, 2, 4, 8, 16, 32, 64, 196],
+                  ["1\nall same", "2", "4", "8", "16", "32", "64", "196\nall distinct"])
+    ax.set_ylim(0, 84); ax.set_xlabel("Unique replacement vectors (K)"); ax.set_ylabel("Top-1 accuracy (%)")
+    ax.set_title("Accuracy vs. K", loc="left", color=INK, pad=10)
+    ax.legend(handles=[
+        Line2D([0], [0], color=BLUE, marker="o", linewidth=1.7, label="DeiT-Tiny"),
+        Line2D([0], [0], color=TEAL, marker="s", linewidth=1.7, label="DeiT-Small"),
+        Line2D([0], [0], color=GRAY, linestyle="--", linewidth=1.2, label="Clean reference"),
+    ], frameon=False, fontsize=7.0, loc="lower left", bbox_to_anchor=(.02, .52), handlelength=1.6)
     polish_axis(ax)
-    for ax, p in zip(axs, "abc"): panel_label(ax, p)
-    fig.suptitle("Replacement depends on feature geometry and token diversity", x=0.04, y=1.02,
-                 ha="left", fontsize=13, weight="semibold", color=INK)
-    note(fig, "(a) V1 geometry CSVs, fraction=0.50; points are logged rows/seeds. (b,c) V0.8 complete-stream studies; N=1,000 evaluation images/model, with calibration disjoint.")
-    fig.tight_layout(rect=(0, 0.12, 1, 0.94), w_pad=1.7)
+    for ax, p in zip(axs, "ab"):
+        panel_label(ax, p)
+    fig.tight_layout(rect=(0, .10, 1, .97), w_pad=2.0)
+    # Keep the panel-(a) model key out of the plotted data region.
+    fig.legend(handles=legend_handles, frameon=False, fontsize=7.0, ncol=3,
+               loc="lower center", bbox_to_anchor=(.25, .015), handlelength=1.5,
+               columnspacing=1.15, handletextpad=.4)
     save_figure(fig, out, "figure3_geometry_diversity")
 
 
@@ -299,7 +331,7 @@ def fig4(root: Path, out: Path) -> None:
     fig, (axh, axd) = plt.subplots(1, 2, figsize=(10.6, 4.6), gridspec_kw={"width_ratios": [1.2, 1]})
     im = axh.imshow(values, cmap="Blues", norm=LogNorm(vmin=0.01, vmax=max(max(row) for row in values)*1.05), aspect="auto")
     axh.set_xticks(range(len(depths)), [str(d) for d in depths]); axh.set_yticks(range(2), ["DeiT-Small", "ViT-Base"])
-    axh.set_xlabel("Intervention depth"); axh.set_title("PC1 / bottom-PC sensitivity", loc="left", color=INK)
+    axh.set_xlabel("Intervention depth"); axh.set_title("PC1 / bottom PC", loc="left", color=INK)
     for i in range(2):
         for j in range(len(depths)):
             value = values[i][j]
@@ -311,7 +343,7 @@ def fig4(root: Path, out: Path) -> None:
     panel_label(axh, "a")
     # Vector explanation of feature direction and token-pattern interaction.
     axd.set_xlim(0, 1); axd.set_ylim(0, 1); axd.axis("off"); panel_label(axd, "b")
-    axd.set_title("Same token pattern, different feature direction", loc="left", color=INK, pad=10)
+    axd.set_title("Feature direction", loc="left", color=INK, pad=10)
     axd.text(.07, .82, "token displacement", fontsize=8, color=MUTED)
     # axes / two directions
     axd.add_patch(FancyArrowPatch((.20,.35),(.86,.35),arrowstyle="-|>",mutation_scale=12,color="#AAB3BA",lw=1))
@@ -320,52 +352,38 @@ def fig4(root: Path, out: Path) -> None:
     axd.text(.49,.74,"PC1",color=BLUE,fontsize=9,weight="semibold")
     axd.text(.76,.55,"bottom PC",color=TEAL,fontsize=9,weight="semibold")
     axd.text(.56,.20,"feature space",color=MUTED,fontsize=8,ha="center")
-    axd.text(.50,.04,"Functional sensitivity is anisotropic",color=INK,fontsize=9,ha="center",weight="semibold")
-    fig.suptitle("Functional geometry is direction-dependent", x=0.04, y=1.02,
-                 ha="left", fontsize=13, weight="semibold", color=INK)
-    note(fig, "Heatmap values are the audited ratio_PC1_to_PCbot field from the N=100 functional-geometry pilot; right panel is an explanatory vector schematic.")
-    fig.tight_layout(rect=(0, .11, 1, .94), w_pad=2.0)
+    fig.tight_layout(rect=(0, .02, 1, .98), w_pad=2.0)
     save_figure(fig, out, "figure4_anisotropic_geometry")
 
 
 def fig5(root: Path, out: Path) -> None:
     rows = read_csv(root/"outputs/fungibility_attention_causal_audit/qkv_decomposition.csv")
-    models = [("deit_small", 8, "DeiT-Small · depth 8"), ("vit_base", 7, "ViT-Base · depth 7")]
+    models = [("deit_small", 8, "DeiT-S · Block 8"), ("vit_base", 7, "ViT-B · Block 7")]
     patterns = [("global_coherent", "Coherent"), ("random_sign", "Random sign"), ("checkerboard", "Checkerboard")]
     fig, axs = plt.subplots(1, 2, figsize=(9.8, 4.4), sharey=True)
+    x = list(range(len(patterns))); width = .34
     for ax, (model, depth, title) in zip(axs, models):
-        for pathway, name, color, marker, offset in [("V_only", "V-only", BLUE, "o", -0.12),
-                                                       ("K_plus_V", "K+V", TEAL, "s", 0.12)]:
-            xs, ys = [], []
-            for i, (pattern, _) in enumerate(patterns):
+        values = {}
+        for pathway, name in [("V_only", "V-only"), ("K_plus_V", "K+V")]:
+            ys = []
+            for pattern, _ in patterns:
                 matches = [r for r in rows if r["model_key"] == model and int(r["depth"]) == depth
                            and r["token_pattern"] == pattern and r["feature_dir"] == "jac_top"
                            and float(r["scale_s"]) == 1.0 and r["pathway"] == pathway]
                 if len(matches) != 1:
                     raise ValueError(f"Expected one qkv row for {model}/{depth}/{pattern}/{pathway}; got {len(matches)}")
-                xs.append(i+offset); ys.append(float(matches[0]["dz_readout_l1"]))
-            ax.scatter(xs, ys, marker=marker, color=color, s=45, label=name, zorder=3)
-        panel = "a" if model == "deit_small" else "b"
-        ax.set_xticks(range(3), [p[1] for p in patterns]); ax.set_title(f"({panel})  {title}", loc="left", color=INK, pad=11)
-        ax.set_ylabel("Immediate readout disturbance ‖Δz‖₁" if model == "deit_small" else "")
+                ys.append(float(matches[0]["dz_readout_l1"]))
+            values[pathway] = ys
+        ax.bar([v-width/2 for v in x], values["V_only"], width=width, color=BLUE, label="V-only", zorder=3)
+        ax.bar([v+width/2 for v in x], values["K_plus_V"], width=width, color=TEAL, label="K+V", zorder=3)
+        ax.set_xticks(x, [p[1] for p in patterns])
+        ax.set_title(title, loc="left", color=INK, pad=9)
+        panel_label(ax, "a" if model == "deit_small" else "b")
         polish_axis(ax)
+    axs[0].set_ylabel("Immediate readout disturbance ‖Δz‖₁")
     axs[0].legend(frameon=False, loc="upper right")
-    # Compact vector explanation, no added quantitative claims.
-    fig.text(.12, .18, "coherent", color=BLUE, fontsize=8, weight="semibold")
-    fig.text(.53, .18, "random signs", color=MUTED, fontsize=8, weight="semibold")
-    for i in range(5):
-        x=.21+i*.045; fig.add_artist(FancyArrowPatch((x,.155),(x+.025,.155),transform=fig.transFigure,
-                          arrowstyle="-|>",mutation_scale=7,color=BLUE,lw=1.2))
-    for i, direction in enumerate([1,-1,1,-1,1]):
-        x=.64+i*.045; y=.155
-        fig.add_artist(FancyArrowPatch((x,y),(x+.025,y+direction*.025),transform=fig.transFigure,
-                          arrowstyle="-|>",mutation_scale=7,color=GRAY,lw=1.2))
-    fig.suptitle("The Value path carries coherent patch perturbations to the readout", x=0.04, y=1.02,
-                 ha="left", fontsize=13, weight="semibold", color=INK)
-    note(fig, "N=100 attention-audit images; jac_top, scale s=1.0; raw QKV-decomposition dz_readout_l1. Schematic arrows explain coherence only.")
-    fig.tight_layout(rect=(0, .25, 1, .94), w_pad=2.0)
+    fig.tight_layout(rect=(0, .02, 1, .98), w_pad=2.0)
     save_figure(fig, out, "figure5_value_path_cancellation")
-
 
 def fig6(root: Path, out: Path) -> None:
     manifest = read_json(root/"outputs/fungibility_multiblock_operator/validation_manifest.json")
@@ -373,10 +391,9 @@ def fig6(root: Path, out: Path) -> None:
     metrics = ["Pearson r", "Spearman ρ"]
     single = [c["single_block_pearson_r"], c["single_block_spearman_rho"]]
     multi = [c["multi_block_pearson_r"], c["multi_block_spearman_rho"]]
-    angle = manifest["primary_findings"]["mean_principal_angle_deg_b8_to_b9"]
     fig, (axd, axc) = plt.subplots(1, 2, figsize=(10.8, 4.4), gridspec_kw={"width_ratios": [1, 1.2]})
     axd.set_xlim(0, 1); axd.set_ylim(0, 1); axd.axis("off")
-    axd.set_title("Functional map across depth", loc="left", color=INK, pad=10); panel_label(axd, "a")
+    axd.set_title("Across blocks", loc="left", color=INK, pad=10); panel_label(axd, "a")
     # Local operator vs composition through downstream blocks.
     for i, y in enumerate([.69, .46, .23]):
         box = FancyBboxPatch((.09,y),.32,.13,boxstyle="round,pad=.02,rounding_size=.03",
@@ -388,7 +405,6 @@ def fig6(root: Path, out: Path) -> None:
     axd.text(.60,.63,"Jₗ",color=BLUE,fontsize=11)
     axd.text(.60,.46,"downstream composition",color=TEAL,fontsize=8.5,weight="semibold")
     axd.text(.60,.34,"Jₗ₊₁ · … · Jᴸ",color=TEAL,fontsize=11)
-    axd.text(.50,.06,f"Mean principal angle, block 8→9: {angle:.1f}°",ha="center",color=MUTED,fontsize=8)
     # Correlation comparison with directly reported values.
     x = [0, 1]
     axc.plot(x, single, marker="o", color=GRAY, lw=1.8, markersize=6, label="Single block")
@@ -396,12 +412,9 @@ def fig6(root: Path, out: Path) -> None:
     for xi, val in zip(x, single): axc.text(xi, val-.045, f"{val:.3f}", color=MUTED, fontsize=8, ha="center")
     for xi, val in zip(x, multi): axc.text(xi, val+.025, f"{val:.3f}", color=TEAL, fontsize=8, ha="center", weight="semibold")
     axc.set_xticks(x, metrics); axc.set_ylim(.6,1.02); axc.set_ylabel("Correlation with held-out damage")
-    axc.set_title("Damage prediction improves with downstream context", loc="left", color=INK)
+    axc.set_title("Damage prediction", loc="left", color=INK)
     axc.legend(frameon=False, loc="lower right"); polish_axis(axc); panel_label(axc, "b")
-    fig.suptitle("Local geometry misses downstream rotation and transmission", x=0.04, y=1.02,
-                 ha="left", fontsize=13, weight="semibold", color=INK)
-    note(fig, "N=100 held-out perturbations. Correlations and principal angle are read from the audited multi-block validation manifest; diagram is conceptual.")
-    fig.tight_layout(rect=(0, .10, 1, .94), w_pad=2.0)
+    fig.tight_layout(rect=(0, .02, 1, .98), w_pad=2.0)
     save_figure(fig, out, "figure6_end_to_end_operator")
 
 
@@ -423,27 +436,26 @@ def fig7(root: Path, out: Path) -> None:
         subset = [r for r in rows if r["model"] == model]
         clean = float(subset[0]["clean_acc"])*100
         ax.axhline(clean, color="#B6BEC4", linestyle=(0,(3,2)), linewidth=.9)
+        plotted_accuracies = [clean]
         for method, name, color in methods:
             pts = sorted((float(r["rem_frac"])*100, float(r["top1_acc"])*100)
                          for r in subset if r["method"] == method)
             if not pts: continue
             xs, ys = zip(*pts)
+            plotted_accuracies.extend(ys)
             ax.plot(xs, ys, marker="o", markersize=3.8, linewidth=1.55, color=color, label=name)
         ax.set_title(model, loc="left", color=INK)
-        ax.set_xlim(10, 80); ax.set_ylim(max(0, clean-32), clean+3)
+        low, high = min(plotted_accuracies), max(plotted_accuracies)
+        pad = max(1.0, .08 * (high - low))
+        ax.set_xlim(10, 80); ax.set_ylim(low-pad, high+pad)
         polish_axis(ax)
     for ax in axs[-1,:]: ax.set_xlabel("Retained patch tokens (%)")
     axs[0,0].set_ylabel("Top-1 accuracy (%)"); axs[1,0].set_ylabel("Top-1 accuracy (%)")
     handles, labels = axs[0,0].get_legend_handles_labels()
-    fig.legend(handles, labels, frameon=False, loc="lower center", ncol=5, bbox_to_anchor=(.5,.12))
+    fig.legend(handles, labels, frameon=False, loc="lower center", ncol=3,
+               bbox_to_anchor=(.5,.09), fontsize=8.0)
     for ax,p in zip(axs.flat,"abcd"): panel_label(ax,p)
-    # Low-rank result is shown exactly as the audited claim, not recomputed from Top-1 rows.
-    fig.text(.5,.066,"Rank-16 / Rank-32 retain >98% of the full-J oracle compression benefit*",
-             ha="center", color=INK, fontsize=9, weight="semibold")
-    note(fig, "N=1,000 held-out images/model; all tested budgets. *Denominator: Group-Mean-to-full-J-oracle compression benefit, as audited; not an accuracy ratio or spectral energy.", y=.018)
-    fig.suptitle("Operator-aware compression improves selected confirmatory frontiers", x=0.04, y=.99,
-                 ha="left", fontsize=13, weight="semibold", color=INK)
-    fig.tight_layout(rect=(0, .22, 1, .93), h_pad=1.8, w_pad=1.8)
+    fig.tight_layout(rect=(0, .15, 1, .98), h_pad=1.8, w_pad=1.8)
     save_figure(fig, out, "figure7_operator_compression")
 
 
@@ -488,33 +500,31 @@ def fig_s1(root: Path, out: Path) -> None:
     fig.legend([hmap[name] for _,name,_,_ in methods if name in hmap], [name for _,name,_,_ in methods if name in hmap],
                frameon=False,loc="lower center",ncol=5,bbox_to_anchor=(.5,.035))
     for ax,p in zip(axs.flat,"abcd"): panel_label(ax,p)
-    fig.suptitle("Measured carrier results are mixed and model-dependent",x=.04,y=.99,ha="left",fontsize=13,weight="semibold",color=INK)
-    note(fig,"BS=64 rows from the real-final accuracy-throughput frontier; 1,000 held-out images/model; throughput uses 100 full-model calls per timing row. Markers show measured methods; no proxy timing.",y=.005)
-    fig.tight_layout(rect=(0,.12,1,.93),h_pad=1.7,w_pad=1.8)
+    fig.tight_layout(rect=(0,.10,1,.98),h_pad=1.7,w_pad=1.8)
     save_figure(fig,out,"figureS1_real_carrier_boundary")
 
 
 FIGURE_SOURCES = {
-    "figure1_overview": ("Conceptual vector schematic; no empirical data.", "Intervention logic is shown without numeric encoding."),
-    "figure2_depthwise": ("outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv", "Rows condition in CLEAN/ZERO/CENTROID/DIAGONAL_GAUSSIAN; all depths; Top-1 accuracy; seed-level SD; 25% replacement documented in audited V1 report."),
-    "figure3_geometry_diversity": ("outputs/fungibility_v1/vitb_geometry_results.csv; outputs/fungibility_v1/dinov2_geometry_results.csv; outputs/fungibility_v0_8/shared_vs_independent_results.csv; outputs/fungibility_v0_8/grouped_diversity_results.csv", "V1 rows fraction=0.50 and conditions CENTROID/COORDINATE_PERMUTED_CENTROID/SIGN_FLIPPED_CENTROID, all recorded seeds; V0.8 all shared/independent seeds and all K values."),
+    "figure1_overview": ("figures/paper_final_v4/source/figure1_overview_user.png (user-supplied image); no empirical data.", "The supplied overview is reproduced pixel-for-pixel; no numeric result is encoded."),
+    "figure2_depthwise": ("outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v1_depth6_followup/vitb_depth6_results.csv; outputs/fungibility_v1_depth6_followup/dinov2_depth6_results.csv", "Original V1 depths 5, 7, 8, 9, 10 plus isolated depth-6 follow-up; CLEAN/ZERO/CENTROID/DIAGONAL_GAUSSIAN; Top-1 accuracy; Gaussian seed-level SD; all under 25% replacement."),
+    "figure3_geometry_diversity": ("outputs/fungibility_v1/vitb_geometry_results.csv; outputs/fungibility_v1/dinov2_geometry_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v0_8/grouped_diversity_results.csv; outputs/fungibility_v0_8/statistical_comparisons.csv", "Panel (a): V1 rows fraction=0.50 and conditions CENTROID/COORDINATE_PERMUTED_CENTROID/SIGN_FLIPPED_CENTROID for ViT-B/16 AugReg and DINOv2 ViT-S/14, with CLEAN references; panel (b): V0.8 grouped-diversity results across all K values for DeiT-Tiny/Small with model-specific CLEAN references. These are separate study cohorts."),
     "figure4_anisotropic_geometry": ("outputs/fungibility_functional_geometry/covariance_function_alignment.csv", "All 8 model/depth rows; heatmap displays ratio_PC1_to_PCbot. Vector panel is explanatory only."),
     "figure5_value_path_cancellation": ("outputs/fungibility_attention_causal_audit/qkv_decomposition.csv", "model/depth pairs (deit_small,8) and (vit_base,7); token patterns global_coherent/random_sign/checkerboard; feature_dir=jac_top; scale_s=1.0; pathways V_only and K_plus_V; dz_readout_l1."),
     "figure6_end_to_end_operator": ("outputs/fungibility_multiblock_operator/validation_manifest.json", "prediction_correlations single_block/multi_block Pearson and Spearman; primary_findings mean_principal_angle_deg_b8_to_b9."),
-    "figure7_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures. Low-rank >98% statement is reproduced from the audited benefit denominator in report §5, not recomputed from Top-1; rank conditions checked in low_rank_ablation.csv."),
+    "figure7_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures; rank-16/rank-32 rows are checked in low_rank_ablation.csv. The >98% benefit denominator remains stated in the manuscript caption and confirmatory report."),
     "figureS1_real_carrier_boundary": ("outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv", "batch_size=64; all four architectures and available Clean/Group Mean/q16/q32/Selective q16 rows; fields top1_accuracy and img_per_sec. Output files reside in supp/."),
 }
 
 
 def write_manifest(out: Path) -> None:
     titles = {
-        "figure1_overview": ("Controlled patch-content intervention", "Mechanism schematic with fixed slots, surrogate controls, downstream operator, and readout."),
-        "figure2_depthwise": ("Depth-wise replacement controls", "Replots accuracy directly from V1 result CSVs and exposes seed variation."),
-        "figure3_geometry_diversity": ("Geometry and diversity constraints", "Combines coordinate-geometry controls with shared/independent and grouped-stream diversity evidence."),
+          "figure1_overview": ("PCF overview and replacement constraints", "User-supplied composite overview of late-layer patch-content intervention, sensitive directions, geometry/diversity constraints, and Value-path cancellation."),
+        "figure2_depthwise": ("Depth-wise replacement controls", "Replots original V1 results and an isolated depth-6 follow-up, exposes Gaussian seed variation, and zooms the boxed panel-(a) region with Clean, Zero, Centroid, and Gaussian curves."),
+        "figure3_geometry_diversity": ("Geometry and diversity constraints", "Two-panel figure: V1 geometry controls at 50% replacement for ViT-B/16 and DINOv2, and V0.8 accuracy versus K for DeiT-Tiny/Small. The cohorts are distinct; interpret contrasts within panels."),
         "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Shows audited feature-direction sensitivity ratio with a concise geometric explanation."),
         "figure5_value_path_cancellation": ("Value-path transmission and cancellation", "Compares coherent and sign-varying token patterns through V-only and K+V pathways."),
         "figure6_end_to_end_operator": ("Local versus end-to-end operator", "Connects downstream block composition to the audited damage-prediction correlations."),
-        "figure7_operator_compression": ("Confirmatory operator-aware compression", "Plots the N=1,000 accuracy-token curves and states the audited low-rank benefit denominator."),
+        "figure7_operator_compression": ("Confirmatory operator-aware compression", "Plots the N=1,000 accuracy-token curves across four architectures; the audited >98% benefit denominator is stated in the manuscript caption and report."),
         "figureS1_real_carrier_boundary": ("Real-model carrier boundary", "Shows the measured accuracy-throughput tradeoff as a bounded supplementary result."),
     }
     lines = ["# Figure Manifest v4", "", "Generated by `scripts/build_paper_figures_v4.py`. White background, DejaVu Sans, consistent typography; SVG and 300 dpi PNG saved for every panel. No models were executed.", ""]
@@ -523,7 +533,12 @@ def write_manifest(out: Path) -> None:
         if stem == "figureS1_real_carrier_boundary":
             filename = f"supp/{filename}"
         sources, filters = FIGURE_SOURCES[stem]
-        lines += [f"## {i}. {purpose}", "", f"- **Final filename:** `{filename}`", f"- **Purpose:** {design}", f"- **Source data:** {sources}", "- **Generating script:** `scripts/build_paper_figures_v4.py`", f"- **Rows / filters:** {filters}", "- **Design notes:** restrained mechanism blue and compression teal; gray references; explicit units and sample units; vector SVG plus 300 dpi PNG.", ""]
+        design_notes = "user-supplied source image preserved pixel-for-pixel in PNG and embedded in an SVG wrapper; no empirical data."
+        if stem != "figure1_overview":
+            design_notes = "restrained mechanism blue and compression teal; gray references; explicit units and sample units; concise panel titles only, no figure-level headline or embedded bottom caption; vector SVG plus 300 dpi PNG."
+        if stem == "figure3_geometry_diversity":
+            design_notes = "Two panels only: (a) geometry controls at 50% replacement and (b) the grouped-diversity sweep across K; the former shared-versus-independent panel is omitted; clean accuracy is shown as gray dashed references."
+        lines += [f"## {i}. {purpose}", "", f"- **Final filename:** `{filename}`", f"- **Purpose:** {design}", f"- **Source data:** {sources}", "- **Generating script:** `scripts/build_paper_figures_v4.py`", f"- **Rows / filters:** {filters}", f"- **Design notes:** {design_notes}", ""]
     (out/"FIGURE_MANIFEST.md").write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -553,7 +568,7 @@ def main() -> None:
     root=parser.parse_args().root.resolve()
     out=root/"figures/paper_final_v4"; (out/"supp").mkdir(parents=True,exist_ok=True)
     setup_style()
-    fig1(out); fig2(root,out); fig3(root,out); fig4(root,out); fig5(root,out); fig6(root,out); fig7(root,out)
+    fig1(root,out); fig2(root,out); fig3(root,out); fig4(root,out); fig5(root,out); fig6(root,out); fig7(root,out)
     fig_s1(root,out/"supp")
     write_manifest(out); contact_sheet(out)
     print(f"Rendered 7 main figures + 1 supplement; contact sheet: {out/'contact_sheet.png'}")
