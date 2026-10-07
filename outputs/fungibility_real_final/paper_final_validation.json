@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "checks": {
+    "required_manuscript_and_audit_docs": {
+      "status": "PASS",
+      "detail": "Draft, claims, traceability, sample-size map, and readiness record must exist."
+    },
+    "no_proxy_accuracy_timing_or_frontier_sources": {
+      "status": "PASS",
+      "detail": "No historical proxy accuracy, toy timing, or frontier CSV may be cited as empirical support."
+    },
+    "no_stale_practical_headline_values": {
+      "status": "PASS",
+      "detail": "Removed stale throughput, accuracy, and isolated-overhead headline claims."
+    },
+    "mechanistic_sample_units_correct": {
+      "status": "PASS",
+      "detail": "Attention/geometry image audits use N=100, multi-block uses perturbations, and confirmatory/carrier accuracy uses N=1,000 per model."
+    },
+    "sample_map_and_claims_correct": {
+      "status": "PASS",
+      "detail": "C2, C4/C5, confirmatory, and real-final counts are separately stated."
+    },
+    "full_j_benefit_denominator_explicit": {
+      "status": "PASS",
+      "detail": "The >98% statement names the Group-Mean-to-full-J-oracle compression-benefit denominator."
+    },
+    "no_unsupported_pareto_dominance": {
+      "status": "PASS",
+      "detail": "Frontier language is limited to measured non-dominated points and bounded regimes."
+    },
+    "no_unresolved_placeholders": {
+      "status": "PASS",
+      "detail": "No unresolved editorial or bibliography placeholders remain in the manuscript."
+    },
+    "no_local_file_urls": {
+      "status": "PASS",
+      "detail": "Manuscript contains no machine-local file URL."
+    },
+    "canonical_repo_name_correct": {
+      "status": "PASS",
+      "detail": "Canonical repository is Patch-Content-Fungibility; workspace folder name is not presented as canonical."
+    },
+    "no_invalid_v2_figure_paths": {
+      "status": "PASS",
+      "detail": "Manuscript points only to regenerated v3 figures."
+    },
+    "bibliography_resolves_without_duplicates": {
+      "status": "PASS",
+      "detail": "12 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
+    },
+    "all_manuscript_figures_exist_and_are_v3_svg": {
+      "status": "PASS",
+      "detail": "Referenced figures=8; missing=[]; invalid=[]."
+    },
+    "publication_figures_present_and_source_scoped": {
+      "status": "PASS",
+      "detail": "Missing figures=[]; generator has real-final frontier input=True."
+    },
+    "quantitative_claims_traceable": {
+      "status": "PASS",
+      "detail": "Numeric evidence families absent from traceability map: []."
+    }
+  },
+  "passed_count": 15,
+  "assertion_count": 15
+}

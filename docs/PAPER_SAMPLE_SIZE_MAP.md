@@ -1,21 +1,28 @@
 # Paper Sample-Size Map
 
-Sample sizes below come from the named manifests or report, not from draft prose. Mechanistic perturbation counts and image counts are different units.
+Counts below are taken from experiment manifests and named source outputs. A perturbation count is not an image count.
 
-| Claim / experiment | Architecture | Sample size | Split / sampling unit | Source |
+| Experiment / claim | Architecture | Sample size | Sampling unit / split | Authoritative source |
 |---|---|---:|---|---|
-| Functional geometry pilot: image consistency / anisotropy | DeiT-Small, ViT-B/16 | N=100 images | Pilot/evaluation images; manifest does not identify a canonical N=1,000 split | `outputs/fungibility_functional_geometry/validation_manifest.json` |
-| Attention causal audit | DeiT-Small, ViT-B/16; replication includes DeiT-Tiny and DINOv2 | N=100 evaluation images | Evaluation images | `outputs/fungibility_attention_causal_audit/validation_manifest.json` |
-| Multi-block operator prediction | DeiT-Small, ViT-B/16, DeiT-Tiny, DINOv2 | N=100 held-out perturbations | Perturbations; do not describe this as 100 or 1,000 held-out images | `outputs/fungibility_multiblock_operator/validation_manifest.json` |
-| Strict confirmatory operator compression | DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, DINOv2 ViT-S/14 | N=1,000 held-out images per architecture | ImageNet-1k validation subset, eval seed 9201; calibration seed 9101; report says disjoint | `outputs/fungibility_operator_compression_confirmatory/validation_manifest.json`; `docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md` |
-| Historical final-consolidation operator targets | DeiT-Tiny, DeiT-Small, ViT-B/16, DINOv2 | 500 calibration activations and 100 held-out evaluation activations | Target tensors identify train and val cohorts; the consolidation validation manifest says 500/100 | `outputs/fungibility_final_consolidation/validation_manifest.json`; `scripts/run_final_consolidation_benchmark.py` |
-| Historical final-consolidation q ablation and random-basis control | Four configured architectures | N=100 evaluation activations; 25 random bases in the control | Operator-space evaluation, not real classification evaluation | `outputs/fungibility_final_consolidation/validation_manifest.json`; `scripts/run_final_consolidation_benchmark.py` |
-| Historical confirmatory integer-count extraction | DeiT-Tiny, DeiT-Small, ViT-B/16, DINOv2 | N=1,000 per architecture/method/budget | Reused binary correctness rows; not a new run; logits/predictions are not in this derived summary | `outputs/fungibility_real_final/historical_confirmatory_accuracy_counts.csv`, sourced from confirmatory `per_image_results.csv` |
-| New real-final static carrier / selective gate / throughput | Four requested architectures | UNMEASURED | No new validated run or full real-final per-image schema is present | `outputs/fungibility_real_final/validation_manifest.json` |
+| Depthwise late replacement (C1, Fig. 2) | DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, DINOv2 ViT-S/14 | N=1,000 evaluation images per architecture; calibration count per V0.6/V1 manifest | Held-out images; replacement depth and fraction are method filters | `outputs/fungibility_v0_6/experiment_manifest.json`; `outputs/fungibility_v1/validation_results.json`; `docs/FUNGIBILITY_V0_6_REPORT.md`; `docs/FUNGIBILITY_V1_REPORT.md` |
+| Activation geometry control (C2a) | DeiT-Tiny, DeiT-Small | N=1,000 evaluation + N=1,000 calibration images per model | Depth 8, 50% activation replacement; Top-1 classifier outcome | `outputs/fungibility_v0_7/experiment_manifest.json`; `docs/FUNGIBILITY_V0_7_REPORT.md` |
+| PCA-basis coordinate-shuffle control (C2b; +1.474) | DeiT-Small, q=16 | N=100 held-out operator-space images | Mean `||J E||` norm difference, standard PCA vs shuffled PCA basis; not Top-1 | `outputs/fungibility_implicit_carrier_operator_audit/validation_manifest.json`; `pca_control_ablation.csv` |
+| Complete-stream diversity (C3, Fig. 3) | DeiT-Tiny, DeiT-Small | N=1,000 evaluation images and N=1,000 calibration images per model | Image samples; 196 spatial patches replaced; multiple fixed seed/control rows | `outputs/fungibility_v0_8/experiment_manifest.json`; CSV outputs in same directory |
+| Attention causal audit (C4, Fig. 5) | DeiT-Small depth 8, ViT-Base depth 7; replication rows per manifest | N=100 evaluation images | Image samples | `outputs/fungibility_attention_causal_audit/validation_manifest.json` (`num_eval_images`) |
+| Functional-geometry pilot (C5 support, Fig. 4) | DeiT-Small, ViT-Base | N=100 images | Pilot evaluation images | `outputs/fungibility_functional_geometry/validation_manifest.json` (`num_images_pilot`) |
+| Multi-block operator prediction (C5 primary) | DeiT-Small, ViT-Base, DeiT-Tiny, DINOv2 | N=100 held-out perturbations | Perturbation samples; must never be labeled held-out images | `outputs/fungibility_multiblock_operator/validation_manifest.json` (`num_heldout_perturbations`) |
+| Strict operator-compression confirmatory (C6–C8, Figs. 6–7) | DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, DINOv2 ViT-S/14 | N=1,000 held-out images per architecture | Integer-count accuracy and per-image paired records; calibration split is separately manifested | `outputs/fungibility_operator_compression_confirmatory/validation_manifest.json`; `per_image_results.csv` |
+| Static-alpha and PCA basis operator-space evidence (C2, C9a) | Four configured models for basis controls; DeiT-Small q16 static-alpha headline | N=100 held-out operator-space images; calibration N=500 activations where applicable | Linearized operator targets; report as operator-space only | `outputs/fungibility_implicit_carrier_operator_audit/validation_manifest.json` and source CSVs |
+| Operator-space risk gate (C12a) | Rows as listed in gate audit | N=100 held-out operator-space examples | Risk-score/JE outcomes; exploratory | Same manifest and `gate_audit.csv` |
+| Real-final carrier accuracy and gate (C9b, C12b, C14, Fig. S1) | DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, DINOv2 ViT-S/14 | N=1,000 held-out images per architecture | Actual model predictions and integer counts; disjoint calibration/evaluation IDs | `outputs/fungibility_real_final/validation_manifest.json`; `real_accuracy_per_image.csv`; `sample_manifest.csv` |
+| Real-final throughput (C13, Fig. S1) | Four real-final models | 50 warmups + 100 measured iterations for each timing row | Actual full-model calls, not an image accuracy subset; hardware and callable details in raw rows | `outputs/fungibility_real_final/real_throughput_raw.csv` and `measurement_manifest.json` |
 
-## Corrections required in scientific writing
+## Required Wording
 
-- Do not describe the functional-geometry, attention-causal, or multi-block studies above as N=1,000.
-- Do not reduce the strict confirmatory operator-compression evaluation to N=100. Its report and validation manifest specify N=1,000.
-- The final-consolidation directory's 100 evaluation targets support at most its operator-space analyses. They do not support the synthetic Top-1 rows in its accuracy table.
-- When reporting N=1,000 confirmatory accuracy, cite the confirmatory report and raw per-image output, and preserve its checkpoint, preprocessing, intervention depth, token semantics, multiplicity handling, and exact method/budget filters.
+- C2a activation-control Top-1 is N=1,000 per DeiT architecture; C2b's +1.474 PCA-basis result is N=100 operator-space evidence, not classification evidence.
+- C4 attention causal audit: N=100 images.
+- Functional geometry pilot: N=100 images.
+- C5 multi-block operator study: N=100 held-out perturbations.
+- C6–C8 strict confirmatory: N=1,000 held-out images per architecture.
+- C9b/C12b/C14 real-final classification: N=1,000 held-out images per architecture.
+- Never combine counts from distinct experiments into one sample-size claim.
