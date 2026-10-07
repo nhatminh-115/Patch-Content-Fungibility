@@ -2,7 +2,7 @@
 
 **Repository:** [Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Date:** October 7, 2026  
-**Status:** Authoritative Post-Audit Release  
+**Status:** Historical claim-hygiene audit; practical runtime claims superseded by real-final measurements
 **Commit Reference:** `ef15f365ee59234356062d30a1ba0a457a07e4a9`  
 
 ---
@@ -88,4 +88,4 @@ To ensure zero information leakage:
    - At $BS=1$ (latency-bound), token reduction savings in suffix layers are offset by prefix execution overhead; compression yields minimal wall-clock speedup.  
    - At $BS \ge 16$ (compute-bound), token reduction yields significant speedups ($1.3\text{--}1.5\text{x}$ suffix acceleration).  
    - Claims of acceleration must explicitly specify the **batched throughput regime ($BS \ge 16$)** and avoid asserting universal latency reduction at $BS=1$.
-3. **Operator Overhead:** Confirmed at **$0.12\text{--}0.22\text{ ms/image}$** at $BS \ge 16$ on DeiT-Tiny and DeiT-Small.
+3. **Operator Overhead:** The prior isolated-overhead claim of $0.12$–$0.22$ ms/image is withdrawn. The real-final benchmark measures complete model-call latency, not isolated operator cost; cite `outputs/fungibility_real_final/real_throughput_raw.csv` and `real_throughput_summary.csv` for end-to-end timings.

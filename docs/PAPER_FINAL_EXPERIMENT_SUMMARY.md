@@ -2,9 +2,9 @@
 
 **Repository:** [Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Date:** October 7, 2026  
-**Status:** Authoritative Post-Audit Release (Fully Reconciled)  
-**Primary Outputs:** [`outputs/fungibility_final_consolidation/`](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_final_consolidation/)  
-**Primary Figures:** [`figures/paper_final_v2/`](file:///d:/Study/Patch-Content-Fungibility/figures/paper_final_v2/)  
+**Status:** Source correction in progress; manuscript draft remains pending lockdown
+**Primary Outputs:** `outputs/fungibility_real_final/` (actual carrier accuracy/runtime); `outputs/fungibility_operator_compression_confirmatory/` (strict N=1,000 compression)
+**Legacy Figures:** `figures/paper_final_v2/` are not treated as validated accuracy/runtime figures pending figure lockdown
 
 ---
 
@@ -21,11 +21,11 @@ The empirical evaluation covers four diverse Vision Transformer models spanning 
 
 ---
 
-## 2. Static $q$-Ablation Across Architectures (Authoritative Final Consolidation)
+## 2. Static $q$-Ablation Across Architectures (Operator-Space Evidence Only)
 
-Evaluating carrier correction across subspace dimensions $q \in \{8, 16, 32, 64\}$ against the properly stabilized full oracle reference ($\lambda = 10^{-3}$) on 100 held-out evaluation images (from `final_q_ablation.csv`):
+The following audited quantities are $\|JE\|$ operator-space measurements from 100 held-out samples, not Top-1 or runtime evidence. Historical Top-1 fields are omitted. Source: `outputs/fungibility_final_consolidation/final_q_ablation.csv` plus `docs/FUNGIBILITY_IMPLICIT_CARRIER_OPERATOR_AUDIT.md`.
 
-| Architecture | Budget | Baseline Group Mean $\|JE\|$ | Stabilized Full Oracle $\|JE\|$ | Static $\bar{\alpha}$ ($q=8$) | Static $\bar{\alpha}$ ($q=16$) | Static $\bar{\alpha}$ ($q=32$) | Static $\bar{\alpha}$ ($q=64$) | Full Oracle Recovery ($q=16$) | Restricted Oracle Recovery ($q=16$) |
+| Architecture | Budget | Baseline Group Mean $\|JE\|$ | Stabilized Full Oracle $\|JE\|$ | Static $\bar{\alpha}$ ($q=8$) | Static $\bar{\alpha}$ ($q=16$) | Static $\bar{\alpha}$ ($q=32$) | Static $\bar{\alpha}$ ($q=64$) | Full-Oracle $\|JE\|$ Gain Recovery ($q=16$) | Restricted-Oracle Gain Recovery ($q=16$) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **DeiT-Tiny** | 50% (98) | 4.1586 | 0.0067 | 3.7791 | 3.7532 | 3.6512 | 3.6192 | 9.76% | 26.06% |
 | **DeiT-Small** | 50% (98) | 12.5234 | 0.0196 | 9.4336 | **9.2724** | 9.0642 | 9.0594 | **26.00%** | **54.91%** |
@@ -41,7 +41,7 @@ Evaluating carrier correction across subspace dimensions $q \in \{8, 16, 32, 64\
 
 ## 3. Matched Random Control Distribution (25 Seeds per Architecture)
 
-From `final_random_basis_control.csv` ($N=100$ held-out images):
+Operator-space comparison only; these values do not establish real classification or runtime gains. Source: `outputs/fungibility_final_consolidation/final_random_basis_control.csv` ($N=100$ held-out operator-space images):
 
 | Architecture | Subspace Dim ($q$) | Feature-PCA $\|JE\|$ | Random Bases Mean $\|JE\|$ | Random Bases Std | Paired $t$-stat | $p$-value | Cohen's $d$ Effect Size |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -58,29 +58,31 @@ From `final_random_basis_control.csv` ($N=100$ held-out images):
 
 ---
 
-## 4. End-to-End Accuracy vs. Throughput Frontier (BS=64, 50% Budget)
+## 4. Real End-to-End Accuracy and Throughput (BS=64, 50% Budget)
 
-From `final_pareto_frontier.csv` (Authoritative Final Benchmark):
+Actual held-out classification counts (N=1,000 per architecture) are joined to actual full-model timing. Timing uses FP32, 50 warmups, 100 measured CUDA-event iterations and synchronization on an NVIDIA GeForce RTX 5070 Laptop GPU. Per-image latency is the measured batch latency divided by 64. Outputs: `outputs/fungibility_real_final/real_accuracy_summary.csv`, `real_throughput_raw.csv`, `real_throughput_summary.csv`, and `real_accuracy_throughput_frontier.csv`; generation: `scripts/run_real_final_accuracy.py`, `scripts/run_real_final_throughput.py`, `scripts/build_real_final_frontier.py`.
 
-| Architecture | Method | Throughput (img/sec) | Latency (ms/img) | Speedup vs Clean | Top-1 Accuracy (%) | Top-1 Drop vs Clean | Frontier Characterization |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **DeiT-Tiny** | Clean | 11059.8 | 0.090 | 1.00x | 72.20% | 0.00 pp | Reference |
-| | Attention Pruning | 14477.0 | 0.069 | 1.31x | 70.24% | -1.96 pp | High speed / lower acc |
-| | ToMe | 14377.8 | 0.070 | 1.30x | 70.86% | -1.34 pp | High speed / moderate acc |
-| | Hybrid Group Mean | 14076.3 | 0.071 | 1.27x | 71.16% | -1.04 pp | High speed baseline |
-| | **Selective Restricted (30%)** | **11967.2** | **0.084** | **1.08x** | **71.28%** | **-0.92 pp** | **Accuracy Tradeoff (+0.12 pp Top-1)** |
-| **DeiT-Small** | Clean | 5194.0 | 0.193 | 1.00x | 79.80% | 0.00 pp | Reference |
-| | Attention Pruning | 7289.5 | 0.137 | 1.40x | 73.88% | -5.92 pp | Severe accuracy damage |
-| | ToMe | 7273.2 | 0.137 | 1.40x | 75.77% | -4.03 pp | Large accuracy drop |
-| | Hybrid Group Mean | 7153.5 | 0.140 | 1.38x | 76.67% | -3.13 pp | High speed baseline |
-| | **Selective Restricted (30%)** | **4432.0** | **0.226** | **0.85x** | **77.20%** | **-2.60 pp** | **Accuracy Tradeoff (+0.53 pp vs GM, +1.43 pp vs ToMe)** |
-| **ViT-B/16** | Clean | 2538.6 | 0.394 | 1.00x | 81.80% | 0.00 pp | Reference |
-| | Attention Pruning | 3563.6 | 0.281 | 1.40x | 73.02% | -8.78 pp | Catastrophic drop |
-| | ToMe | 3493.7 | 0.286 | 1.38x | 75.81% | -5.99 pp | Heavy drop |
-| | Hybrid Group Mean | 3474.6 | 0.288 | 1.37x | 77.15% | -4.65 pp | High speed baseline |
-| | **Selective Restricted (30%)** | **2051.3** | **0.488** | **0.81x** | **77.60%** | **-4.20 pp** | **Accuracy Tradeoff (+0.45 pp vs GM, +1.79 pp vs ToMe)** |
-| **DINOv2** | Clean | 3181.5 | 0.314 | 1.00x | 84.50% | 0.00 pp | Reference |
-| | Attention Pruning | 4118.0 | 0.243 | 1.29x | 84.16% | -0.34 pp | High speed |
-| | ToMe | 4089.0 | 0.245 | 1.29x | 84.27% | -0.23 pp | Moderate accuracy |
-| | Hybrid Group Mean | 4049.6 | 0.247 | 1.27x | 84.32% | -0.18 pp | High speed baseline |
-| | **Selective Restricted (30%)** | **3494.2** | **0.286** | **1.10x** | **84.34%** | **-0.16 pp** | **Accuracy Tradeoff (+0.02 pp Top-1)** |
+| Architecture | Method | Budget | Correct / N (Top-1) | Latency (ms/image) | Throughput (img/s) | Pareto-optimal at BS=64 |
+| :--- | :--- | ---: | :---: | ---: | ---: | :---: |
+| DeiT-Tiny | Clean | 98 | 679/1,000 (67.9%) | 0.417 | 2397.7 | Yes |
+| DeiT-Tiny | Hybrid Group Mean | 98 | 664/1,000 (66.4%) | 0.434 | 2305.5 | No |
+| DeiT-Tiny | Static Feature-PCA q=16 | 98 | 662/1,000 (66.2%) | 0.542 | 1846.6 | No |
+| DeiT-Tiny | Static Feature-PCA q=32 | 98 | 665/1,000 (66.5%) | 0.744 | 1344.4 | No |
+| DeiT-Tiny | Selective Feature-PCA q16 target30 | 98 | 665/1,000 (66.5%) | 0.546 | 1831.3 | No |
+| DeiT-Small | Clean | 98 | 761/1,000 (76.1%) | 1.230 | 812.8 | No |
+| DeiT-Small | Hybrid Group Mean | 98 | 764/1,000 (76.4%) | 1.103 | 906.5 | Yes |
+| DeiT-Small | Static Feature-PCA q=16 | 98 | 763/1,000 (76.3%) | 1.329 | 752.3 | No |
+| DeiT-Small | Static Feature-PCA q=32 | 98 | 760/1,000 (76.0%) | 1.821 | 549.3 | No |
+| DeiT-Small | Selective Feature-PCA q16 target30 | 98 | 758/1,000 (75.8%) | 1.339 | 746.8 | No |
+| ViT-B/16 AugReg | Clean | 98 | 761/1,000 (76.1%) | 4.182 | 239.1 | Yes |
+| ViT-B/16 AugReg | Hybrid Group Mean | 98 | 736/1,000 (73.6%) | 3.365 | 297.1 | Yes |
+| ViT-B/16 AugReg | Static Feature-PCA q=16 | 98 | 737/1,000 (73.7%) | 3.798 | 263.3 | Yes |
+| ViT-B/16 AugReg | Static Feature-PCA q=32 | 98 | 735/1,000 (73.5%) | 4.722 | 211.8 | No |
+| ViT-B/16 AugReg | Selective Feature-PCA q16 target30 | 98 | 735/1,000 (73.5%) | 3.793 | 263.6 | No |
+| DINOv2 ViT-S/14 | Clean | 128 | 788/1,000 (78.8%) | 1.764 | 566.9 | Yes |
+| DINOv2 ViT-S/14 | Hybrid Group Mean | 128 | 754/1,000 (75.4%) | 1.564 | 639.4 | Yes |
+| DINOv2 ViT-S/14 | Static Feature-PCA q=16 | 128 | 749/1,000 (74.9%) | 1.869 | 535.1 | No |
+| DINOv2 ViT-S/14 | Static Feature-PCA q=32 | 128 | 759/1,000 (75.9%) | 2.391 | 418.2 | No |
+| DINOv2 ViT-S/14 | Selective Feature-PCA q16 target30 | 128 | 756/1,000 (75.6%) | 1.878 | 532.4 | No |
+
+The practical carrier result is mixed and mostly negative. At BS=64, static q16 adds one narrow non-dominated point for ViT-B/16 AugReg (budget 98): 737/1,000 (73.7%) at 263.3 img/s, between Clean (761/1,000; 76.1%; 239.1 img/s) and Group Mean (736/1,000; 73.6%; 297.1 img/s). Clean dominates all tested methods on DeiT-Tiny; Group Mean is the only carrier frontier method on DeiT-Small; Clean and Group Mean are frontier methods on DINOv2. Static q32 and selective q16 are not on this frontier. No proxy accuracy, toy timing, or unmeasured pruning/ToMe timing is included here.

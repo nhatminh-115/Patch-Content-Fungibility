@@ -2,10 +2,10 @@
 
 **Repository:** [Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Date:** October 7, 2026  
-**Status:** Authoritative Post-Audit Source-of-Truth Release  
+**Status:** Source repair in progress; PAPER_DRAFT is intentionally unchanged
 **Commit Reference:** `db9f460`  
 
-This document provides a strict, row-by-row traceability mapping for every quantitative claim, table cell, and figure panel appearing in `docs/PAPER_DRAFT.md`. Every number is cross-referenced against authoritative raw CSV files, strict audit reports, and confirmatory experiment manifests.
+This matrix records verified sources and flags legacy draft values that must be replaced in the subsequent manuscript-lockdown task. Historical consolidation accuracy/runtime metrics are withdrawn; surviving consolidation measurements are explicitly limited to operator-space evidence.
 
 ---
 
@@ -24,9 +24,9 @@ This document provides a strict, row-by-row traceability mapping for every quant
 | **Abstract** | Stabilized Oracle Recovery ($q=16$) | $47.4\%$ | `final_q_ablation.csv` / audit | $(12.5234 - 6.6023)/(12.5038) = 47.35\%$ | $N=100$ | **AUDITED** |
 | **Abstract** | Stabilized Oracle Recovery ($q=64$) | $92.2\%$ | `final_q_ablation.csv` / audit | $(12.5234 - 0.9937)/(12.5038) = 92.21\%$ | $N=100$ | **AUDITED** |
 | **Abstract** | Static $\bar{\alpha}$ Recovery of Restricted Oracle | $54.91\%$ | `final_q_ablation.csv` | `deit_small, q=16, recovery_vs_restricted_oracle_pct` | $N=100$ | **AUDITED** |
-| **Abstract** | Operator Overhead at $BS \ge 16$ | Sub-0.25 ms ($0.12\text{--}0.23\text{ ms}$) | `final_throughput_table.csv` | DeiT-T, DeiT-S ($BS=16, 32, 64$) | $N=200$ repeats | **AUDITED** |
-| **Abstract** | Selective Throughput on DeiT-Small | $4432.0\text{ img/s}$ | `final_pareto_frontier.csv` | Row 27 (`deit_small, BS=64, Selective_Feature_PCA_30pct`) | $N=100$ | **AUDITED** |
-| **Abstract** | Selective Top-1 on DeiT-Small | $77.20\%$ | `final_pareto_frontier.csv` | Row 27 (`top1_accuracy`) | $N=100$ | **AUDITED** |
+| **Abstract (legacy claim; withdraw)** | Isolated operator overhead | Sub-0.25 ms/image ($0.12–0.23$) | No valid isolated-overhead measurement; real full-call timing is `outputs/fungibility_real_final/real_throughput_summary.csv` | DeiT-Small, BS=64, budget=98: Clean 1.230, Group Mean 1.103, q16 1.329, q32 1.821, selective q16 target30 1.339 ms/image | 50 warmups + 100 measured iterations per timing row | **WITHDRAWN; full-call timings do not isolate operator overhead** |
+| **Abstract (legacy value; replace)** | Selective q16 target30 throughput on DeiT-Small | 746.8 img/s | `outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv` | `architecture == "DeiT-Small" & budget_tokens == 98 & batch_size == 64 & method == "Selective Feature-PCA q16 target30"` | Accuracy N=1,000; timing 100 iterations at BS=64 | **CONFIRMED; not Pareto-optimal** |
+| **Abstract (legacy value; replace)** | Selective q16 target30 Top-1 on DeiT-Small | 758/1,000 = 75.8% | `outputs/fungibility_real_final/real_accuracy_summary.csv` | `architecture == "DeiT-Small" & budget_tokens == 98 & method == "Selective Feature-PCA q16 target30"`; count is integer sum of per-image `correct` | N=1,000 held-out images | **CONFIRMED; actual-model logits and predictions** |
 | **§1 (Intro)** | DeiT-S Rank-$k$ Diversity gain | $+37.08\text{ pp}$ | `outputs/fungibility_v0_7_figures/` | Complete stream replacement sweep | $N=1000$ | **CONFIRMED** |
 | **§1 (Intro)** | Local 1-block singular vector rotation | $\ge 68.4^\circ$ | `outputs/fungibility_v1_figures/` | Subspace drift analysis | $N=1000$ | **CONFIRMED** |
 
@@ -77,66 +77,82 @@ This document provides a strict, row-by-row traceability mapping for every quant
 
 ---
 
-## 5. Table 4: Audited $q$-Scaling of Stabilized Carrier Oracle (§8.3)
+## 5. Table 4: Audited q-Scaling of the Stabilized Carrier Oracle (§8.3) — Operator-Space Evidence Only
 
-**Source File:** `outputs/fungibility_final_consolidation/final_q_ablation.csv` & `docs/FUNGIBILITY_IMPLICIT_CARRIER_OPERATOR_AUDIT.md`  
-**Architecture:** DeiT-Small, Depth 8, 50% budget ($N=100$ held-out images).  
-**Formula for Recovery:** $\text{Recovery} = \frac{\|JE\|_{\text{GM}} - \|JE\|_q}{\|JE\|_{\text{GM}} - \|JE\|_{\text{stab\_oracle}}} \times 100\%$ where $\|JE\|_{\text{GM}} = 12.5234$ and $\|JE\|_{\text{stab\_oracle}} = 0.0196$.
+**Source:** `outputs/fungibility_final_consolidation/final_q_ablation.csv` and `docs/FUNGIBILITY_IMPLICIT_CARRIER_OPERATOR_AUDIT.md`. These audited fields are operator-space $\|JE\|$ measurements; no Top-1 or runtime claim is taken from this historical consolidation file. **Architecture:** DeiT-Small, depth 8, 50% budget, N=100 held-out operator-space images.
 
-| Method / Subspace Dim | DeiT-Small $\|JE\|$ | Gain vs GM | Recovery of Full Oracle (%) | Top-1 Accuracy (%) | Top-1 Drop (%) | CSV Row / Source |
-| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Group Mean Baseline ($q=0$)** | 12.5234 | 0.0000 | 0.0% | 76.67% | 3.13% | Baseline reference |
-| **Restricted Oracle ($q=8$)** | 8.0663 | 4.4571 | 35.6% | 77.72% | 2.08% | Row 4 (`q == 8`) |
-| **Restricted Oracle ($q=16$)** | 6.6023 | 5.9211 | **47.4%** | 77.76% | 2.04% | Row 5 (`q == 16`) |
-| **Restricted Oracle ($q=32$)** | 3.5164 | 9.0070 | 72.0% | 77.81% | 1.99% | Row 6 (`q == 32`) |
-| **Restricted Oracle ($q=64$)** | 0.9937 | 11.5297 | 92.2% | 77.81% | 1.99% | Row 7 (`q == 64`) |
-| **Stabilized Full Oracle ($r=32$)** | **0.0196** | **12.5038** | **100.0%** | **79.80%** | **0.00%** | `stabilized_full_oracle_je` |
+Recovery denominator: $(\|JE\|_{GM}-\|JE\|_{q})/(\|JE\|_{GM}-\|JE\|_{stabilized\ full\ oracle})$. This is not the distinct full-J compression-benefit denominator used for the >98% low-rank claim, nor the restricted-oracle denominator used for static-alpha recovery.
 
----
-
-## 6. Table 5: Hardware Latency Benchmarks (§9.2)
-
-**Source File:** `outputs/fungibility_final_consolidation/final_throughput_table.csv`  
-**Architecture:** DeiT-Small, Depth 8, 50% token budget, timed with CUDA events (200 trials, 50 warmups).
-
-| Batch Size | Clean Latency (ms) | Hybrid Group Mean (ms) | Selective Carrier Operator (ms) | Operator Overhead (ms) | CSV Rows |
-| :---: | :---: | :---: | :---: | :---: | :--- |
-| $BS = 1$ | 4.48 | 6.94 | 11.64 | 4.70 | Rows 14, 17, 20 (`deit_small, BS=1`) |
-| $BS = 16$ | 3.03 | 2.19 | 11.01 | 0.69 | Rows (`deit_small, BS=16`) |
-| $BS = 32$ | 7.36 | 5.17 | 13.47 | 0.42 | Rows (`deit_small, BS=32`) |
-| **$BS = 64$** | **12.32** | **8.95** | **14.44** | **0.23** | Rows 21, 24, 27 (`deit_small, BS=64`) |
+| Method / dimension | $\|JE\|$ | Gain vs. Group Mean | Recovery | Source filter |
+| :--- | :---: | :---: | :---: | :--- |
+| Group Mean ($q=0$) | 12.5234 | 0.0000 | 0.0% | DeiT-Small, depth 8, 50% budget |
+| Restricted Oracle ($q=8$) | 8.0663 | 4.4571 | 35.6% | `q == 8` |
+| Restricted Oracle ($q=16$) | 6.6023 | 5.9211 | 47.4% | `q == 16` |
+| Restricted Oracle ($q=32$) | 3.5164 | 9.0070 | 72.0% | `q == 32` |
+| Restricted Oracle ($q=64$) | 0.9937 | 11.5297 | 92.2% | `q == 64` |
+| Stabilized Full Oracle ($r=32$) | 0.0196 | 12.5038 | 100.0% | `stabilized_full_oracle_je` |
 
 ---
 
-## 7. Table 6: Complete Accuracy-Throughput Frontier at $BS=64$ (§9.3)
+## 6. Table 5: Real Full-Model Runtime (Replaces Withdrawn Isolated-Overhead Claim)
 
-**Source File:** `outputs/fungibility_final_consolidation/final_pareto_frontier.csv`  
-**Evaluation Condition:** $BS=64$, Depth 8 (Layer 7 for ViT-B), 50% token budget ($N=100$ held-out images).
+The old 0.12–0.23 ms/image statement was an operator-only figure from a proxy timing artifact and is withdrawn. The real-final timing measures complete model calls, including the actual prefix, carrier transformation, suffix, and readout. It does **not** separately time operator overhead. Timing protocol: FP32, 50 warmups, 100 measured CUDA-event iterations with synchronization, NVIDIA GeForce RTX 5070 Laptop GPU; exact device/software/callable metadata is in `outputs/fungibility_real_final/real_throughput_raw.csv`. Values below are BS=64, target-50% budget; latency is per image.
 
-| Architecture | Method | Throughput (img/s) | Latency (ms/img) | Speedup vs Clean | Top-1 Accuracy (%) | Top-1 Drop (%) | CSV Row Index |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **DeiT-Small** | Clean Baseline | 5194.0 | 0.193 | 1.00x | 79.80% | 0.00% | Row 21 |
-| | Attention Pruning | 7289.5 | 0.137 | 1.40x | 73.88% | 5.92% | Row 22 |
-| | ToMe | 7273.2 | 0.137 | 1.40x | 75.77% | 4.03% | Row 23 |
-| | Hybrid Group Mean | 7153.5 | 0.140 | 1.38x | 76.67% | 3.13% | Row 24 |
-| | **Selective Feature-PCA (30%)** | **4432.0** | **0.226** | **0.85x** | **77.20%** | **2.60%** | **Row 27** |
-| | Static Feature-PCA ($q=16$) | 2874.0 | 0.348 | 0.55x | 77.76% | 2.04% | Row 25 |
-| **ViT-Base** | Clean Baseline | 2538.6 | 0.394 | 1.00x | 81.80% | 0.00% | Row 35 |
-| | Attention Pruning | 3563.6 | 0.281 | 1.40x | 73.02% | 8.78% | Row 36 |
-| | ToMe | 3493.7 | 0.286 | 1.38x | 75.81% | 5.99% | Row 37 |
-| | Hybrid Group Mean | 3474.6 | 0.288 | 1.37x | 77.15% | 4.65% | Row 38 |
-| | **Selective Feature-PCA (30%)** | **2051.3** | **0.488** | **0.81x** | **77.60%** | **4.20%** | **Row 41** |
-| | Static Feature-PCA ($q=16$) | 1411.2 | 0.709 | 0.56x | 78.02% | 3.78% | Row 39 |
-| **DINOv2** | Clean Baseline | 3181.5 | 0.314 | 1.00x | 84.50% | 0.00% | Row 49 |
-| | Attention Pruning | 4118.0 | 0.243 | 1.29x | 84.16% | 0.34% | Row 50 |
-| | ToMe | 4089.0 | 0.245 | 1.29x | 84.27% | 0.23% | Row 51 |
-| | Hybrid Group Mean | 4049.6 | 0.247 | 1.27x | 84.32% | 0.18% | Row 52 |
-| | **Selective Feature-PCA (30%)** | **3494.2** | **0.286** | **1.10x** | **84.34%** | **0.16%** | **Row 55** |
-| **DeiT-Tiny** | Clean Baseline | 11059.8 | 0.090 | 1.00x | 72.20% | 0.00% | Row 7 |
-| | Attention Pruning | 14477.0 | 0.069 | 1.31x | 70.24% | 1.96% | Row 8 |
-| | ToMe | 14377.8 | 0.070 | 1.30x | 70.86% | 1.34% | Row 9 |
-| | Hybrid Group Mean | 14076.3 | 0.071 | 1.27x | 71.16% | 1.04% | Row 10 |
-| | **Selective Feature-PCA (30%)** | **11967.2** | **0.084** | **1.08x** | **71.28%** | **0.92%** | **Row 13** |
+| Architecture | Method | Budget | Accuracy count / Top-1 (N=1,000) | ms/image | img/s | Frontier at BS=64 | Exact source filter |
+| :--- | :--- | ---: | :---: | ---: | ---: | :---: | :--- |
+| DeiT-Tiny | Clean | 98 | 679/1,000 (67.9%) | 0.417 | 2397.7 | True | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Clean' & batch_size == 64` |
+| DeiT-Tiny | Hybrid Group Mean | 98 | 664/1,000 (66.4%) | 0.434 | 2305.5 | False | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Hybrid Group Mean' & batch_size == 64` |
+| DeiT-Tiny | Static Feature-PCA q=16 | 98 | 662/1,000 (66.2%) | 0.542 | 1846.6 | False | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Static Feature-PCA q=16' & batch_size == 64` |
+| DeiT-Tiny | Static Feature-PCA q=32 | 98 | 665/1,000 (66.5%) | 0.744 | 1344.4 | False | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Static Feature-PCA q=32' & batch_size == 64` |
+| DeiT-Tiny | Selective Feature-PCA q16 target30 | 98 | 665/1,000 (66.5%) | 0.546 | 1831.3 | False | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Selective Feature-PCA q16 target30' & batch_size == 64` |
+| DeiT-Small | Clean | 98 | 761/1,000 (76.1%) | 1.230 | 812.8 | False | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Clean' & batch_size == 64` |
+| DeiT-Small | Hybrid Group Mean | 98 | 764/1,000 (76.4%) | 1.103 | 906.5 | True | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Hybrid Group Mean' & batch_size == 64` |
+| DeiT-Small | Static Feature-PCA q=16 | 98 | 763/1,000 (76.3%) | 1.329 | 752.3 | False | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Static Feature-PCA q=16' & batch_size == 64` |
+| DeiT-Small | Static Feature-PCA q=32 | 98 | 760/1,000 (76.0%) | 1.821 | 549.3 | False | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Static Feature-PCA q=32' & batch_size == 64` |
+| DeiT-Small | Selective Feature-PCA q16 target30 | 98 | 758/1,000 (75.8%) | 1.339 | 746.8 | False | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Selective Feature-PCA q16 target30' & batch_size == 64` |
+| ViT-B/16 AugReg | Clean | 98 | 761/1,000 (76.1%) | 4.182 | 239.1 | True | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Clean' & batch_size == 64` |
+| ViT-B/16 AugReg | Hybrid Group Mean | 98 | 736/1,000 (73.6%) | 3.365 | 297.1 | True | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Hybrid Group Mean' & batch_size == 64` |
+| ViT-B/16 AugReg | Static Feature-PCA q=16 | 98 | 737/1,000 (73.7%) | 3.798 | 263.3 | True | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Static Feature-PCA q=16' & batch_size == 64` |
+| ViT-B/16 AugReg | Static Feature-PCA q=32 | 98 | 735/1,000 (73.5%) | 4.722 | 211.8 | False | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Static Feature-PCA q=32' & batch_size == 64` |
+| ViT-B/16 AugReg | Selective Feature-PCA q16 target30 | 98 | 735/1,000 (73.5%) | 3.793 | 263.6 | False | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Selective Feature-PCA q16 target30' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Clean | 128 | 788/1,000 (78.8%) | 1.764 | 566.9 | True | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Clean' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Hybrid Group Mean | 128 | 754/1,000 (75.4%) | 1.564 | 639.4 | True | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Hybrid Group Mean' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Static Feature-PCA q=16 | 128 | 749/1,000 (74.9%) | 1.869 | 535.1 | False | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Static Feature-PCA q=16' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Static Feature-PCA q=32 | 128 | 759/1,000 (75.9%) | 2.391 | 418.2 | False | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Static Feature-PCA q=32' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Selective Feature-PCA q16 target30 | 128 | 756/1,000 (75.6%) | 1.878 | 532.4 | False | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Selective Feature-PCA q16 target30' & batch_size == 64` |
+
+**Raw and generating sources:** `outputs/fungibility_real_final/real_accuracy_summary.csv` (accuracy filter by architecture, budget, method); `outputs/fungibility_real_final/real_throughput_raw.csv` and `real_throughput_summary.csv` (timing filter by architecture, method, batch_size=64); `outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv` (formal frontier flag); scripts `scripts/run_real_final_accuracy.py`, `scripts/run_real_final_throughput.py`, and `scripts/build_real_final_frontier.py`. Accuracy provenance is 1,000 held-out images per architecture; timing provenance is 100 measured iterations per method/batch.
+
+---
+
+## 7. Table 6: Real Accuracy-Throughput Frontier at BS=64
+
+The formal comparison is within architecture and batch size, at each model's 50% token budget. `pareto_optimal` uses measured N=1,000 Top-1 and measured images/s; no proxy results are included.
+
+| Architecture | Method | Budget | Correct / N (Top-1) | ms/image | img/s | Pareto-optimal | Exact source filter |
+| :--- | :--- | ---: | :---: | ---: | ---: | :---: | :--- |
+| DeiT-Tiny | Clean | 98 | 679/1,000 (67.9%) | 0.417 | 2397.7 | True | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Clean' & batch_size == 64` |
+| DeiT-Tiny | Hybrid Group Mean | 98 | 664/1,000 (66.4%) | 0.434 | 2305.5 | False | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Hybrid Group Mean' & batch_size == 64` |
+| DeiT-Tiny | Static Feature-PCA q=16 | 98 | 662/1,000 (66.2%) | 0.542 | 1846.6 | False | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Static Feature-PCA q=16' & batch_size == 64` |
+| DeiT-Tiny | Static Feature-PCA q=32 | 98 | 665/1,000 (66.5%) | 0.744 | 1344.4 | False | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Static Feature-PCA q=32' & batch_size == 64` |
+| DeiT-Tiny | Selective Feature-PCA q16 target30 | 98 | 665/1,000 (66.5%) | 0.546 | 1831.3 | False | `architecture == 'DeiT-Tiny' & budget_tokens == 98 & method == 'Selective Feature-PCA q16 target30' & batch_size == 64` |
+| DeiT-Small | Clean | 98 | 761/1,000 (76.1%) | 1.230 | 812.8 | False | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Clean' & batch_size == 64` |
+| DeiT-Small | Hybrid Group Mean | 98 | 764/1,000 (76.4%) | 1.103 | 906.5 | True | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Hybrid Group Mean' & batch_size == 64` |
+| DeiT-Small | Static Feature-PCA q=16 | 98 | 763/1,000 (76.3%) | 1.329 | 752.3 | False | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Static Feature-PCA q=16' & batch_size == 64` |
+| DeiT-Small | Static Feature-PCA q=32 | 98 | 760/1,000 (76.0%) | 1.821 | 549.3 | False | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Static Feature-PCA q=32' & batch_size == 64` |
+| DeiT-Small | Selective Feature-PCA q16 target30 | 98 | 758/1,000 (75.8%) | 1.339 | 746.8 | False | `architecture == 'DeiT-Small' & budget_tokens == 98 & method == 'Selective Feature-PCA q16 target30' & batch_size == 64` |
+| ViT-B/16 AugReg | Clean | 98 | 761/1,000 (76.1%) | 4.182 | 239.1 | True | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Clean' & batch_size == 64` |
+| ViT-B/16 AugReg | Hybrid Group Mean | 98 | 736/1,000 (73.6%) | 3.365 | 297.1 | True | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Hybrid Group Mean' & batch_size == 64` |
+| ViT-B/16 AugReg | Static Feature-PCA q=16 | 98 | 737/1,000 (73.7%) | 3.798 | 263.3 | True | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Static Feature-PCA q=16' & batch_size == 64` |
+| ViT-B/16 AugReg | Static Feature-PCA q=32 | 98 | 735/1,000 (73.5%) | 4.722 | 211.8 | False | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Static Feature-PCA q=32' & batch_size == 64` |
+| ViT-B/16 AugReg | Selective Feature-PCA q16 target30 | 98 | 735/1,000 (73.5%) | 3.793 | 263.6 | False | `architecture == 'ViT-B/16 AugReg' & budget_tokens == 98 & method == 'Selective Feature-PCA q16 target30' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Clean | 128 | 788/1,000 (78.8%) | 1.764 | 566.9 | True | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Clean' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Hybrid Group Mean | 128 | 754/1,000 (75.4%) | 1.564 | 639.4 | True | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Hybrid Group Mean' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Static Feature-PCA q=16 | 128 | 749/1,000 (74.9%) | 1.869 | 535.1 | False | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Static Feature-PCA q=16' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Static Feature-PCA q=32 | 128 | 759/1,000 (75.9%) | 2.391 | 418.2 | False | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Static Feature-PCA q=32' & batch_size == 64` |
+| DINOv2 ViT-S/14 | Selective Feature-PCA q16 target30 | 128 | 756/1,000 (75.6%) | 1.878 | 532.4 | False | `architecture == 'DINOv2 ViT-S/14' & budget_tokens == 128 & method == 'Selective Feature-PCA q16 target30' & batch_size == 64` |
+
+The measured frontier contains a narrow added static q16 point on ViT-B/16 AugReg at BS=16/32/64. At BS=64, q16 obtains 737/1,000 (73.7%) at 263.3 img/s, between Clean (761/1,000; 76.1%; 239.1 img/s) and Group Mean (736/1,000; 73.6%; 297.1 img/s). q32 and selective q16 are not on the measured frontier. Clean dominates all tested methods on DeiT-Tiny at BS=64; Group Mean is the frontier method on DeiT-Small, and Clean plus Group Mean are frontier methods on DINOv2. The full batch-size result is in `outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv`.
 
 ---
 
@@ -149,6 +165,6 @@ This document provides a strict, row-by-row traceability mapping for every quant
 | `figures/paper_final_v2/figure3_geometry_diversity_constraints.png` | Geometric controls and diversity collapse | `pca_control_ablation.csv`, $N=1000$ | `scripts/run_final_consolidation_benchmark.py` | **VERIFIED** |
 | `figures/paper_final_v2/figure4_functional_geometry.png` | Functional geometry and attention cancellation | `outputs/fungibility_v1_figures/` | `scripts/run_final_consolidation_benchmark.py` | **VERIFIED** |
 | `figures/paper_final_v2/figure5_local_vs_end_to_end_jacobian.png` | Failure of local 1-block geometry | Local vs downstream singular angle drift | `scripts/run_final_consolidation_benchmark.py` | **VERIFIED** |
-| `figures/paper_final_v2/figure6_operator_aware_compression_frontier.png` | Full-J SVD oracle compression benefit | `final_accuracy_table.csv` | `scripts/run_final_consolidation_benchmark.py` | **VERIFIED** |
+| `figures/paper_final_v2/figure6_operator_aware_compression_frontier.png` | Legacy compression accuracy frontier | Withdrawn: based on invalidated proxy accuracy | — | **NOT VALID FOR PUBLICATION** |
 | `figures/paper_final_v2/figure7_carrier_space_formulation.png` | $q$-scaling and static calibration $\bar{\alpha}$ | `final_q_ablation.csv` | `scripts/run_final_consolidation_benchmark.py` | **VERIFIED** |
-| `figures/paper_final_v2/figure8_accuracy_throughput_frontier.png` | Audited accuracy-throughput tradeoff | `final_pareto_frontier.csv` | `scripts/run_final_consolidation_benchmark.py` | **VERIFIED** |
+| `figures/paper_final_v2/figure8_accuracy_throughput_frontier.png` | Legacy accuracy-throughput frontier | Withdrawn: proxy accuracy and toy timing; see real-final frontier CSV for valid measurements | — | **NOT VALID FOR PUBLICATION** |
