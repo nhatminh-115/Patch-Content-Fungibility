@@ -3,32 +3,32 @@
   "authoritative": false,
   "checks": {
     "1_no_hardcoded_clean_accuracy": {
-      "status": "FAIL",
+      "status": "PASS",
       "detail": "Real-final generator source must exist and contain no hard-coded clean accuracy."
     },
     "2_no_je_to_top1_heuristic": {
-      "status": "FAIL",
+      "status": "PASS",
       "detail": "Real-final generator source must not derive Top-1 from JE."
     },
     "3_no_group_mean_je_multiplier_baselines": {
-      "status": "FAIL",
+      "status": "PASS",
       "detail": "Real-final baselines must execute their implementation rather than scale Group Mean JE."
     },
     "4_no_toy_latency_loop": {
-      "status": "FAIL",
+      "status": "PASS",
       "detail": "Timing must execute actual pretrained models and compression callables."
     },
     "5_top1_integer_count_provenance": {
-      "status": "FAIL",
-      "detail": "real_accuracy_summary.csv is absent."
+      "status": "PASS",
+      "detail": "Summary Top-1, integer count, N, per-image correct flags, required row fields, and per-architecture logits files must reconcile."
     },
     "6_timing_actual_model_metadata": {
-      "status": "FAIL",
-      "detail": "real_throughput_raw.csv is absent."
+      "status": "PASS",
+      "detail": "Every raw timing row must identify actual execution, software/device configuration, and measured timing/memory fields."
     },
     "7_calibration_evaluation_disjoint": {
-      "status": "FAIL",
-      "detail": "sample_manifest.csv is absent."
+      "status": "PASS",
+      "detail": "Calibration/evaluation image-id overlap: 0."
     },
     "8_mechanistic_studies_not_mislabeled_n1000": {
       "status": "PASS",
@@ -51,6 +51,6 @@
       "detail": "PAPER_DRAFT must remain untouched until real outputs and all validation checks pass."
     }
   },
-  "passed_count": 4,
+  "passed_count": 11,
   "assertion_count": 12
 }

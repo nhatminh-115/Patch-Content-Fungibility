@@ -1,0 +1,61 @@
+architecture,budget_tokens,method,n,correct_count,top1_accuracy,activation_rate,frozen_calibration_threshold
+DeiT-Tiny,98,Hybrid Group Mean,1000,664,66.4,0.0,
+DeiT-Tiny,98,Static Feature-PCA q=16,1000,662,66.2,1.0,
+DeiT-Tiny,98,Selective Feature-PCA q16 target20,1000,664,66.4,0.217,0.4806955695152283
+DeiT-Tiny,98,Selective Feature-PCA q16 target30,1000,665,66.5,0.308,0.4745734930038452
+DeiT-Tiny,98,Selective Feature-PCA q16 target50,1000,668,66.8,0.498,0.4646209478378296
+DeiT-Tiny,49,Hybrid Group Mean,1000,639,63.9,0.0,
+DeiT-Tiny,49,Static Feature-PCA q=16,1000,637,63.7,1.0,
+DeiT-Tiny,49,Selective Feature-PCA q16 target20,1000,641,64.1,0.229,0.5557973146438598
+DeiT-Tiny,49,Selective Feature-PCA q16 target30,1000,640,64.0,0.331,0.5504539787769318
+DeiT-Tiny,49,Selective Feature-PCA q16 target50,1000,642,64.2,0.535,0.5387258231639862
+DeiT-Tiny,32,Hybrid Group Mean,1000,618,61.8,0.0,
+DeiT-Tiny,32,Static Feature-PCA q=16,1000,616,61.6,1.0,
+DeiT-Tiny,32,Selective Feature-PCA q16 target20,1000,623,62.3,0.223,0.5934575080871582
+DeiT-Tiny,32,Selective Feature-PCA q16 target30,1000,626,62.6,0.332,0.5874354600906372
+DeiT-Tiny,32,Selective Feature-PCA q16 target50,1000,625,62.5,0.493,0.5781479775905609
+DeiT-Small,98,Hybrid Group Mean,1000,764,76.4,0.0,
+DeiT-Small,98,Static Feature-PCA q=16,1000,763,76.3,1.0,
+DeiT-Small,98,Selective Feature-PCA q16 target20,1000,760,76.0,0.186,0.5242242455482483
+DeiT-Small,98,Selective Feature-PCA q16 target30,1000,758,75.8,0.27,0.5194148063659668
+DeiT-Small,98,Selective Feature-PCA q16 target50,1000,761,76.1,0.438,0.5106775462627411
+DeiT-Small,49,Hybrid Group Mean,1000,755,75.5,0.0,
+DeiT-Small,49,Static Feature-PCA q=16,1000,740,74.0,1.0,
+DeiT-Small,49,Selective Feature-PCA q16 target20,1000,749,74.9,0.194,0.6033503532409669
+DeiT-Small,49,Selective Feature-PCA q16 target30,1000,746,74.6,0.291,0.5984277665615082
+DeiT-Small,49,Selective Feature-PCA q16 target50,1000,745,74.5,0.505,0.5903222560882568
+DeiT-Small,32,Hybrid Group Mean,1000,731,73.1,0.0,
+DeiT-Small,32,Static Feature-PCA q=16,1000,722,72.2,1.0,
+DeiT-Small,32,Selective Feature-PCA q16 target20,1000,730,73.0,0.228,0.6360487461090087
+DeiT-Small,32,Selective Feature-PCA q16 target30,1000,728,72.8,0.31,0.6323078811168671
+DeiT-Small,32,Selective Feature-PCA q16 target50,1000,728,72.8,0.486,0.6258147656917572
+ViT-B/16 AugReg,98,Hybrid Group Mean,1000,736,73.6,0.0,
+ViT-B/16 AugReg,98,Static Feature-PCA q=16,1000,737,73.7,1.0,
+ViT-B/16 AugReg,98,Selective Feature-PCA q16 target20,1000,736,73.6,0.221,0.5785586476325989
+ViT-B/16 AugReg,98,Selective Feature-PCA q16 target30,1000,735,73.5,0.314,0.5754230856895447
+ViT-B/16 AugReg,98,Selective Feature-PCA q16 target50,1000,736,73.6,0.477,0.5693501532077789
+ViT-B/16 AugReg,49,Hybrid Group Mean,1000,712,71.2,0.0,
+ViT-B/16 AugReg,49,Static Feature-PCA q=16,1000,719,71.89999999999999,1.0,
+ViT-B/16 AugReg,49,Selective Feature-PCA q16 target20,1000,714,71.39999999999999,0.225,0.6639554738998413
+ViT-B/16 AugReg,49,Selective Feature-PCA q16 target30,1000,716,71.6,0.317,0.6603803277015686
+ViT-B/16 AugReg,49,Selective Feature-PCA q16 target50,1000,714,71.39999999999999,0.477,0.6546215713024139
+ViT-B/16 AugReg,32,Hybrid Group Mean,1000,682,68.2,0.0,
+ViT-B/16 AugReg,32,Static Feature-PCA q=16,1000,684,68.4,1.0,
+ViT-B/16 AugReg,32,Selective Feature-PCA q16 target20,1000,684,68.4,0.194,0.6929613590240479
+ViT-B/16 AugReg,32,Selective Feature-PCA q16 target30,1000,682,68.2,0.272,0.6892648100852966
+ViT-B/16 AugReg,32,Selective Feature-PCA q16 target50,1000,680,68.0,0.415,0.6836904585361481
+DINOv2 ViT-S/14,128,Hybrid Group Mean,1000,754,75.4,0.0,
+DINOv2 ViT-S/14,128,Static Feature-PCA q=16,1000,749,74.9,1.0,
+DINOv2 ViT-S/14,128,Selective Feature-PCA q16 target20,1000,756,75.6,0.332,0.4759483814239502
+DINOv2 ViT-S/14,128,Selective Feature-PCA q16 target30,1000,756,75.6,0.431,0.4703092634677887
+DINOv2 ViT-S/14,128,Selective Feature-PCA q16 target50,1000,755,75.5,0.606,0.461379736661911
+DINOv2 ViT-S/14,64,Hybrid Group Mean,1000,691,69.1,0.0,
+DINOv2 ViT-S/14,64,Static Feature-PCA q=16,1000,684,68.4,1.0,
+DINOv2 ViT-S/14,64,Selective Feature-PCA q16 target20,1000,688,68.8,0.337,0.5491187453269959
+DINOv2 ViT-S/14,64,Selective Feature-PCA q16 target30,1000,687,68.7,0.474,0.5426532685756683
+DINOv2 ViT-S/14,64,Selective Feature-PCA q16 target50,1000,680,68.0,0.628,0.5338681936264038
+DINOv2 ViT-S/14,42,Hybrid Group Mean,1000,613,61.3,0.0,
+DINOv2 ViT-S/14,42,Static Feature-PCA q=16,1000,568,56.8,1.0,
+DINOv2 ViT-S/14,42,Selective Feature-PCA q16 target20,1000,598,59.8,0.311,0.5845175385475159
+DINOv2 ViT-S/14,42,Selective Feature-PCA q16 target30,1000,585,58.5,0.436,0.5784122824668885
+DINOv2 ViT-S/14,42,Selective Feature-PCA q16 target50,1000,575,57.49999999999999,0.642,0.5682973265647888

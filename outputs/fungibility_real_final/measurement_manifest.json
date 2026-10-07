@@ -1,0 +1,136 @@
+{
+  "status": "COMPLETE",
+  "run_images_per_architecture": 1000,
+  "eval_split_seed": 9201,
+  "calibration_split_seed": 7101,
+  "calibration_n": 500,
+  "calibration_eval_overlap": 0,
+  "split_manifest_sha256": "072e35fd35379d408ce5741bc184ef5c4a7f6335d536bc8155304c590f7219e7",
+  "methods": [
+    "Clean",
+    "Hybrid Group Mean",
+    "Static Feature-PCA q=16",
+    "Static Feature-PCA q=32",
+    "Selective Feature-PCA q16 target20",
+    "Selective Feature-PCA q16 target30",
+    "Selective Feature-PCA q16 target50"
+  ],
+  "architectures": [
+    {
+      "architecture": "DeiT-Tiny",
+      "model_key": "deit_tiny",
+      "checkpoint_id": "deit_tiny_patch16_224",
+      "checkpoint_state_sha256": "f0b707f051e6643293c66143e225044e3e59bd68cbdfca8a287534a5ffbdf741",
+      "depth": 8,
+      "n": 1000,
+      "clean_parity_max_abs_error": 0.0,
+      "precision": "float32",
+      "calibration_file": "outputs/fungibility_real_final/calibration_deit_tiny.pt",
+      "elapsed_seconds": 50.225855588912964
+    },
+    {
+      "architecture": "DeiT-Small",
+      "model_key": "deit_small",
+      "checkpoint_id": "deit_small_patch16_224",
+      "checkpoint_state_sha256": "9cc8d3502a88115f32ba516560697d043dc82e00144147347f559adf5dc377f6",
+      "depth": 8,
+      "n": 1000,
+      "clean_parity_max_abs_error": 0.0,
+      "precision": "float32",
+      "calibration_file": "outputs/fungibility_real_final/calibration_deit_small.pt",
+      "elapsed_seconds": 51.916869163513184
+    },
+    {
+      "architecture": "ViT-B/16 AugReg",
+      "model_key": "vit_base",
+      "checkpoint_id": "vit_base_patch16_224.augreg_in1k",
+      "checkpoint_state_sha256": "167c33a7ad88a6ace79d302775d7d89aa3c3967c597fa9e45259a0a14be75d68",
+      "depth": 7,
+      "n": 1000,
+      "clean_parity_max_abs_error": 0.0,
+      "precision": "float32",
+      "calibration_file": "outputs/fungibility_real_final/calibration_vit_base.pt",
+      "elapsed_seconds": 58.70630216598511
+    },
+    {
+      "architecture": "DINOv2 ViT-S/14",
+      "model_key": "dinov2",
+      "checkpoint_id": "dinov2_vits14_lc",
+      "checkpoint_state_sha256": "4321796b589ff20a5742983c6d3e0f480bf3bbf8255f3f9fad39445ab8ffc2b1",
+      "depth": 8,
+      "n": 1000,
+      "clean_parity_max_abs_error": 0.0,
+      "precision": "float32",
+      "calibration_file": "outputs/fungibility_real_final/calibration_dinov2.pt",
+      "elapsed_seconds": 56.21132826805115
+    }
+  ],
+  "note": "Static alpha and PCA basis use calibration-only actual-model targets; evaluation performs no J/VJP or label-guided fitting.",
+  "throughput": {
+    "status": "COMPLETE",
+    "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+    "precision": "float32",
+    "warmup_iterations": 50,
+    "measurement_iterations": 100,
+    "compile_mode": "disabled",
+    "attention_backend": {
+      "flash": true,
+      "mem_efficient": true,
+      "math": true
+    },
+    "measured_rows": 100,
+    "unmeasured": [],
+    "selective_variant_preselected": "target30 from calibration; not selected by eval accuracy"
+  },
+  "accuracy": {
+    "status": "COMPLETE",
+    "run_images_per_architecture": 1000,
+    "calibration_images_per_architecture": 500,
+    "evaluation_images_per_architecture": 1000,
+    "methods": [
+      "Clean",
+      "Hybrid Group Mean",
+      "Static Feature-PCA q=16",
+      "Static Feature-PCA q=32",
+      "Selective Feature-PCA q16 target20",
+      "Selective Feature-PCA q16 target30",
+      "Selective Feature-PCA q16 target50"
+    ],
+    "unmeasured": []
+  },
+  "sample_manifest_rows": 6000,
+  "sample_manifest_sha256": "000a4f66b03d95a35034bd43afa8956372d0587597b75fec1782e24e28e2184e",
+  "preprocessing_by_architecture": {
+    "DeiT-Tiny": "Resize(256,bicubic);CenterCrop(224);ToTensor;Normalize(ImageNet mean=.485,.456,.406 std=.229,.224,.225)",
+    "DeiT-Small": "Resize(256,bicubic);CenterCrop(224);ToTensor;Normalize(ImageNet mean=.485,.456,.406 std=.229,.224,.225)",
+    "ViT-B/16 AugReg": "Resize(248,bicubic);CenterCrop(224);MaybeToTensor;Normalize(mean=.5,.5,.5 std=.5,.5,.5)",
+    "DINOv2 ViT-S/14": "Resize(256,bicubic);CenterCrop(224);ToTensor;Normalize(ImageNet mean=.485,.456,.406 std=.229,.224,.225)"
+  },
+  "outputs_sha256": {
+    "historical_confirmatory_accuracy_counts.csv": "5aedf60807c02e57ce169de4144aa16021a1615a4a0d599a2d4587b2ca0c3895",
+    "real_accuracy_per_image.csv": "9b0d1c62b5838248c6553e04f141ab2088c8115292bfa04465057378a600e08d",
+    "real_accuracy_summary.csv": "6f4c91353893a502accfd20b21cceea96760115c576cc1d4f64218ae1d5d31a3",
+    "real_accuracy_throughput_frontier.csv": "7eda6e960fe5062d2f5839aa2c158b8bcb6c0eee8715dc7e3ed05bb34750df28",
+    "real_selective_gate_summary.csv": "e5ca14eff0272b941a256ef09cf5832b574fef933b911fb7eeebbf15df579e1a",
+    "real_static_carrier_ablation.csv": "33e602a398e9e98f4e86c9337cc19299cbfe75f187b4d8a9c9f54a40e7e290b8",
+    "real_throughput_raw.csv": "af6dd9619c835cfed6da32930c2450073241b1fdea40a137b1b9dfc143f943f5",
+    "real_throughput_summary.csv": "4a057f1082e2cd4555e8951ec4545224f86bd162f83ceac615b717cd87c969b7",
+    "sample_manifest.csv": "d901108bc5dddd6dba1bf0d65290c5e6363b4f7f4613733dd60672aeaed58358",
+    "validation_manifest.json": "dd5609ff6264145a2c83ef8893b7e989e945bb64202ff92b52848f0a881461bc",
+    "real_accuracy_logits_deit_tiny.npz": "3d0ab084e7ed784a9f85116011027dbca6875d5b441dc0ab70774a5be01258d8",
+    "real_accuracy_logits_deit_small.npz": "51f640c6dea1e2c668c2bf96f10c11a622513d84ccdc6b930536f839470d43e6",
+    "real_accuracy_logits_vit_base.npz": "dd015ff1761672af2ca91dd5ac835f72f05ae94bad283621c77b1bfebe9d289f",
+    "real_accuracy_logits_dinov2.npz": "92a305fa9923b6de17879d342055117670801bf7350910c9ecceaafd9619e339",
+    "calibration_deit_tiny.pt": "cf1bc1596c3bcb3237af4a5acbfce67da18dac2e13b4f623391486ac5daaf2a2",
+    "calibration_deit_small.pt": "3367a51fc651b2baed832a6c69bbaf82511483d657523d308f4757455d516698",
+    "calibration_vit_base.pt": "3f24a96c75b6f14782e0a5942f384940d400458f7c814b2456ab65dd775c6097",
+    "calibration_dinov2.pt": "912196b7cd6ad95fc3be08beb229f66e761d018b8a26e76da9bc3032437a5e16"
+  },
+  "report_sha256": "b53952ff63dea77b8d045cf8281e065f9902089fca1b349f3687338e000b483d",
+  "validation_status": {
+    "status": "FAIL",
+    "passed_assertions": 11,
+    "assertion_count": 12,
+    "failing_assertion": "10_no_proxy_accuracy_or_latency_citations"
+  }
+}

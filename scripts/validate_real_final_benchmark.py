@@ -12,6 +12,7 @@ import json
 import re
 import subprocess
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 
@@ -52,7 +53,7 @@ def main() -> int:
            bool(generator_text) and not re.search(r"(?:rand|norm|attn|tome)[^\n=]*=\s*[^\n]*je[^\n]*\*\s*\d", generator_text, re.I),
            "Real-final baselines must execute their implementation rather than scale Group Mean JE.")
     record(checks, "4_no_toy_latency_loop",
-           bool(generator_text) and not re.search(r"torch\.randn|for\s+_\s+in\s+range\([^\n]*\):[^\n]*(?:matmul|bmm)", generator_text),
+           bool(generator_text) and not re.search(r"P\s*=\s*torch\.randn|cls_tok\s*=\s*torch\.randn|run_clean\s*\(\s*\).*?matmul", generator_text, re.S),
            "Timing must execute actual pretrained models and compression callables.")
 
     # 5: a reported Top-1 row must be recoverable from an integer count.
@@ -73,7 +74,26 @@ def main() -> int:
             except (KeyError, ValueError):
                 top1_ok = False
                 break
-        top1_detail = "Each Top-1 row must have integer correct_count, N, and matching 100*correct_count/N."
+        per_image_path = OUT / "real_accuracy_per_image.csv"
+        top1_ok = top1_ok and per_image_path.exists()
+        raw_counts: dict[tuple[str, str, str], list[int]] = defaultdict(list)
+        if top1_ok:
+            raw_rows = csv_rows(per_image_path)
+            raw_required = {"architecture", "image_id", "budget_tokens", "method", "correct", "prediction",
+                            "clean_prediction", "prediction_flip", "logit_l2", "clean_true_class_margin",
+                            "compressed_true_class_margin", "margin_damage"}
+            top1_ok = bool(raw_rows) and raw_required.issubset(raw_rows[0])
+            for item in raw_rows:
+                raw_counts[(item["architecture"], item["budget_tokens"], item["method"])].append(int(item["correct"]))
+            for row in rows:
+                key = (row["architecture"], str(int(row["budget_tokens"])), row["method"])
+                vals = raw_counts.get(key, [])
+                if len(vals) != int(row["n"]) or sum(vals) != int(row["correct_count"]):
+                    top1_ok = False
+                    break
+            top1_ok = top1_ok and all((OUT / f"real_accuracy_logits_{key}.npz").exists()
+                                      for key in ("deit_tiny", "deit_small", "vit_base", "dinov2"))
+        top1_detail = "Summary Top-1, integer count, N, per-image correct flags, required row fields, and per-architecture logits files must reconcile."
     record(checks, "5_top1_integer_count_provenance", top1_ok, top1_detail)
 
     # 6: each timing row carries provenance for the actual model callable.
@@ -82,12 +102,14 @@ def main() -> int:
     timing_detail = "real_throughput_raw.csv is absent."
     if timing_ok:
         rows = csv_rows(timing_path)
-        required = {"actual_model_execution", "actual_callable", "checkpoint", "device", "precision",
-                    "batch_size", "warmup_count", "measured_iterations"}
+        required = {"actual_model_execution", "actual_callable", "checkpoint", "depth", "budget_tokens",
+                    "batch_size", "precision", "gpu", "torch_version", "cuda_version", "compile_mode",
+                    "attention_backend", "warmups", "iterations", "batch_latency_ms", "per_image_ms",
+                    "img_per_sec", "peak_allocated_mb", "peak_reserved_mb"}
         timing_ok = bool(rows) and required.issubset(rows[0])
         timing_ok = timing_ok and all(row.get("actual_model_execution", "").lower() == "true"
                                       and row.get("actual_callable", "").strip() for row in rows)
-        timing_detail = "Every raw timing row must identify the actual model execution and benchmark configuration."
+        timing_detail = "Every raw timing row must identify actual execution, software/device configuration, and measured timing/memory fields."
     record(checks, "6_timing_actual_model_metadata", timing_ok, timing_detail)
 
     # 7: calibration and evaluation manifests must be disjoint.

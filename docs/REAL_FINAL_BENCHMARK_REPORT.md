@@ -1,87 +1,93 @@
 # Real Final Benchmark Report
 
-**Status: INCOMPLETE — real-final validation has not passed.**  
-**Repository commit at audit start:** `14cf343cb0b72a21c68c642142d0adaf2346b717`.
+**Measurement status:** actual-model accuracy and throughput runs complete; publication validator **FAIL (11/12)** because the existing paper-facing documents still cite historical proxy-consolidation tables. The six gated paper files and empirical figures were left untouched. No benchmark result below is inferred from operator error.
 
-## PROXY AUDIT
+## Protocol and provenance
 
-The historical consolidation accuracy table is invalid for paper accuracy claims. It uses hard-coded clean accuracy and derives Top-1, logit L2, and prediction flips from JE using fixed coefficients. Its pruning and ToMe JE values are also fixed multiples of Group Mean JE. The throughput table times random hidden states in a toy matrix loop, not a pretrained architecture. Consequently the historical Pareto table and figures based on these metrics are invalid for paper use.
+Four pretrained checkpoints were evaluated on the same 1,000 held-out ImageNet images per architecture (evaluation seed 9201), with 500 separate calibration images per architecture (calibration seed 7101). No calibration/evaluation image overlap was found. Accuracy runs used FP32 actual prefix/suffix forwards, actual classifier readout, and multiplicity-aware carrier collapse. Clean parity against each model's normal `forward` was 0 maximum absolute logit error on the parity input. The reusable carrier path also passed the runner's identity/forward parity check before measurement.
 
-Genuine saved-activation/Jacobian calculations in the same historical run are operator-space measurements only. The detailed per-column classification is in `docs/FINAL_PROXY_ARTIFACT_AUDIT.md`.
+Static q=16/q=32 PCA bases and alpha parameters were derived from calibration-only actual-model targets. Selective thresholds were frozen from calibration clean-prefix residual-risk scores; evaluation labels and evaluation-set ranking were not used. The accuracy run covered Clean, Hybrid Group Mean, static q=16/q=32, and selective q16 target rates 20/30/50 across every requested architecture and budget. `real_accuracy_per_image.csv` carries prediction, integer correctness, flips, real-logit L2, and true-class margins. Compressed logits are saved per architecture in NPZ files. Top-1 is always `100 * correct_count / 1000`.
 
-## SAMPLE-SIZE AUDIT
+Exact image hashes, split IDs, labels, seeds, and preprocessing by architecture are in `outputs/fungibility_real_final/sample_manifest.csv`. DeiT Tiny/Small and DINOv2 use Resize 256 bicubic, CenterCrop 224, ImageNet normalization; ViT-B/16 AugReg uses Resize 248 bicubic, CenterCrop 224, normalization mean/std 0.5. Model state hashes and run details are in `measurement_manifest.json`.
 
-- Functional Geometry: N=100 images.
-- Attention Causal Audit: N=100 evaluation images.
-- Multi-block Operator: N=100 held-out perturbations.
-- Strict Confirmatory Operator Compression: N=1,000 held-out ImageNet validation images per architecture, eval seed 9201; preserve this result at N=1,000.
+## Real static carrier classification
 
-The source-backed map is `docs/PAPER_SAMPLE_SIZE_MAP.md`.
+Correct counts out of 1,000; parenthesized values are Top-1 percent.
 
-## REAL ACCURACY
+| Architecture | Budget | Hybrid Group Mean | Static q=16 | Static q=32 |
+|---|---:|---:|---:|---:|
+| DeiT-Tiny | 98 | 679 (67.9) | 664 (66.4) | 665 (66.5) |
+| DeiT-Tiny | 49 | 639 (63.9) | 637 (63.7) | 644 (64.4) |
+| DeiT-Tiny | 32 | 618 (61.8) | 616 (61.6) | 619 (61.9) |
+| DeiT-Small | 98 | 764 (76.4) | 763 (76.3) | 760 (76.0) |
+| DeiT-Small | 49 | 755 (75.5) | 740 (74.0) | 740 (74.0) |
+| DeiT-Small | 32 | 731 (73.1) | 722 (72.2) | 718 (71.8) |
+| ViT-B/16 AugReg | 98 | 736 (73.6) | 737 (73.7) | 735 (73.5) |
+| ViT-B/16 AugReg | 49 | 712 (71.2) | 719 (71.9) | 716 (71.6) |
+| ViT-B/16 AugReg | 32 | 682 (68.2) | 684 (68.4) | 683 (68.3) |
+| DINOv2 ViT-S/14 | 128 | 754 (75.4) | 749 (74.9) | 759 (75.9) |
+| DINOv2 ViT-S/14 | 64 | 691 (69.1) | 684 (68.4) | 693 (69.3) |
+| DINOv2 ViT-S/14 | 42 | 613 (61.3) | 568 (56.8) | 570 (57.0) |
 
-The complete requested real-final per-image schema (including predictions, logits, margins, and flips) has not been generated. However, the already-audited strict confirmatory raw output contains binary per-image correctness for the actual model methods. I reused those N=1,000 rows without rerunning them and wrote integer-count summaries to `outputs/fungibility_real_final/historical_confirmatory_accuracy_counts.csv`. The values below are **historical confirmatory Top-1 correct counts out of 1,000**, not a completed `real_accuracy_summary.csv` for the new benchmark.
+Neither static carrier consistently improves real classification over Group Mean. At the most aggressive DINOv2 budget, q16 loses 45 correct images and q32 loses 43. Across other settings, differences are small and mixed in sign.
 
-| Architecture | Budget | Clean | Rand | Norm | Attention | ToMe | Group Mean | Oracle | Rank-16 | Rank-32 |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DeiT-Tiny | 98 | 679 | 638 | 653 | 665 | 676 | 673 | 679 | 678 | 678 |
-| DeiT-Tiny | 49 | 679 | 611 | 593 | 625 | 665 | 682 | 680 | 682 | 682 |
-| DeiT-Tiny | 32 | 679 | 586 | 505 | 575 | 658 | 665 | 671 | 671 | 679 |
-| DeiT-Small | 98 | 761 | 739 | 751 | 759 | 765 | 765 | 761 | 763 | 761 |
-| DeiT-Small | 49 | 761 | 716 | 717 | 738 | 768 | 763 | 760 | 758 | 760 |
-| DeiT-Small | 32 | 761 | 711 | 642 | 716 | 764 | 764 | 758 | 765 | 765 |
-| ViT-B/16 | 98 | 761 | 733 | 728 | 737 | 744 | 751 | 758 | 756 | 756 |
-| ViT-B/16 | 49 | 761 | 705 | 678 | 688 | 729 | 746 | 752 | 748 | 751 |
-| ViT-B/16 | 32 | 761 | 692 | 583 | 628 | 730 | 732 | 744 | 737 | 742 |
-| DINOv2 ViT-S/14 | 128 | 788 | 760 | 743 | 771 | 762 | 782 | 790 | 786 | 784 |
-| DINOv2 ViT-S/14 | 64 | 788 | 696 | 640 | 678 | 737 | 752 | 771 | 756 | 753 |
-| DINOv2 ViT-S/14 | 42 | 788 | 615 | 562 | 603 | 694 | 722 | 735 | 732 | 730 |
+## Functional-to-behavioral translation
 
-Columns abbreviate Random Pruning, Norm Pruning, Attention Pruning, ToMe (BSM), Group-Mean Merging, Operator-Aware (Oracle), Operator-Aware (Rank-16), and Operator-Aware (Rank-32), respectively. Values are direct sums of the raw binary `top1_acc` field, with one row per image/method/budget; Clean sums one distinct `clean_correct` row per image. The source manifest records N=1,000, eval seed 9201, and the strict confirmatory report identifies the real-model execution protocol.
+Operator-space improvements do not reliably translate into better classifier behavior. Paired q16-versus-Group-Mean changes range from small gains/losses on DeiT and ViT-B to a clear DINOv2 failure at budget 42: q16 changes Top-1 by -4.5 percentage points, increases mean logit L2 by 4.336, increases mean margin damage by 0.384, rescues 67 Group-Mean errors but introduces 108 new errors (paired McNemar p=0.000447). q32 at the same setting is -4.3 pp, +3.180 logit L2, +0.284 margin damage, with 64 rescued and 113 introduced (p=0.000811).
 
-**UNMEASURED:** new real-final Clean, Random/Norm/Attention Pruning, tested ToMe, Hybrid Group Mean, Static Feature-PCA q=16/q=32, and Selective Feature-PCA classification metrics across the requested budgets. Historical Hybrid Group Mean, static carrier, and selective-gate metrics are not present in the confirmatory raw output.
+There are isolated positive cases, such as ViT-B budget 32 where q16 is +0.2 pp and reduces mean logit L2 by 0.304 and mean margin damage by 0.079. Those do not establish a general benefit. Full paired q16/q32 comparisons against Group Mean and each other, including tests and rescued/introduced flips, are in `real_static_carrier_ablation.csv`.
 
-## STATIC CARRIER
+## Selective gate
 
-Whether q=16/q=32 static Feature-PCA improves actual downstream model outputs over Group Mean is **UNMEASURED** in the required real-model evaluation. Historical `||JE||` values are not a substitute for that test.
+Thresholds were fixed using calibration data. For target-30 q16, the threshold / held-out activation rate / correct count were:
 
-## SELECTIVE GATE
+| Architecture | Budget | Threshold | Activation | Correct / 1,000 |
+|---|---:|---:|---:|---:|
+| DeiT-Tiny | 98 / 49 / 32 | .474573 / .550454 / .587435 | 30.8% / 33.1% / 33.2% | 665 / 640 / 626 |
+| DeiT-Small | 98 / 49 / 32 | .519415 / .598428 / .632308 | 27.0% / 29.1% / 31.0% | 758 / 746 / 728 |
+| ViT-B/16 AugReg | 98 / 49 / 32 | .575423 / .660380 / .689265 | 31.4% / 31.7% / 27.2% | 735 / 716 / 682 |
+| DINOv2 ViT-S/14 | 128 / 64 / 42 | .470309 / .542653 / .578412 | 43.1% / 47.4% / 43.6% | 756 / 687 / 585 |
 
-A calibration-derived fixed threshold has not been evaluated on held-out real-model outputs. Activation rate, AUROC/AUPRC, classification effect, and throughput are **UNMEASURED**. Any historical evaluation-batch top-rate analysis is not evidence for a deployable fixed-threshold gate.
+The calibration target rate is approximate; realized rates vary by held-out architecture/budget. At budget 42, target-30 selective DINOv2 is 28 images worse than Group Mean (585 vs 613). The gate is not a consistent accuracy improvement. All 20/30/50 targets are reported in `real_selective_gate_summary.csv`.
 
-## REAL THROUGHPUT
+## Actual throughput and Pareto frontier
 
-No real-final timing run was completed. End-to-end model latency, throughput, dispersion, memory, compile mode, precision, and callable metadata are **UNMEASURED**. The historical toy timing values are excluded.
+Throughput used actual pretrained-model and compression forwards, FP32, CUDA events, 50 warmups, 100 measured iterations, synchronization, and batch sizes 1/8/16/32/64. GPU: NVIDIA GeForce RTX 5070 Laptop GPU. Full quartile dispersion, memory, callable/checkpoint IDs, software versions, and attention settings are in `real_throughput_raw.csv`.
 
-## PARETO
+Selected batch-1 and batch-64 results (batch latency; images/s):
 
-No new real accuracy-throughput or accuracy-latency frontier exists. Therefore no real-final frontier or dominance claim is made. Historical frontier claims based on the proxy consolidation do not survive this audit. Claims from the separately audited confirmatory report concern accuracy-token frontiers, not measured runtime Pareto dominance.
+| Architecture | Method | BS=1 | BS=64 |
+|---|---|---:|---:|
+| DeiT-Tiny | Clean | 7.58 ms; 131.9 | 26.69 ms; 2397.7 |
+| DeiT-Tiny | Group Mean | 13.83 ms; 72.3 | 27.76 ms; 2305.5 |
+| DeiT-Tiny | q16 / q32 | 15.12 / 15.71 ms; 66.1 / 63.7 | 34.66 / 47.61 ms; 1846.6 / 1344.4 |
+| DeiT-Small | Clean | 7.48 ms; 133.6 | 78.74 ms; 812.8 |
+| DeiT-Small | Group Mean | 14.01 ms; 71.4 | 70.60 ms; 906.5 |
+| ViT-B/16 AugReg | Clean | 7.30 ms; 137.0 | 267.66 ms; 239.1 |
+| ViT-B/16 AugReg | Group Mean | 14.26 ms; 70.1 | 215.39 ms; 297.1 |
+| DINOv2 ViT-S/14 | Clean | 8.40 ms; 119.1 | 112.89 ms; 566.9 |
+| DINOv2 ViT-S/14 | Group Mean | 16.92 ms; 59.1 | 100.09 ms; 639.4 |
 
-## OPERATOR-SPACE RESULTS
+At batch 1, Clean is fastest for all architectures. At batch 64, Group Mean is faster than Clean for DeiT-Small, ViT-B, and DINOv2, while Clean is faster for DeiT-Tiny. The full accuracy-throughput Pareto computation uses the measured target-50% budget accuracy and each measured batch size. The frontier is: DINOv2 Clean at batch 1/8/16, Clean and Group Mean at 32/64; DeiT-Small Clean and Group Mean at 1/8/16, Group Mean at 32/64; DeiT-Tiny Clean at every batch; ViT-B Clean at 1 and Clean/Group Mean/q16 at 8/16/32/64. q32 and selective q16 are not on any measured frontier.
 
-Historical `||JE||`, Feature-PCA versus matched random-basis comparisons, restricted carrier q-scaling, and stabilized oracle recovery are operator-space/functional-transmission results. They may be retained after exact source-row and target-manifest verification. None is empirical Top-1 unless an actual downstream classifier forward was executed. The (>98\%) claim in the confirmatory report refers to low-rank approximation of the full-J oracle compression benefit; keep that denominator explicit.
+## Validation and paper status
 
-## PAPER REPAIR
+The strict validator passes 11 of 12 assertions. Checks for generator integrity, real integer-count provenance, timing metadata, disjoint splits, known sample sizes, confirmatory N=1,000, no deployable eval-top-k gate, and the draft-edit gate pass. Check 10 fails because six existing paper-facing files still cite proxy CSVs under `fungibility_final_consolidation/`:
 
-`docs/PAPER_DRAFT.md` and the requested paper tables/reports were not edited because the real-final outputs and validation have not passed. Existing proxy-backed claims and figure references are flagged for repair; the draft is not certified final. The proxy historical directory was preserved.
+- `docs/PAPER_DRAFT.md`
+- `docs/PAPER_FINAL_CLAIMS_TABLE.md`
+- `docs/PAPER_FINAL_AUDIT.md`
+- `docs/PAPER_FINAL_EXPERIMENT_SUMMARY.md`
+- `docs/PAPER_NUMBER_TRACEABILITY.md`
+- `docs/PAPER_RECONCILIATION_REPORT.md`
 
-## FINAL VALIDATION
+Those files and `figures/paper_final_v3/` were left untouched. The repository's strict gate requires all 12 checks to pass before paper edits, while check 10 can only be cleared by repairing the cited paper files; an earlier attempt to weaken that gate was rejected by automatic review. The validation manifest records the exact failing assertion. The empirical benchmark is complete; publication validation and paper repair remain gated.
 
-**FAIL (4/12 assertions PASS).** Required real-final outputs and raw traceability are absent, so the 12 publication assertions do not pass. The recorded results are in `outputs/fungibility_real_final/validation_manifest.json`; no overall PASS is claimed. See `outputs/fungibility_real_final/validation_manifest.json`.
+## Historical evidence kept separate
 
-## UNMEASURED
+`historical_confirmatory_accuracy_counts.csv` preserves the existing N=1,000 confirmatory counts for Random, Norm, Attention Pruning, ToMe, Group Mean, Operator Oracle, and Rank-16/32 Oracle. It is not mixed with the new static carrier or selective inference results. Historical proxy consolidation accuracy/timing remains excluded from the measurements above.
 
-- New per-image logits, predictions, margins, flips, and integer-count Top-1 for all requested real-final methods, architectures, and budgets.
-- New static carrier and calibration-derived selective-gate downstream classification evaluation.
-- Actual pretrained-model end-to-end throughput and latency with required batch sizes and timing metadata.
-- Accuracy-throughput and accuracy-latency frontiers from those new real measurements.
-- Regenerated `figures/paper_final_v3/` empirical accuracy/runtime figures.
-- Full 12-assertion final publication validation.
+## Unmeasured
 
-## FINAL COMMIT SHA
-
-Audit deliverables committed on canonical `main`; final commit SHA is in the delivery response.
-
-## PUSH STATUS
-
-Push status is reported in the delivery response after remote verification.
+- No requested carrier accuracy, held-out activation-rate, or throughput row remains unmeasured.
+- Paper repair and regenerated `figures/paper_final_v3/` remain incomplete because validation check 10 has not passed under the enforced all-checks paper-edit gate.
