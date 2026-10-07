@@ -41,27 +41,31 @@
       "status": "PASS",
       "detail": "Canonical repository is Patch-Content-Fungibility; workspace folder name is not presented as canonical."
     },
-    "no_invalid_v2_figure_paths": {
+    "no_invalid_figure_paths": {
       "status": "PASS",
-      "detail": "Manuscript points only to regenerated v3 figures."
+      "detail": "Manuscript points only to visually reviewed v4 figures."
     },
     "bibliography_resolves_without_duplicates": {
       "status": "PASS",
       "detail": "12 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
     },
-    "all_manuscript_figures_exist_and_are_v3_svg": {
+    "all_manuscript_figures_exist_and_are_v4_svg": {
       "status": "PASS",
       "detail": "Referenced figures=8; missing=[]; invalid=[]."
     },
-    "publication_figures_present_and_source_scoped": {
+    "publication_figures_present_source_scoped_and_reviewed": {
       "status": "PASS",
-      "detail": "Missing figures=[]; generator has real-final frontier input=True."
+      "detail": "Missing SVGs=[]; missing PNGs=[]; generator has real-final input=True; manifest/contact/review=[True, True, True]."
+    },
+    "docx_export_embeds_eight_reviewed_figures": {
+      "status": "PASS",
+      "detail": "DOCX package has eight inline figure drawings and eight embedded PNG media assets; page layout requires a renderer for visual confirmation."
     },
     "quantitative_claims_traceable": {
       "status": "PASS",
       "detail": "Numeric evidence families absent from traceability map: []."
     }
   },
-  "passed_count": 15,
-  "assertion_count": 15
+  "passed_count": 16,
+  "assertion_count": 16
 }

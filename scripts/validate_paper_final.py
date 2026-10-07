@@ -5,6 +5,8 @@ import csv
 import json
 import re
 import sys
+import zipfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,7 +15,7 @@ DRAFT = DOCS / "PAPER_DRAFT.md"
 TRACE = DOCS / "PAPER_NUMBER_TRACEABILITY.md"
 CLAIMS = DOCS / "PAPER_FINAL_CLAIMS_TABLE.md"
 SAMPLES = DOCS / "PAPER_SAMPLE_SIZE_MAP.md"
-FIGS = ROOT / "figures" / "paper_final_v3"
+FIGS = ROOT / "figures" / "paper_final_v4"
 
 
 def rows(path: Path) -> list[dict[str, str]]:
@@ -65,8 +67,8 @@ def main() -> int:
            "Manuscript contains no machine-local file URL.")
     record("canonical_repo_name_correct", "ResCancel" not in text and "github.com/nhatminh-115/Patch-Content-Fungibility" in text,
            "Canonical repository is Patch-Content-Fungibility; workspace folder name is not presented as canonical.")
-    record("no_invalid_v2_figure_paths", "paper_final_v2" not in text and "../figures/paper_final_v3/" in text,
-           "Manuscript points only to regenerated v3 figures.")
+    record("no_invalid_figure_paths", "paper_final_v2" not in text and "../figures/paper_final_v4/" in text,
+           "Manuscript points only to visually reviewed v4 figures.")
 
     # BibTeX citation/reference consistency, including duplicate entries.
     cite_keys = set()
@@ -83,18 +85,36 @@ def main() -> int:
     paths = re.findall(r"\]\((\.\./figures/[^)]+)\)", text)
     missing = [p for p in paths if not (DOCS / p).resolve().is_file()]
     invalid = [p for p in paths if "paper_final_v2" in p or not p.endswith(".svg")]
-    record("all_manuscript_figures_exist_and_are_v3_svg", bool(paths) and not missing and not invalid,
+    record("all_manuscript_figures_exist_and_are_v4_svg", bool(paths) and not missing and not invalid
+           and all("paper_final_v4" in p for p in paths),
            f"Referenced figures={len(paths)}; missing={missing}; invalid={invalid}.")
 
     # Figure generation must be reproducible from the declared audited sources.
-    figure_names = ["figure1_conceptual.svg", "figure2_depthwise.svg", "figure3_geometry_diversity.svg",
-                    "figure4_anisotropy.svg", "figure5_value_end_to_end.svg", "figure6_confirmatory_frontier.svg",
-                    "figure7_low_rank.svg", "supp/figureS1_real_carrier_boundary.svg"]
+    figure_names = ["figure1_overview.svg", "figure2_depthwise.svg", "figure3_geometry_diversity.svg",
+                    "figure4_anisotropic_geometry.svg", "figure5_value_path_cancellation.svg",
+                    "figure6_end_to_end_operator.svg", "figure7_operator_compression.svg",
+                    "supp/figureS1_real_carrier_boundary.svg"]
     absent = [n for n in figure_names if not (FIGS/n).is_file()]
-    script = ROOT/"scripts/render_paper_final_v3.py"
+    absent_png = [n[:-4]+".png" for n in figure_names if not (FIGS/(n[:-4]+".png")).is_file()]
+    script = ROOT/"scripts/build_paper_figures_v4.py"
     script_ok = script.exists() and "fungibility_real_final/real_accuracy_throughput_frontier.csv" in script.read_text(encoding="utf-8")
-    record("publication_figures_present_and_source_scoped", not absent and script_ok,
-           f"Missing figures={absent}; generator has real-final frontier input={script_ok}.")
+    sidecars = [FIGS/"FIGURE_MANIFEST.md", FIGS/"contact_sheet.png", DOCS/"PAPER_FIGURE_REVIEW_V4.md"]
+    record("publication_figures_present_source_scoped_and_reviewed", not absent and not absent_png and script_ok and all(p.is_file() for p in sidecars),
+           f"Missing SVGs={absent}; missing PNGs={absent_png}; generator has real-final input={script_ok}; manifest/contact/review={[p.is_file() for p in sidecars]}.")
+
+    docx_path = DOCS/"PAPER_DRAFT_v4.docx"
+    docx_ok = False
+    if docx_path.is_file():
+        try:
+            with zipfile.ZipFile(docx_path) as archive:
+                media = [name for name in archive.namelist() if name.startswith("word/media/")]
+                document_xml = ET.fromstring(archive.read("word/document.xml"))
+            drawings = sum(1 for node in document_xml.iter() if node.tag.endswith("}drawing"))
+            docx_ok = len(media) == 8 and drawings == 8
+        except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
+            docx_ok = False
+    record("docx_export_embeds_eight_reviewed_figures", docx_ok,
+           "DOCX package has eight inline figure drawings and eight embedded PNG media assets; page layout requires a renderer for visual confirmation.")
 
     # Traceability matrix covers every numeric claim family carried into the draft.
     tr = TRACE.read_text(encoding="utf-8-sig") if TRACE.exists() else ""

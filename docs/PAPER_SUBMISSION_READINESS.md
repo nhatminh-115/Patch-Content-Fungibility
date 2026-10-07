@@ -1,25 +1,25 @@
 # Paper Submission Readiness
 
-**Status: READY — evidence-first publication lockdown complete**
+**Status: FIGURE SET APPROVED — DOCX EXPORT PROVIDED; PAGE-RENDER QA UNAVAILABLE**
 
-The manuscript, claim tables, traceability map, sample-size map, and v3 figures are aligned to the audited repository evidence. No new experiments or research were added during this rewrite.
+The scientific manuscript remains locked. Figure assets were regenerated from audited outputs without new model execution or changes to scientific claims. The manuscript now points to the visually reviewed v4 set.
 
-## Lockdown checks
+## Completed checks
 
-- [x] `python scripts/validate_real_final_benchmark.py` passes: 12/12 checks; authoritative real-final evidence is present.
-- [x] `python scripts/validate_paper_final.py` passes: 15/15 publication checks.
-- [x] Main-text claims distinguish the constrained carrier's negative boundary result from the mechanism and confirmatory evidence; no unsupported practical deployment win remains.
-- [x] Quantitative claims are mapped in `docs/PAPER_NUMBER_TRACEABILITY.md` with source, filters, sample unit, denominator, and audit scope.
-- [x] Seven main figures and the real-carrier boundary supplement are generated under `figures/paper_final_v3/` from the scoped renderer. All eight SVG files parse as XML.
-- [x] Bibliography contains 12 unique, resolved, cited entries with no placeholder metadata.
-- [x] Sample units are explicit and separate: N=100 attention/geometry evidence, N=100 held-out operator perturbations, and N=1000 per model for confirmatory and real-final classifier outcomes.
-- [x] The activation-space C2 result and operator-space C2 control remain distinct claims with distinct sources and sample units.
+- [x] Real-final benchmark gate passes: 12/12 checks; authoritative real-final evidence is present.
+- [x] Manuscript and v4 figure publication gate passes.
+- [x] Visual review accepted seven main figures and one supplement; all have SVG and 300 dpi PNG outputs.
+- [x] Sources, row filters, and design decisions are recorded in `figures/paper_final_v4/FIGURE_MANIFEST.md`.
+- [x] Scientific claim text, evidence units, and reference content are unchanged; manuscript edits are limited to figure paths, captions, and figure-role references.
+- [x] `docs/PAPER_DRAFT_v4.docx` is exported from the canonical Markdown with eight reviewed v4 PNG figures and 12 formatted references; package structure passes validation.
+- [x] The practical carrier remains a bounded, mixed result.
 
-## Open blockers
+## Remaining verification limit
 
-None identified by the final validators or the evidence-scope review.
+DOCX page rendering could not be completed on this Windows host: the packaged renderer requires `soffice.exe`, which is absent, and `WINWORD` is not available on PATH. The DOCX package and its eight embedded images were checked structurally, but page layout has not been visually verified.
 
-## Validation artifacts
+## Validation and review artifacts
 
-- `outputs/fungibility_real_final/validation_manifest.json` — authoritative real-final benchmark validation.
-- `outputs/fungibility_real_final/paper_final_validation.json` — manuscript and figure publication gate.
+- `outputs/fungibility_real_final/validation_manifest.json`
+- `outputs/fungibility_real_final/paper_final_validation.json`
+- `docs/PAPER_FIGURE_REVIEW_V4.md`
