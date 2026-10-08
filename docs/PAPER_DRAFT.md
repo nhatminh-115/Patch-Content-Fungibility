@@ -5,29 +5,29 @@
 
 ## Abstract
 
-Vision transformers represent an image as a fixed sequence of patch slots, yet the role of each slot’s image-specific content in late layers remains unclear. We causally replace selected late-layer patch activations with class-agnostic calibration surrogates while preserving token slots, sequence length, model weights, and all subsequent computation. In the tested models, this fixed-slot content replacement reveals conditional fungibility bounded by feature geometry and token diversity, distinct from token pruning or merging. Mechanistic audits associate replaceability with anisotropic downstream transmission, coherent accumulation and cancellation through the attention value path, and a larger functional near-null subspace in later layers. We use an end-to-end downstream Jacobian to define a compression objective and evaluate it on 1,000 held-out images per architecture. At the most aggressive tested budgets, operator-aware variants improve classification accuracy by 4.2–12.0 percentage points over the strongest pruning baseline for each architecture; the accuracy-token frontier shifts on three of four architectures, while a strong merging baseline remains competitive. A separate classifier-carrier study shows that gains in linearized operator space do not reliably improve nonlinear classification or establish a general deployment frontier. The evidence supports a bounded vision-transformer-specific causal chain from fixed-slot patch-content replacement through geometry and coherent functional transmission to downstream compression, with limited translation to practical carrier corrections.
+Vision transformers represent an image as a fixed sequence of patch slots, yet the role of each slot’s image-specific content in late layers remains unclear. We causally replace selected late-layer patch activations with class-agnostic calibration surrogates while preserving token slots, sequence length, model weights, and all subsequent computation. In the tested models, this fixed-slot content replacement reveals conditional fungibility bounded by feature geometry and token diversity, distinct from token pruning or merging. Mechanistic audits associate replaceability with anisotropic downstream transmission, coherent accumulation and cancellation through the attention value path, and growth of a threshold-defined near-null subspace in an empirical margin-gradient feature metric at later layers. We use an end-to-end downstream Jacobian to define a compression objective and evaluate it on 1,000 held-out images per architecture. At the most aggressive tested budgets, operator-aware variants improve classification accuracy by 4.2–12.0 percentage points over the strongest pruning baseline for each architecture; the accuracy-token frontier shifts on three of four architectures, while a strong merging baseline remains competitive. A separate classifier-carrier study shows that gains in linearized operator space do not reliably improve nonlinear classification or establish a general deployment frontier. The evidence supports a bounded vision-transformer-specific causal chain from fixed-slot patch-content replacement through geometry and coherent functional transmission to downstream compression, with limited translation to practical carrier corrections.
 
 ## 1. Introduction
 
 Transformers use self-attention to mix token representations \citep{vaswani2017attention}, while vision transformers (ViTs) represent an image as a sequence of patch embeddings \citep{dosovitskiy2021vit}. Published ViT families include data-efficient supervised training \citep{touvron2021deit}, self-supervised representations \citep{caron2021dino, oquab2024dinov2}, hierarchical attention \citep{liu2021swin}, masked pretraining \citep{he2022mae}, scaling \citep{zhai2022scaling}, training regularization \citep{steiner2022augreg}, and register tokens \citep{darcet2024registers}. Token-reduction methods lower computation by changing which tokens are processed or how they are combined. We ask a different question: when does the remaining network require the image-specific content carried by a late patch slot?
 
-We answer with a controlled content intervention. At a selected late layer, image-specific patch activations are causally removed and replaced with class-agnostic calibration surrogates while token slots, sequence length, model weights, and all downstream computation are held fixed. The intervention isolates content dependence while preserving the structure of the sequence received by later layers. Replaceability is conditional: tolerated content changes depend on feature geometry and token diversity, and this result does not establish that deleting a token is harmless. Fig. 1 maps the intervention to the geometric constraints, anisotropic and coherent transmission, Value-path cancellation, downstream operator, and compression study.
-![Figure 1: Fixed-slot patch-content intervention, replacement constraints, and anisotropic transmission](../figures/paper_final_v4/figure1_overview.svg)
-*Fig. 1. Conceptual overview of (a) fixed-slot late-layer patch-content substitution, (b) geometry, token-diversity, and Value-path cancellation constraints, and (c) anisotropic downstream transmission. The schematic summarizes the paper’s mechanisms and is not a quantitative result.*
+We answer with a controlled content intervention. At a selected late layer, image-specific patch activations are causally removed and replaced with class-agnostic calibration surrogates while token slots, sequence length, model weights, and all downstream computation are held fixed. The intervention isolates content dependence while preserving the structure of the sequence received by later layers. Replaceability is conditional on feature geometry and token diversity; the intervention tests content substitution with fixed token slots rather than token deletion. Fig. 1 summarizes the fixed-slot intervention, geometric and diversity constraints, and selective transmission through anisotropic sensitivity and Value-path cancellation.
+![Figure 1: Fixed-slot patch-content intervention, replacement constraints, and selective transmission](../figures/paper_final_v4/figure1_overview.svg)
+*Fig. 1. Fixed-slot late-layer patch-content substitution (a), geometric and diversity constraints (b), and anisotropic sensitivity with Value-path cancellation (c).*
 
-The contribution is the connected ViT-specific causal chain: fixed-slot patch-content substitution, geometric and diversity constraints, Value-mediated coherence and cancellation, downstream-persistent functional transmission, and operator-aware token compression. We do not claim novelty for Jacobians, singular-value decompositions, anisotropy in general, token redundancy, pruning, merging, low-rank operators, or generic output-aware compression. The predictor and practical-carrier branch remains secondary: operator-space improvement is observed, but translation to nonlinear classification and deployment is limited in the measured settings.
+The contribution is the connected ViT-specific causal chain: fixed-slot patch-content substitution, geometric and diversity constraints, Value-mediated coherence and cancellation, downstream-persistent functional transmission, and operator-aware token compression. The analytical tools and efficiency mechanisms involved—Jacobians, singular-value decompositions, anisotropy analysis, token redundancy, pruning, merging, low-rank operators, and output-aware compression—are established; the contribution lies in their connection through this ViT-specific causal chain. The predictor and practical-carrier branch remains secondary: operator-space improvement is observed, but translation to nonlinear classification and deployment is limited in the measured settings.
 
 ## 2. Related Work
 
 Token-reduction methods change the sequence or the computation applied to it. DynamicViT and Expediting Vision Transformers via Token Reorganizations (EViT) score or reorganize tokens \citep{rao2021dynamicvit, liang2022evit}; Token Merging (ToMe) combines similar tokens \citep{bolya2023tome}; A-ViT (Adaptive Tokens for Efficient Vision Transformer) and AdaViT (Adaptive Vision Transformers for Efficient Image Recognition) use adaptive token computation \citep{yin2022avit, meng2022adavit}; and TokenLearner and Token Pooling form smaller, learned or pooled representations \citep{ryoo2021tokenlearner, marin2023tokenpool}. Adaptive Token Sampling (ATS) and Interpretability-Aware Redundancy Reduction (IA-RED²) select tokens using sampling or redundancy criteria \citep{fayyaz2022ats, pan2021iared}. Other approaches include PatchDropout, X-Pruner, and global structural pruning \citep{liu2023patchdropout, yu2023xpruner, yang2023globalvitprune}; joint pruning and squeezing \citep{wei2023tps}; and early-exit pruning for dense prediction \citep{tang2023dtop}. Evo-ViT, Dynamic Grained Encoder, and SPViT adapt token computation or selection \citep{xu2022evovit, song2021dge, kong2022spvit}, while Patch Slimming, Dynamic Transformers, end-to-end sparsity, activation sparsity, and structure-aware pruning explore complementary efficiency settings \citep{tang2022patchslimming, wang2021notallimages, chen2021chasing, chen2023sparsevit, zheng2022savit}. These methods establish strong baselines and context, but alter token count, token identity, or computation. Our Patch-Content Fungibility (PCF) intervention instead changes patch content while preserving slots and downstream computation in the tested causal audit.
 
-Compression by weight or structure pruning has a longer history. Optimal Brain Damage and Optimal Brain Surgeon use sensitivity-based approximations to remove parameters \citep{lecun1989obd, hassibi1993obs}. Later work studies connection pruning, resource-aware pruning, sparse trainable subnetworks, and movement-based pruning \citep{han2015weights, molchanov2017pruning, frankle2019lottery, sanh2020movement}. SparseGPT and Wanda study one-shot pruning of large language models (LLMs), while SliceGPT removes dimensions. Singular value decomposition (SVD) is also used for large-language-model compression in the published SVD-LLM method, which applies a truncation-aware variant \citep{frantar2023sparsegpt, sun2024wanda, ashkboos2024slicegpt, wang2025svdllm}. These works are relevant precedents for compression, but they do not establish the PCF claim or evaluate the fixed-slot patch-content intervention. We use a downstream operator as an empirical objective for grouping and correcting patch carriers; the Jacobian, singular-value decomposition, and output-sensitive objectives themselves are established tools.
+Compression by weight or structure pruning has a longer history. Optimal Brain Damage and Optimal Brain Surgeon use sensitivity-based approximations to remove parameters \citep{lecun1989obd, hassibi1993obs}. Later work studies connection pruning, resource-aware pruning, sparse trainable subnetworks, and movement-based pruning \citep{han2015weights, molchanov2017pruning, frankle2019lottery, sanh2020movement}. SparseGPT and Wanda study one-shot pruning of large language models (LLMs), while SliceGPT removes dimensions. Singular value decomposition (SVD) is also used for large-language-model compression in the published SVD-LLM method, which applies a truncation-aware variant \citep{frantar2023sparsegpt, sun2024wanda, ashkboos2024slicegpt, wang2025svdllm}. These works provide precedents for compression; PCF instead evaluates a fixed-slot patch-content intervention. We use a downstream operator as an empirical objective for grouping and correcting patch carriers; the Jacobian, singular-value decomposition, and output-sensitive objectives themselves are established tools.
 
 Interpretability research cautions that attention weights alone need not explain a model’s decision. Controlled studies examine whether attention is explanation and how explanation changes under interventions \citep{jain2019attentionnotexplanation, serrano2019attentioninterp, wiegreffe2019attentionnotnot}. Attention flow, Integrated Gradients, saliency-map sanity checks, and transformer-specific relevance propagation provide complementary methods for tracing or attributing model behavior \citep{abnar2020attentionflow, sundararajan2017ig, adebayo2018sanity, chefer2021transformerinterp}. Causal abstraction offers a framework for connecting interventions to model-level causal structure \citep{geiger2022causal}. Our evidence uses direct activation interventions and held-out prediction of perturbation damage; it is bounded to the tested models, readouts, and cohorts.
 
-## 3. Experimental Scope and Measurement Units
+## 3. Experimental Setup and Interventions
 
-The paper reports distinct evidence cohorts and keeps their units separate. Table I lists the sampling unit and inference scope for each study. Here, N denotes the count of the stated sampling unit; it is not interchangeable across image-based and perturbation-based studies. Top-1 accuracy means the fraction of evaluated images for which the highest-scoring class equals the ground-truth label.
+The analyses use distinct evidence cohorts, with each sampling unit reported separately. Table I lists the sampling unit and inference scope for each study. Here, N denotes the count of the stated sampling unit, which differs across image-based and perturbation-based studies. Top-1 accuracy is the fraction of evaluated images for which the highest-scoring class equals the ground-truth label.
 
 **TABLE I**
 
@@ -48,19 +48,24 @@ The paper reports distinct evidence cohorts and keeps their units separate. Tabl
 
 *Table I. Sample units are reported as recorded in each study. Image cohorts are separate unless a source explicitly states otherwise; the multi-block unit counts perturbations, and operator-space carrier results do not measure classification.*
 
-For the intervention, let P_ℓ∈ℝ^{N×D} be the matrix of N patch activations at layer ℓ, and let p_{ℓ,i}∈ℝ^D denote row i. The class-agnostic calibration surrogate for that row is r_{ℓ,i}. The binary indicator m_i is one only for selected slots:
+In the equations, N<sub>img</sub> denotes the number of image samples, n_p the number of spatial patch slots, and D the feature dimension; Table I reports N alongside each study's sampling unit. For the fixed-slot intervention, let P_ℓ∈ℝ^{n_p×D} contain the patch activations at layer ℓ, with p_{ℓ,i}∈ℝ^D as row i and r_{ℓ,i} its class-agnostic calibration surrogate. The binary indicator u_i selects the slots to replace:
 $$
-p̃_{ℓ,i}=(1−m_i)p_{ℓ,i}+m_i r_{ℓ,i}, m_i∈{0,1}, i=1,…,N.
+p̃_{ℓ,i}=(1−u_i)p_{ℓ,i}+u_i r_{ℓ,i}, u_i∈{0,1}, i=1,…,n_p.
+\tag{1}
 $$
-Thus, when m_i=0 the original activation remains, and when m_i=1 it is replaced by the corresponding surrogate. The class token, position indices, number of rows, model weights, and subsequent computation remain unchanged. The intervention therefore isolates dependence on image-specific content; it does not test whether deleting a token can be harmless.
+Thus, when u_i=0 the original activation remains, and when u_i=1 it is replaced by the corresponding surrogate. The class token, position indices, number of rows, model weights, and subsequent computation remain unchanged. The intervention isolates dependence on image-specific content while keeping token slots fixed.
 
 For compression, an end-to-end Jacobian locally maps a perturbation of the patch matrix at layer ℓ to the measured downstream readout z. The Jacobian is evaluated at the unperturbed activation; its product with a flattened perturbation gives a first-order prediction of the readout change. The full-J oracle uses a per-example Jacobian and is an offline reference, not a deployable inference procedure. Section 6 defines the operator objective and its grouping variables.
 
-## 4. Late Patch-Content Fungibility Has Geometric and Diversity Boundaries
+## 4. Geometric and Diversity Constraints on Patch-Content Fungibility
+
+### 4.1 Depth-Dependent Replacement Tolerance
 
 Across the audited replacement controls, late-layer patch content is more replaceable than early-layer content, but arbitrary substitutions do not preserve function. The original V1 depthwise validation evaluates 1,000 images per architecture under 25% patch replacement. A separately recorded follow-up measured the previously unsampled depth 6 with the same split seeds, replacement fraction, controls, and 1,000-image calibration and evaluation sets for ViT-B/16 AugReg and DINOv2. At depth 6, centroid/Gaussian replacement gives 73.9%/74.9% for ViT-B/16 AugReg and 70.6%/74.6% for DINOv2, compared with zero replacement at 71.5%/28.8%; Gaussian values are means over three seeds. Fig. 2 combines that follow-up with the original depths 5, 7, 8, 9, and 10. These results are conditional on the tested models, layer, replacement fraction, calibration distribution, and readout.
 ![Figure 2: Audited depth-wise replacement controls](../figures/paper_final_v4/figure2_depthwise.svg)
 *Fig. 2. Depth-wise replacement accuracy for ViT-B/16 AugReg and DINOv2 under 25% spatial-patch replacement. Original V1 depths are 5, 7, 8, 9, and 10; depth 6 is a separately recorded follow-up. Each evaluation uses N=1,000 images per model. Error bars show Gaussian seed-level standard deviation; dashed lines mark clean accuracy.*
+
+### 4.2 Geometric and Diversity Constraints
 
 Geometry and diversity constrain replacement. In the separate V0.7 activation-replacement experiment (N=1,000 images per model; 50% replacement), coordinate permutation changes Top-1 accuracy from 66.3% to 52.2% on DeiT-Tiny and from 75.6% to 62.6% on DeiT-Small; sign inversion reduces it to 0.7% and 1.1%, respectively. These are classifier outcomes from the N=1,000 replacement study. A distinct N=100 DeiT-Small operator-space control finds that shuffling principal component analysis (PCA) coordinates increases mean ‖J E‖ by 1.474 (from 6.602 to 8.076); this is linearized operator-space evidence, not Top-1 accuracy. Fig. 3 compares the audited geometry and token-diversity controls.
 ![Figure 3: Geometry and token-diversity constraints](../figures/paper_final_v4/figure3_geometry_diversity.svg)
@@ -68,32 +73,90 @@ Geometry and diversity constrain replacement. In the separate V0.7 activation-re
 
 V0.8 diversity tests show that low-dimensional variation does not restore full performance and that the tested setting requires high-dimensional structure. In the separate V0.9 study, with 100% patch replacement, N=1,000 evaluation images and a disjoint N=1,000 calibration set per DeiT model, learned low-dimensional variation is more compatible than energy-matched random directions. This relative advantage is model- and amplitude-dependent and does not establish rank-1 sufficiency. Taken together, the interventions support constrained replaceability, not universal interchangeability and not a direct inference that tokens can be deleted at no cost.
 
-## 5. Anisotropic Transmission, Value-Path Cancellation, and End-to-End Geometry
+## 5. Functional Geometry and Attention-Mediated Transmission
 
-Functional transmission is direction-dependent. In the attention causal audit (N=100 evaluation images), the frozen-attention Value-only path explains 70.8% of the defined coherence-gap margin effect in DeiT-Small and 102.2% in ViT-B/16 AugReg. The same path reproduces approximately 97.4% and 99.3% of the immediate readout disturbance, respectively. The ratio above 100% in ViT-B/16 AugReg is possible because a secondary contribution partially opposes the Value-path effect. Perturbing patch keys does not change the unperturbed classification-token query in this setup, so the immediate query contribution is zero; key-mediated rerouting remains secondary rather than absent. The frozen-attention algebraic parity check is not independent generalization evidence. Fig. 4 summarizes the audited depth-wise sensitivity pattern, and Fig. 5 compares coherent with sign-varying Value-path transmission.
+### 5.1 Anisotropy and Functional Geometry
+
+Functional transmission is direction-dependent. Fig. 4 summarizes the audited depth-wise sensitivity pattern.
 ![Figure 4: Anisotropic functional geometry](../figures/paper_final_v4/figure4_anisotropic_geometry.svg)
-*Fig. 4. (a) Ratio of downstream sensitivity along PC1 (the activation direction with the largest calibration variance) to sensitivity along the lowest-variance PC (the direction with the smallest calibration variance), across depths in the N=100 functional-geometry pilot. (b) Depth-8 PCA score-density maps for DeiT-Small and ViT-B/16 AugReg. Each observation is a patch activation from the 100-image pilot cohort; axes are standardized per model and component to show the score distributions, so the plotted spread does not represent their raw variance difference. Patch tokens are not independent image samples; downstream sensitivity is measured in (a).*
+*Fig. 4. (a) Ratio of the empirical margin-gradient metric sensitivity vᵀM_ℓv along PC1 to that along PC-bottom across depths in the N=100 functional-geometry pilot. The PCs are eigenvectors of the centered calibration-activation covariance, separate from M_ℓ. (b) Depth-8 PCA score-density maps for DeiT-Small and ViT-B/16 AugReg. Each observation is a patch activation from the 100-image pilot cohort; axes are standardized per model and component to show score distributions, so the plotted spread does not represent their raw variance difference. Patch tokens are not independent image samples; panel (a) is not computed from the full downstream readout Jacobian used in compression.*
+
+For image s, let y_s and r_s be the clean predicted and runner-up classes, and let z_s denote its final logits. The functional-geometry pilot differentiates this scalar class margin with respect to each patch feature, then averages the per-patch gradient outer products:
+$$
+g_{s,i}=∇_{p_{ℓ,s,i}}(z_{s,y_s}−z_{s,r_s}), M_ℓ=(1/(N_{img}n_p))Σ_{s=1}^{N_{img}}Σ_{i=1}^{n_p}g_{s,i}g_{s,i}ᵀ.
+\tag{2}
+$$
+Here M_ℓ∈ℝ^{D×D} is an uncentered second moment of scalar margin gradients, not J_{ℓ→L}ᵀJ_{ℓ→L}. The pilot counts nonnegative eigenvalues no greater than 10⁻³ times the largest as near-null. Its effective rank is exp(−Σ_{k:p_k>10⁻¹²}p_k log p_k), where p_k is eigenvalue k divided by the eigenvalue sum. Thus M_ℓ pools per-token margin gradients without cross-token or full-logit Jacobian structure. PCA uses the separate sample covariance Σ_{act,ℓ} of centered calibration patch-feature rows, with denominator M_cal−1 for M_cal calibration patch observations. This count is the number of calibration patch tokens, not N<sub>img</sub>. This covariance is distinct from both M_ℓ and the readout-space solver Gram matrix H_J.
+
+### 5.2 Value-Path Coherence and Cancellation
+
+In the attention causal audit (N=100 evaluation images), the frozen-attention Value-only path explains 70.8% of the defined coherence-gap margin effect in DeiT-Small and 102.2% in ViT-B/16 AugReg. The same path reproduces approximately 97.4% and 99.3% of the immediate readout disturbance, respectively. Because a secondary contribution partially opposes the Value-path effect, the Value-only ratio exceeds 100% in ViT-B/16 AugReg. In this setup, perturbing patch keys leaves the unperturbed classification-token query unchanged, so the immediate query contribution is zero; key-mediated rerouting remains secondary. The frozen-attention parity check verifies algebraic consistency rather than generalization. Fig. 5 compares coherent with sign-varying Value-path transmission.
 
 ![Figure 5: Value-path transmission across coherent and sign-varying patch patterns](../figures/paper_final_v4/figure5_value_path_cancellation.svg)
 *Fig. 5. Immediate readout disturbance for Value-only and key-plus-value pathways under coherent, random-sign, and checkerboard patterns in two N=100 attention-audit settings.*
 
-With attention weights frozen, the Value-only contribution to the perturbation of readout token i is
+For one image and a CLS readout, let w_{h,i}^{clean} be the clean attention weight from patch i to the readout in head h. The signed attention-weighted token pattern and frozen-attention Value-context change are
 $$
-Δh_i^{(V)}=W_O\sum_{j=1}^{N}A_{ij}W_Vδx_j.
+Γ_h(a)=Σ_{i=1}^{n_p}w_{h,i}^{clean}a_i, Δc_h^{(V)}=Σ_{i=1}^{n_p}w_{h,i}^{clean}Δv_{h,i}∈ℝ^{d_h}.
+\tag{3}
 $$
-Here, A_{ij} is the fixed attention weight from patch j to readout i, W_V and W_O are the Value and output projections, and δx_j is the patch perturbation. When attention weights are held fixed, similarly directed patch perturbations can add through the value aggregation, while sign-varying perturbations can partly cancel. This equation describes the audited Value path; it does not claim that the full nonlinear transformer is globally linear or that the Value path is the only causal route.
+Here Δv_{h,i} is the measured change in the post-normalization Value projection for patch i. Γ_h(a) summarizes how the token pattern aligns with clean attention weights; the second expression retains token-specific Value changes and is the pre-output-projection head context audited in code. With attention frozen, coherent signed contributions can add and varying signs can cancel. This frozen-attention decomposition isolates Value-path transmission while leaving nonlinear attention rerouting and other causal paths outside its scope.
 
-Local geometry is not sufficient to characterize later readout damage. The multi-block operator study evaluates N=100 held-out perturbations. On these held-out perturbations, damage prediction has higher correlation for the multi-block operator (Pearson r=0.975; Spearman ρ=0.945) than for the single-block operator (r=0.753; ρ=0.735). The mean principal angle from block 8 to block 9 is 49.0 degrees in the reported comparison. Fig. 6 shows this local-versus-end-to-end comparison. Separately, the N=100-image functional-geometry pilot finds that the threshold-defined downstream functional near-null subspace expands with depth while effective functional rank declines in late layers. This is consistent with greater late-layer replacement tolerance measured in separate interventions, but remains an empirical mechanistic association rather than a theorem or universal explanation. A distinct joint-stream geometry audit (N=100 images per model) finds that downstream damage depends jointly on feature direction and token-space coherence: sensitive feature directions are most damaging under coherent token patterns, whereas functionally near-null directions remain comparatively tolerated across the tested patterns.
+### 5.3 End-to-End Functional Transmission
+
+Local geometry is not sufficient to characterize later readout damage. The multi-block operator study evaluates N=100 held-out perturbations. On these held-out perturbations, damage prediction has higher correlation for the multi-block operator (Pearson r=0.975; Spearman ρ=0.945) than for the single-block operator (r=0.753; ρ=0.735). The mean principal angle from block 8 to block 9 is 49.0 degrees in the reported comparison. Fig. 6 shows this local-versus-end-to-end comparison. Separately, the N=100-image functional-geometry pilot finds that the threshold-defined near-null subspace of M_ℓ expands with depth while its entropy effective rank declines in late layers. This is consistent with greater late-layer replacement tolerance measured in separate interventions, but remains an empirical mechanistic association rather than a theorem or universal explanation.
+
+**Token–feature interaction.** A distinct joint-stream geometry audit (N=100 images per model) selects feature directions using its own per-image mean patch-margin-gradient metric, separate from M_ℓ in the functional-geometry pilot and from the full-logit J_{ℓ→L} used in compression. It finds that downstream damage depends jointly on feature direction and token-space coherence: sensitive feature directions are most damaging under coherent token patterns, whereas functionally near-null directions remain comparatively tolerated across the tested patterns. The audit injects the norm-matched rank-one perturbation
+
+$$
+ΔP_ℓ=αavᵀ, a∈ℝ^{n_p}, v∈ℝ^D, ‖a‖₂=‖v‖₂=1, ‖ΔP_ℓ‖_F=α.
+\tag{4}
+$$
+with α=sσ_ℓ≥0; consequently α is the Frobenius norm of the injected patch perturbation.
 ![Figure 6: Local and end-to-end operator prediction](../figures/paper_final_v4/figure6_end_to_end_operator.svg)
 *Fig. 6. Pearson and Spearman correlations between the single-block operator A₈ and end-to-end Jacobian J₈→₁₂ predictions and measured final-logit L2 damage on N=100 held-out perturbations. J₈→₁₂ composes blocks 9–12 and the final normalization/CLS readout. The mean principal angle from block 8 to block 9 is 49.0°.*
 
-The end-to-end linearization used in this comparison is
+The end-to-end linearization maps all patch features at layer ℓ to the final classifier-logit vector z∈ℝ^{d_z}:
 $$
-J_{ℓ→L}=∂z/∂flat(P_ℓ), Δz≈J_{ℓ→L} flat(ΔP_ℓ).
+J_{ℓ→L}=∂z/∂rvec(P_ℓ)∈ℝ^{d_z×n_pD}, Δz≈J_{ℓ→L}rvec(ΔP_ℓ), rvec(X)=vec(Xᵀ).
+\tag{5}
 $$
-Here, z is the measured downstream readout, and flat(·) denotes the row-major vectorization used by the implementation. The first expression defines the local Jacobian; multiplying it by a flattened perturbation gives the first-order readout-change approximation in the second expression. This is an empirical model of transmission for the tested perturbations, not an exact identity for large perturbations or a universal explanation of transformer behavior.
+The implementation reshapes each n_p×D patch matrix in row-major order, which equals the conventional column-vectorization vec(Xᵀ) used by rvec. In the confirmatory classification runs, d_z is the number of class logits. The Jacobian product is a first-order readout-change approximation at the unperturbed activation, not an exact identity for large perturbations or a universal account of transformer behavior. This full-logit, all-patch Jacobian is distinct from the pooled margin-gradient feature metric M_ℓ in Eq. (2).
 
-## 6. Confirmatory Operator-Aware Token Compression
+## 6. Operator-Aware Token Compression
+
+### 6.1 Carrier Grouping and Optimization
+
+For each image, n_p patch tokens are assigned to B carriers. Let S∈{0,1}^{n_p×B} be the assignment matrix, with exactly one nonzero per row, and let C∈ℝ^{B×D} contain the carrier vectors. The reconstructed patch matrix is P̂=SC. The set G_j contains the patch indices assigned to carrier j, and m_j=|G_j| is its membership count. The Group Mean baseline sets each carrier to the average of the patches assigned to that group:
+$$
+c_j^{mean}=(1/m_j)Σ_{i∈G_j}p_i, m_j=|G_j|.
+\tag{6}
+$$
+The residual matrix E=P−SC is the difference between the original and reconstructed patch features. **Low-rank operator approximation.** The full-J oracle uses J_s=J_{ℓ→L}; for a rank-r approximation, the solver instead uses J_s=U_rᵀJ_{ℓ→L}, where U_r contains the leading left singular vectors. In either case, the solver minimizes
+$$
+C^*=arg min_C ‖J_s rvec(P−SC)‖_2^2 + λ‖P−SC‖_F^2.
+\tag{7}
+$$
+The first term penalizes the readout change predicted by the selected operator, while the second is a trace-scaled Tikhonov penalty. Let d_s be the row dimension of J_s (d_z for the full operator and r for a rank-r solve), and let (J_s)_i be its D-column block for patch i. The solver constructs the readout-space Gram matrix and regularization scale
+$$
+K_j=Σ_{i∈G_j}(J_s)_i, H_J=Σ_{j=1}^{B}(1/m_j)K_jK_jᵀ, λ=10·tr(H_J)/d_s.
+\tag{8}
+$$
+H_J is a positive-semidefinite Gram matrix of grouped Jacobian blocks, not a feature-activation covariance. It is distinct from the centered calibration-activation covariance that defines PCA directions. The per-image closed-form carrier update is
+$$
+r_{mean}=J_s rvec(E_{mean}), c_j^*=c_j^{mean}+(1/m_j)K_jᵀ(H_J+λI_{d_s})^{-1}r_{mean}.
+\tag{9}
+$$
+Because the Group Mean residual sums to zero within each group, these normal equations give the exact minimizer of the stated quadratic objective. This exactness applies to the local linearized objective, not to the nonlinear classifier loss. The full-J solution is computed per image and is an offline oracle; low-rank solves are evaluated against the full J on the same confirmatory cohort.
+
+Each compressed key also carries the number s_t of original tokens represented by that key. With T=B+1 compressed tokens and d_h dimensions per head, the compressed attention adds log multiplicity to each key's attention logit:
+$$
+A^{(h)}=softmax_{key}(Q^{(h)}K^{(h)ᵀ}/√d_h+1_T(log s)ᵀ), s_0=1, s_j=m_j.
+\tag{10}
+$$
+The vector s includes multiplicity one for the class token and m_j=|G_j| for patch carriers; 1_T broadcasts the log-size bias over query positions. This proportional-attention correction is used in Token Merging (ToMe) to account for merged-token size \citep{bolya2023tome}. The implementation applies the same key bias in each compressed downstream attention block.
+
+### 6.2 Confirmatory Compression Results
 
 Strict confirmatory compression uses N=1,000 held-out images per architecture. At each architecture’s most aggressive tested token budget, Table II reports the exact Top-1 comparison among the best pruning baseline, Group Mean, ToMe, the full-J oracle, and its rank-16 and rank-32 approximations. The selected budgets differ by architecture (32 retained tokens for DeiT-Tiny, DeiT-Small, and ViT-B/16 AugReg; 42 for DINOv2 ViT-S/14), so the rows are within-architecture comparisons rather than a matched token-count experiment. Fig. 7 presents the full accuracy-token curves.
 
@@ -110,27 +173,19 @@ Strict confirmatory compression uses N=1,000 held-out images per architecture. A
 
 *Table II. Top-1 accuracy on N=1,000 held-out images per architecture. The pruning entry is the strongest among Random, Norm, and Attention Pruning at the listed budget. The architecture-specific budgets are the lowest budgets evaluated in the strict confirmatory sweep.*
 
-For each image, N patch tokens are assigned to B carriers. Let S∈{0,1}^{N×B} be the assignment matrix, with exactly one nonzero per row, and let C∈ℝ^{B×D} contain the carrier vectors. The reconstructed patch matrix is P̂=SC. The set G_j contains the patch indices assigned to carrier j, and m_j=|G_j| is its membership count. The Group Mean baseline sets each carrier to the average of the patches assigned to that group:
-$$
-c_j^{mean}=(1/m_j)Σ_{i∈G_j}p_i, m_j=|G_j|.
-$$
-The residual matrix E=P−SC contains the difference between the original and reconstructed patches. The operator-aware oracle adjusts the carriers to reduce the Jacobian-predicted effect of this residual on the downstream readout:
-$$
-C^*=arg min_C ‖J_{ℓ→L} flat(P−SC)‖_2^2 + λ‖P−SC‖_F^2.
-$$
-The first term penalizes the readout change predicted by the full downstream Jacobian; the second is a trace-scaled Tikhonov penalty that stabilizes the carrier correction. In the implementation, K_j=Σ_{i∈G_j}J_i is the sum of the Jacobian blocks for patches assigned to carrier j, and Σ=Σ_j K_jK_jᵀ/m_j is the group-size-normalized covariance used to scale regularization. The covariance and regularization scale are
-$$
-K_j=Σ_{i∈G_j}J_i, Σ=Σ_j(K_jK_jᵀ/m_j), λ=10·tr(Σ)/dim(z).
-$$
-Here, J_i is the Jacobian block for patch i, the sum runs over all B carrier groups, and dim(z) is the readout dimension. Thus the penalty scale follows the trace of the operator-space covariance and the readout dimension. The full-J solution is computed per image and is an offline oracle, not a deployable inference method. Low-rank approximations reduce the operator basis and are evaluated on the same confirmatory cohort.
+Across 30,000 method/budget/seed condition rows per architecture, the same 1,000 held-out images are reused across conditions. Operator residual ‖J E‖ is associated with measured logit-L2 distortion: per-architecture Pearson r ranges from 0.739 to 0.866, and Spearman ρ ranges from 0.792 to 0.916. These are condition-level associations, not 120,000 independent images. Rank-16 and rank-32 outcomes vary by architecture and budget; the confirmatory data do not support a universal recovery fraction. Fig. 7 reports the measured accuracy-token curves, while Table II lists rank-16 and rank-32 Top-1 at each architecture's most aggressive tested budget.
+![Figure 7: Confirmatory operator-aware compression and rank ablations](../figures/paper_final_v4/figure7_operator_compression.svg)
+*Fig. 7. Confirmatory Top-1 accuracy versus retained patch-token fraction for four architectures. Curves show pruning, Group Mean, ToMe, the full-J oracle, and rank-32; rank-16 Top-1 is listed in Table II at the most aggressive tested budget. Each architecture uses N=1,000 held-out images.*
 
-Across 30,000 method/budget/seed condition rows per architecture, the same 1,000 held-out images are reused across conditions. Operator residual ‖J E‖ is associated with measured logit-L2 distortion: per-architecture Pearson r ranges from 0.739 to 0.866, and Spearman ρ ranges from 0.792 to 0.916. These are condition-level associations, not 120,000 independent images. Rank-16 and rank-32 approximations retain more than 98% of the Group-Mean-to-full-J-oracle compression benefit. This denominator is the benefit from Group Mean to the full-J oracle; it is not an accuracy-recovery ratio, retained spectral energy, practical-predictor recovery, restricted-carrier-oracle recovery, or static-alpha recovery. Fig. 7 reports the confirmatory curves and the audited benefit denominator.
-![Figure 7: Confirmatory operator-aware compression and low-rank benefit](../figures/paper_final_v4/figure7_operator_compression.svg)
-*Fig. 7. Confirmatory Top-1 accuracy versus retained patch-token fraction for four architectures and the audited rank-16/32 benefit result. The >98% denominator is the Group-Mean-to-full-J-oracle compression benefit, not an accuracy ratio or spectral energy. Each architecture uses N=1,000 held-out images.*
+## 7. Limits of Practical Carrier Corrections
 
-## 7. Carrier-Space Results and Practical Boundary
+### 7.1 Static Feature-PCA Corrections
 
-The separate carrier branch tests whether corrections can be amortized in a compact feature-PCA basis. Here, q is the number of feature directions in the correction basis, extracted from calibration patch activations; these directions are not obtained from the Jacobian. Separately, calibration uses a low-rank subspace derived from downstream-Jacobian targets to estimate a fixed coefficient vector α, which sets the correction weight along each PCA direction. For held-out classifier evaluation, the basis and coefficients are frozen, and no per-image Jacobian or evaluation-label fitting is used. The operator-space experiment uses N=100 held-out operator-space images and does not measure classification. For DeiT-Small at q=16, static Feature-PCA recovers 54.91% of the restricted-oracle ‖J E‖ gain; this remains linearized operator-space evidence only. Table III reports the separate real classifier-carrier results at the selected budgets.
+The separate carrier branch tests whether corrections can be amortized in a compact feature-PCA basis. Here, q is the number of feature directions in the correction basis, extracted from centered calibration patch activations with covariance Σ_{act,ℓ}; these directions are not obtained from the Jacobian. This feature-space covariance is distinct from the readout-space solver Gram matrix H_J in Eq. (8). Separately, calibration uses a low-rank subspace derived from downstream-Jacobian targets to estimate a fixed coefficient vector α, which sets the correction weight along each PCA direction. For held-out classifier evaluation, the basis and coefficients are frozen, and no per-image Jacobian or evaluation-label fitting is used. The operator-space experiment uses N=100 held-out operator-space images and does not measure classification. For DeiT-Small at q=16, static Feature-PCA recovers 54.91% of the restricted-oracle ‖J E‖ gain; this remains linearized operator-space evidence only.
+
+### 7.2 Classification and Deployment Boundaries
+
+The real-final benchmark evaluates actual model predictions on N=1,000 held-out images per architecture. Table III reports the separate real classifier-carrier results at the selected budgets.
 
 **TABLE III**
 
@@ -143,15 +198,16 @@ The separate carrier branch tests whether corrections can be amortized in a comp
 | DINOv2 ViT-S/14 | 42 | 613/1,000 (61.3%) | 568/1,000 (56.8%; −4.5 pp) | 570/1,000 (57.0%; −4.3 pp) |
 | ViT-B/16 AugReg | 49 | 712/1,000 (71.2%) | 719/1,000 (71.9%; +0.7 pp) | 716/1,000 (71.6%; +0.4 pp) |
 
-*Table III. Correct predictions out of 1,000 held-out images and Top-1 accuracy for the separate real classifier-carrier benchmark. Parenthetical differences are percentage-point (pp) changes from Hybrid Group Mean at the same architecture and budget. These rows are not the N=100 operator-space experiment.*
+*Table III. Correct predictions out of 1,000 held-out images and Top-1 accuracy for the separate real classifier-carrier benchmark. Parenthetical differences are percentage-point (pp) changes from Hybrid Group Mean at the same architecture and budget. This benchmark is distinct from the N=100 operator-space study.*
 
-The real-final benchmark evaluates actual model predictions on N=1,000 held-out images per architecture. Compact Feature-PCA corrections do not consistently improve classification: both DeiT-Small budgets and the aggressive DINOv2 budget are at or below Hybrid Group Mean, while ViT-B/16 AugReg has a limited positive case. Fig. S1 shows the separate full-model throughput boundary; it does not establish a general deployment improvement.
+Compact Feature-PCA corrections do not consistently improve classification: both DeiT-Small budgets and the aggressive DINOv2 budget are at or below Hybrid Group Mean, while ViT-B/16 AugReg has a limited positive case. Fig. S1 shows the separate full-model throughput boundary; it does not establish a general deployment improvement.
+
 ![Figure S1: Measured real carrier accuracy-throughput boundary](../figures/paper_final_v4/supp/figureS1_real_carrier_boundary.svg)
 *Fig. S1. Real-final classification and full-model throughput at batch size 64; q=16 has a narrow ViT-B/16 AugReg frontier contribution.*
 
-Selective risk gating is also bounded. Its historical operator-space area under the receiver operating characteristic curve (AUROC) is 0.784 and is exploratory; the calibration-frozen real classifier gate does not consistently improve accuracy (DeiT-Small budget 98: 75.8% versus Hybrid Group Mean 76.4%; DINOv2 budget 42: 58.5% versus Hybrid Group Mean 61.3%). For the measured accuracy-throughput frontier, we use only `outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv`: Clean is non-dominated in several regimes, Group Mean is a practical batched baseline, and static q=16 adds a narrow ViT-B/16 AugReg point at some batch sizes. q=32 and selective q=16 do not establish a general frontier improvement. Full-call measurements are not isolated operator overhead.
+Selective risk gating is also bounded. Its historical operator-space area under the receiver operating characteristic curve (AUROC) is 0.784 and is exploratory; the calibration-frozen real classifier gate does not consistently improve accuracy (DeiT-Small budget 98: 75.8% versus Hybrid Group Mean 76.4%; DINOv2 budget 42: 58.5% versus Hybrid Group Mean 61.3%). In the measured accuracy-throughput frontier, Clean is non-dominated in several regimes, Group Mean is a practical batched baseline, and static q=16 adds a narrow ViT-B/16 AugReg point at some batch sizes. q=32 and selective q=16 do not establish a general frontier improvement. Full-call measurements are not isolated operator overhead.
 
-These results distinguish replaceability from compressibility. Single-token carrier attempts fail; scalar layer prediction does not generalize; a compact shared linear envelope with K≤64 captures little of the tested operator subspace; dynamic alpha prediction fails out of sample; and dynamic operator prediction is costly. Static Feature-PCA may improve linearized operator error without improving Top-1 accuracy, while the selective gate has no general deployment-frontier result. These are negative or bounded findings, not another optimization claim.
+These results distinguish replaceability from compressibility. Single-token carrier attempts fail; scalar layer prediction does not generalize; a compact shared linear envelope with K≤64 captures little of the tested operator subspace; dynamic alpha prediction fails out of sample; and dynamic operator prediction is costly. Static Feature-PCA may improve linearized operator error without improving Top-1 accuracy, while the selective gate has no general deployment-frontier result. Together, these negative and bounded findings limit the scope for practical carrier-based optimization.
 
 ## 8. Limitations
 
@@ -159,11 +215,11 @@ The mechanism studies are finite: N=100 images for the attention causal audit an
 
 ## 9. Conclusion
 
-Late patch activations can be replaceable under constrained geometry and diversity, but that property alone does not imply token deletion or practical acceleration. N=100 mechanism audits connect coherent Value-path transmission and downstream subspace rotation to the need for an end-to-end operator. A strict N=1,000-per-architecture evaluation shows that operator-aware token compression improves over pruning and shifts strong-merging frontiers on three of four architectures, with rank-16/32 retaining more than 98% of the full-J oracle compression benefit. Compact carrier corrections improve operator-space metrics but do not reliably improve classifier accuracy or yield a general measured frontier. This evidence supports a mechanistic result and a bounded constructive compression result, with explicit limits on practical translation.
+Late patch activations can be replaceable under constrained geometry and diversity, but that property alone does not imply token deletion or practical acceleration. N=100 mechanism audits connect coherent Value-path transmission and downstream subspace rotation to the need for an end-to-end operator. A strict N=1,000-per-architecture evaluation shows that operator-aware token compression improves over pruning and shifts strong-merging frontiers on three of four architectures; rank-16/32 classifier outcomes remain dependent on architecture and token budget. Compact carrier corrections improve operator-space metrics but do not reliably improve classifier accuracy or yield a general measured frontier. This evidence supports a mechanistic result and a bounded constructive compression result, with explicit limits on practical translation.
 
 ## Reproducibility and Evidence
 
-The canonical repository is [Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility). Confirmatory compression outputs are in outputs/fungibility_operator_compression_confirmatory/; real classifier-carrier accuracy and full-call timings are in outputs/fungibility_real_final/. The figure and number traceability maps identify source files and sample units. Historical proxy-backed consolidation tables are not empirical support for this manuscript.
+Code and audited data supporting the confirmatory compression and real classifier-carrier benchmarks are available in the [Patch-Content-Fungibility repository](https://github.com/nhatminh-115/Patch-Content-Fungibility).
 
 ## References
 

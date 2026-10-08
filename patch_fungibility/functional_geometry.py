@@ -8,7 +8,7 @@ Comprehensive implementation of the Functional Equivalence Geometry Pipeline:
    s in {0.0, 0.05, 0.1, 0.2, 0.4, 0.8, 1.6, 3.2} * sigma_l.
 3. Observables: Margin damage, Logit distance, Prediction flip, KL divergence.
 4. Tolerance radius estimation r_l(v; epsilon) and directional fungibility spectrum.
-5. Functional metric matrix M_l = E[J^T J], eigenspectrum, and near-null subspace dimensionality.
+5. Per-patch class-margin-gradient second moment M_l, eigenspectrum, and threshold-defined near-null dimensionality.
 6. Covariance-functional alignment: Principal angles, projection of PCs onto M_l, and relative spectrum.
 7. Decomposition of existing interventions (centroid, perm, sign-flip, PC1, random) into sensitive vs fungible subspaces.
 8. Image-wise consistency and token position heterogeneity.
@@ -156,7 +156,7 @@ def construct_direction_library(
 
 
 # ==============================================================================
-# 2. FUNCTIONAL METRIC ESTIMATION (M_l = E[J^T J])
+# 2. FUNCTIONAL METRIC ESTIMATION (per-patch margin-gradient second moment)
 # ==============================================================================
 
 def estimate_functional_metric(
@@ -167,8 +167,9 @@ def estimate_functional_metric(
     device: torch.device
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Computes local functional metric M_l = (1 / (B * N)) * sum_{i, k} g_{i, k} g_{i, k}^T
-    and average margin gradient vector g_mean in R^D.
+    Computes the uncentered second moment of per-image, per-patch scalar class-margin gradients,
+    M_l = mean_{image, patch}(g g^T), and the mean margin-gradient vector in R^D.
+    This D-by-D matrix is not the full downstream readout Jacobian Gram matrix.
     """
     B = images.size(0)
     
@@ -520,7 +521,7 @@ def run_functional_geometry_experiment(
                 sigma_norm = float(torch.sqrt(torch.trace(cov_matrix)).item())
                 sigma_l = sigma_norm
 
-            # 2. Estimate Functional Metric M_l = E[J^T J] and mean gradient
+            # 2. Estimate the per-patch margin-gradient second moment M_l and mean gradient
             metric_matrix, mean_grad = estimate_functional_metric(
                 model, m_key, depth, all_imgs, device
             )

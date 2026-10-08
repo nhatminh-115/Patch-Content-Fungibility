@@ -161,9 +161,9 @@ All measurements represent full end-to-end forward inference time per image on a
 
 A critical conceptual confusion in the initial report was conflating two distinct recovery quantities. We formally separate them:
 
-### Metric 1: Low-Rank Oracle Recovery (Established in Confirmatory Study)
-$$\text{Recovery}_{\text{low-rank}} = \frac{A(\text{Oracle Rank-32}) - A(\text{Group-Mean})}{A(\text{Oracle Full-}J) - A(\text{Group-Mean})}$$
-- **Established Fact:** Rank-32 Oracle captures **$>98\%$** of the benefit of the Full-rank Jacobian $J$. (The low-rank mathematical truncation itself is lossless).
+### Metric 1: Former Low-Rank Oracle Recovery Claim (Re-audited 2026-10-08)
+$$\text{Recovery}_{\text{low-rank}} = 100\times\frac{A(\text{Oracle Rank-}r) - A(\text{Group-Mean})}{A(\text{Oracle Full-}J) - A(\text{Group-Mean})}$$
+Here $A$ is condition-level Top-1 accuracy. Recomputing from the matched strict-confirmatory per-image rows gives 22 positive denominators, 16 negative denominators, and 2 zero denominators across 40 rank-16/32 settings. Only 4 of the 22 positive-denominator ratios exceed 98%; 18 do not. The former universal $>98\%$ conclusion is withdrawn. The ratio is unstable when the full-J accuracy gain is small and is undefined when that gain is zero.
 
 ### Metric 2: Amortization Recovery (Audited in this Study)
 $$\text{Recovery}_{\text{amortized}} = \frac{A(\text{Predicted Rank-32}) - A(\text{Group-Mean})}{A(\text{Oracle Rank-32}) - A(\text{Group-Mean})}$$
@@ -216,7 +216,7 @@ The failure of `DirectCarrierPredictor` (top-1 accuracy collapsed to $0.1\%\text
 
 ### Claims to REVISE (Corrected for Accuracy):
 1. **"Oracle Exceeds Clean Accuracy":** **REVISE.** Oracle does not exceed clean accuracy. The reported numbers ($76\%\text{--}84\%$) were due to a 200-image vs. 1,000-image denominator mismatch. On identical images, Oracle Rank-32 accuracy is $\le$ clean accuracy.
-2. **"Amortization Recovers >98% of Oracle Benefit":** **REVISE.** Truncating the Oracle Jacobian to Rank-32 preserves $>98\%$ of the full-J oracle benefit. The forward neural predictor recovers **$33\%\text{--}50\%$** of that Oracle Rank-32 benefit at aggressive budgets.
+2. **"Amortization Recovers >98% of Oracle Benefit":** **REVISE.** The universal low-rank Top-1 recovery premise is withdrawn by the matched confirmatory audit above. The forward neural predictor's separately audited **$33\%\text{--}50\%$** ratios use the Rank-32 predictor-vs-oracle denominator and must remain identified as a distinct metric.
 3. **"Direct Carrier Prediction is Mathematically Impossible":** **REVISE.** The specific unconstrained regression baseline tested was unstable, highlighting the architectural stability of the Tikhonov-anchored formulation.
 
 ### Claims to REMOVE (Invalidated):

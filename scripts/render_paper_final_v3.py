@@ -180,20 +180,12 @@ def figure6(root: Path, out: Path) -> None:
 
 
 def figure7(root: Path, out: Path) -> None:
-    rank_rows=rows(root/"outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv")
-    report=(root/"docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md").read_text(encoding="utf-8")
-    if not any(int(r["rank"])==16 for r in rank_rows) or not any(int(r["rank"])==32 for r in rank_rows) or (">98%" not in report and ">98\\%" not in report):
-        raise ValueError("Audited rank rows or >98% report statement are missing.")
-    fig,ax=plt.subplots(figsize=(7.8,4.4))
-    # Reported benefit-recovery result is intentionally not recomputed as a Top-1 ratio.
-    ax.bar(["Rank-16","Rank-32"],[98,98],color=[PALETTE["cyan"],PALETTE["blue"]])
-    for x in (0,1): ax.text(x,98.5,">98%",ha="center",va="bottom",fontsize=12,weight="bold",color=PALETTE["dark"])
-    ax.axhline(98,color=PALETTE["red"],ls="--",label="98% reference")
-    ax.set_ylim(0,108); ax.set_ylabel("Full-J oracle compression benefit retained (%)")
-    style(ax,"Low rank preserves the full-J oracle compression benefit")
-    ax.legend(frameon=False)
-    ax.text(.01,-.2,"N=1,000 per architecture. Denominator: Group-Mean-to-full-J-oracle compression benefit as specified in the audit; not Top-1/full accuracy or spectral energy.",transform=ax.transAxes,fontsize=8,color=PALETTE["gray"])
-    save(fig,out)
+    raise RuntimeError(
+        "The former >98% low-rank recovery chart was withdrawn on 2026-10-08 "
+        "after matched Top-1 recovery recomputation. Use the current "
+        "figures/paper_final_v4/figure7_operator_compression.svg, which shows "
+        "measured accuracy-token curves and encodes no recovery percentage."
+    )
 
 
 def figure_s1(root: Path, out: Path) -> None:

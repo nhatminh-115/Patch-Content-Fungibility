@@ -53,7 +53,7 @@ The earlier consolidation reports and generated figures are retained as historic
   - For Static Calibration ($\bar{\alpha}$ at $q=16$): $\|JE\| = 9.2724$, reducing error by $3.2510$. This recovers **$54.91\%$ of the restricted oracle gain** ($3.2510 / 5.9211$) and **$26.00\%$ of the full oracle gain** ($3.2510 / 12.5038$).
 - **Resolution:**
   - Updated Table 4 with the exact audited values.
-  - Strictly separated Denominator A (low-rank Jacobian SVD benefit $>98\%$), Denominator B (restricted carrier oracle recovery of stabilized full oracle: $47.4\%$, $72.0\%$, $92.2\%$), and Denominator C (static alpha recovery of restricted oracle: $54.91\%$).
+  - The earlier Denominator A (>98% low-rank Jacobian benefit) statement was withdrawn after recomputing its stated Top-1 ratio from the strict confirmatory CSVs. Only 4 of 22 positive-denominator rank/budget settings exceed 98%; 16 settings have negative denominators and 2 have zero denominators, so no universal recovery fraction is supported. Denominator B (restricted carrier oracle recovery of stabilized full oracle: $47.4\%$, $72.0\%$, $92.2\%$) and Denominator C (static alpha recovery of restricted oracle: $54.91\%$) remain distinct operator-space claims.
 
 ---
 

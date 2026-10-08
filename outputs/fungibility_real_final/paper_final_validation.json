@@ -21,9 +21,9 @@
       "status": "PASS",
       "detail": "C2, C4/C5, confirmatory, and real-final counts are separately stated."
     },
-    "full_j_benefit_denominator_explicit": {
+    "universal_low_rank_top1_recovery_claim_removed": {
       "status": "PASS",
-      "detail": "The >98% statement names the Group-Mean-to-full-J-oracle compression-benefit denominator."
+      "detail": "Matched rank-16/32 settings=40; positive/negative/zero Group-Mean-to-full-J Top-1 denominators=22/16/2; >98% among positive denominators=4/22; same N=1,000 image IDs and seed 0; rank summary matches per-image rows=True."
     },
     "no_unsupported_pareto_dominance": {
       "status": "PASS",
@@ -75,7 +75,7 @@
     },
     "ieee_citation_order_and_ranges_match_docx": {
       "status": "PASS",
-      "detail": "Citation clusters=25; ordering issues=[]; reference heading found=True; source/rendered tokens=31/31; ranges=7; exact match=True."
+      "detail": "Citation clusters=26; ordering issues=[]; reference heading found=True; source/rendered tokens=32/32; ranges=7; exact match=True."
     },
     "abstract_uses_no_defined_abbreviations": {
       "status": "PASS",
@@ -93,9 +93,9 @@
       "status": "PASS",
       "detail": "Table headings=['I', 'II', 'III']; captions=['I', 'II', 'III']; callouts=['I', 'II', 'III']; placement=True."
     },
-    "six_display_equations_have_explanatory_text": {
+    "ten_display_equations_match_implementation_and_are_explained": {
       "status": "PASS",
-      "detail": "Display equation blocks=6; Value-path, Jacobian, and regularization explanations present."
+      "detail": "Display equations=10; tags=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']; key implementation/notation explanations present=True."
     },
     "table_II_and_abstract_match_confirmatory_csv": {
       "status": "PASS",
@@ -105,9 +105,9 @@
       "status": "PASS",
       "detail": "Parsed rows=4; integer correct counts, N=1,000 percentages, and percentage-point changes checked."
     },
-    "editable_docx_contains_three_tables_eight_figures_six_equations_and_50_ieee_refs": {
+    "editable_docx_contains_three_tables_eight_figures_ten_equations_and_50_ieee_refs": {
       "status": "PASS",
-      "detail": "DOCX package must contain 3 Word tables, 8 embedded figures, 6 math objects, and reference numbers [1]\u2013[50]."
+      "detail": "DOCX package PAPER_DRAFT_v4_synced.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, Word math lines=16, references=50."
     }
   },
   "passed_count": 27,

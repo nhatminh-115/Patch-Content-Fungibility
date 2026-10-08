@@ -16,6 +16,9 @@ TRACE = DOCS / "PAPER_NUMBER_TRACEABILITY.md"
 CLAIMS = DOCS / "PAPER_FINAL_CLAIMS_TABLE.md"
 SAMPLES = DOCS / "PAPER_SAMPLE_SIZE_MAP.md"
 FIGS = ROOT / "figures" / "paper_final_v4"
+DOCX_PATH = DOCS / "PAPER_DRAFT_v4_synced.docx"
+if not DOCX_PATH.is_file():
+    DOCX_PATH = DOCS / "PAPER_DRAFT_v4.docx"
 sys.path.insert(0, str(ROOT / "scripts"))
 import export_paper_markdown_to_docx as exporter
 
@@ -74,10 +77,70 @@ def main() -> int:
            and "N=100 held-out operator-space images" in CLAIMS.read_text(encoding="utf-8-sig"),
            "C2, C4/C5, confirmatory, and real-final counts are separately stated.")
 
-    denom = re.search(r">\s*98\s*%.*?full[- ]J oracle compression benefit.*?(?:denominator|Group-Mean-to-full-J-oracle gain)", text, re.I | re.S)
-    denom = denom or re.search(r"denominator.*?Group-Mean-to-full-J-oracle.*?benefit", text, re.I | re.S)
-    record("full_j_benefit_denominator_explicit", bool(denom),
-           "The >98% statement names the Group-Mean-to-full-J-oracle compression-benefit denominator.")
+    # Recompute the original Top-1 recovery ratio from same-image confirmatory rows.
+    image_path = ROOT / "outputs/fungibility_operator_compression_confirmatory/per_image_results.csv"
+    rank_path = ROOT / "outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv"
+    per_image_rows = rows(image_path) if image_path.exists() else []
+    low_rank_rows = rows(rank_path) if rank_path.exists() else []
+    method_names = {"Group-Mean Merging", "Operator-Aware (Oracle)",
+                    "Operator-Aware (Rank-16)", "Operator-Aware (Rank-32)"}
+    condition_images: dict[tuple[str, str, str], dict[str, tuple[float, str]]] = {}
+    duplicate_images = False
+    for item in per_image_rows:
+        if item.get("method") not in method_names:
+            continue
+        key = (item["model"], item["budget"], item["method"])
+        image_idx = item["image_idx"]
+        condition_images.setdefault(key, {})
+        if image_idx in condition_images[key]:
+            duplicate_images = True
+        condition_images[key][image_idx] = (float(item["top1_acc"]), item.get("seed", ""))
+
+    recovery_rows = []
+    positive_denominators = negative_denominators = zero_denominators = 0
+    matched_cohorts_ok = not duplicate_images
+    rank_summary_matches = True
+    for rank_row in low_rank_rows:
+        if rank_row.get("rank") not in ("16", "32"):
+            continue
+        model, budget = rank_row["model"], rank_row["budget"]
+        rank_method = f"Operator-Aware (Rank-{rank_row['rank']})"
+        groups = [condition_images.get((model, budget, method), {}) for method in
+                  ("Group-Mean Merging", "Operator-Aware (Oracle)", rank_method)]
+        if any(len(group) != 1000 for group in groups):
+            matched_cohorts_ok = False
+            continue
+        image_ids = set(groups[0])
+        if any(set(group) != image_ids for group in groups[1:]):
+            matched_cohorts_ok = False
+            continue
+        if any({seed for _, seed in group.values()} != {"0"} for group in groups):
+            matched_cohorts_ok = False
+            continue
+        gm_acc, full_acc, rank_acc = [sum(value for value, _ in group.values()) / 1000
+                                      for group in groups]
+        rank_summary_matches = rank_summary_matches and abs(rank_acc - float(rank_row["top1_acc"])) < 0.0005
+        denominator = full_acc - gm_acc
+        if abs(denominator) < 1e-12:
+            zero_denominators += 1
+            continue
+        recovery = 100.0 * (rank_acc - gm_acc) / denominator
+        if denominator > 0:
+            positive_denominators += 1
+        else:
+            negative_denominators += 1
+        recovery_rows.append((recovery, denominator > 0))
+
+    above_98_positive = sum(1 for recovery, positive in recovery_rows if positive and recovery > 98.0)
+    low_rank_audit_ok = (len(low_rank_rows) == 60 and len(recovery_rows) == 38
+                         and positive_denominators == 22 and negative_denominators == 16
+                         and zero_denominators == 2 and above_98_positive == 4
+                         and matched_cohorts_ok and rank_summary_matches
+                         and not re.search(r">\s*98\s*%", text, re.I)
+                         and "do not support a universal recovery fraction" in text.lower())
+    record("universal_low_rank_top1_recovery_claim_removed",
+           low_rank_audit_ok,
+           f"Matched rank-16/32 settings=40; positive/negative/zero Group-Mean-to-full-J Top-1 denominators={positive_denominators}/{negative_denominators}/{zero_denominators}; >98% among positive denominators={above_98_positive}/22; same N=1,000 image IDs and seed 0; rank summary matches per-image rows={rank_summary_matches}.")
     pareto_overclaim = re.search(r"\b(?:strictly|universally|always)\s+(?:Pareto\s+)?(?:dominates?|dominant|frontier improvement)\b|general Pareto (?:dominance|improvement)", text, re.I)
     record("no_unsupported_pareto_dominance", pareto_overclaim is None,
            "Frontier language is limited to measured non-dominated points and bounded regimes.")
@@ -123,7 +186,7 @@ def main() -> int:
     record("publication_figures_present_source_scoped_and_reviewed", not absent and not absent_png and script_ok and all(p.is_file() for p in sidecars),
            f"Missing SVGs={absent}; missing PNGs={absent_png}; generator has real-final input={script_ok}; manifest/contact/review={[p.is_file() for p in sidecars]}.")
 
-    docx_path = DOCS/"PAPER_DRAFT_v4.docx"
+    docx_path = DOCX_PATH
     docx_ok = False
     if docx_path.is_file():
         try:
@@ -139,7 +202,7 @@ def main() -> int:
 
     # Traceability matrix covers every numeric claim family carried into the draft.
     tr = TRACE.read_text(encoding="utf-8-sig") if TRACE.exists() else ""
-    claim_families = ["+4.2 to +12.0", "+4.2 to +17.4", ">98%", "54.91%", "0.7079985", ".974717", "1.473962", "76.4/76.3/76.0", "0.784"]
+    claim_families = ["+4.2 to +12.0", "+4.2 to +17.4", "4 exceed 98% and 18 do not", "54.91%", "0.7079985", ".974717", "1.473962", "76.4/76.3/76.0", "0.784"]
     absent_families = [v for v in claim_families if v not in tr]
     record("quantitative_claims_traceable", not absent_families,
            f"Numeric evidence families absent from traceability map: {absent_families}.")
@@ -265,14 +328,22 @@ def main() -> int:
     record("table_cross_references_resolve_and_precede_objects", table_order_ok and table_placement_ok and resolved_tables == set(table_labels),
            f"Table headings={table_labels}; captions={table_cap_labels}; callouts={sorted(resolved_tables)}; placement={table_placement_ok}.")
     equation_blocks = text.count("$$") // 2
-    record("six_display_equations_have_explanatory_text", equation_blocks == 6 and all(s.lower() in text.lower() for s in ("Here, A_{ij}", "The first expression defines", "the second is a trace-scaled", "sum runs over all B carrier groups")),
-           f"Display equation blocks={equation_blocks}; Value-path, Jacobian, and regularization explanations present.")
+    equation_tags = re.findall(r"\\tag\{(\d+)\}", text)
+    equation_explanation_text = re.sub(r"<sub>(.*?)</sub>", r"_\1", text, flags=re.IGNORECASE)
+    equation_explanations = all(s.lower() in equation_explanation_text.lower() for s in (
+        "n_img denotes the number of image samples", "uncentered second moment of scalar margin gradients",
+        "pre-output-projection head context", "row-major order",
+        "positive-semidefinite gram matrix of grouped jacobian blocks",
+        "exact minimizer of the stated quadratic objective", "proportional-attention correction is used in token merging (tome)"))
+    record("ten_display_equations_match_implementation_and_are_explained",
+           equation_blocks == 10 and equation_tags == [str(i) for i in range(1, 11)] and equation_explanations,
+           f"Display equations={equation_blocks}; tags={equation_tags}; key implementation/notation explanations present={equation_explanations}.")
 
     # Recompute the exact Table II entries from the strict confirmatory summary.
     table2 = markdown_table(text, "II")
     budget_path = ROOT / "outputs/fungibility_operator_compression_confirmatory/budget_summary.csv"
     budget_rows = rows(budget_path) if budget_path.exists() else []
-    model_map = {"DeiT-Tiny":"DeiT-Tiny", "DeiT-Small":"DeiT-Small", "ViT-B/16":"ViT-B/16", "DINOv2 ViT-S/14":"DINOv2 ViT-S/14"}
+    model_map = {"DeiT-Tiny":"DeiT-Tiny", "DeiT-Small":"DeiT-Small", "ViT-B/16":"ViT-B/16", "ViT-B/16 AugReg":"ViT-B/16", "DINOv2 ViT-S/14":"DINOv2 ViT-S/14"}
     method_map = ["Group-Mean Merging", "ToMe (BSM)", "Operator-Aware (Oracle)", "Operator-Aware (Rank-16)", "Operator-Aware (Rank-32)"]
     table2_ok = bool(budget_rows) and len(table2) == 5 and len(table2[0]) == 8
     gain_values = []
@@ -350,7 +421,7 @@ def main() -> int:
            f"Parsed rows={max(0,len(table3)-1)}; integer correct counts, N=1,000 percentages, and percentage-point changes checked.")
 
     # Inspect the actual editable DOCX package: real tables, drawings, equations, and reference sequence.
-    docx_path = DOCS/"PAPER_DRAFT_v4.docx"
+    docx_path = DOCX_PATH
     docx_structure_ok = False
     if docx_path.is_file():
         try:
@@ -359,7 +430,12 @@ def main() -> int:
                 xml = ET.fromstring(archive.read("word/document.xml"))
                 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
                 M = "{http://schemas.openxmlformats.org/officeDocument/2006/math}"
-                tables_in_docx = sum(1 for node in xml.iter() if node.tag == W+"tbl")
+                all_tables = [node for node in xml.iter() if node.tag == W+"tbl"]
+                # The exporter uses unstyled 1x3 tables solely to right-align equation numbers.
+                manuscript_tables = sum(1 for table in all_tables
+                                        if (style := table.find(".//" + W + "tblStyle")) is not None
+                                        and style.get(W + "val") == "TableGrid")
+                equation_layout_tables = len(all_tables) - manuscript_tables
                 drawings_in_docx = sum(1 for node in xml.iter() if node.tag.endswith("}drawing"))
                 equations_in_docx = sum(1 for node in xml.iter() if node.tag == M+"oMath")
                 para_text = []
@@ -367,11 +443,11 @@ def main() -> int:
                     para_text.append("".join(n.text or "" for n in para.iter(W+"t")))
                 ref_nums = [int(m.group(1)) for value in para_text if (m := re.match(r"\[(\d+)\]\s", value))]
                 docx_valid = [n for n in names if n.startswith("word/media/")]
-                docx_structure_ok = tables_in_docx == 3 and drawings_in_docx == 8 and len(docx_valid) == 8 and equations_in_docx == 6 and ref_nums == list(range(1,51))
+                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and equations_in_docx >= 10 and equation_layout_tables == 10 and ref_nums == list(range(1,51))
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_structure_ok = False
-    record("editable_docx_contains_three_tables_eight_figures_six_equations_and_50_ieee_refs", docx_structure_ok,
-           "DOCX package must contain 3 Word tables, 8 embedded figures, 6 math objects, and reference numbers [1]–[50].")
+    record("editable_docx_contains_three_tables_eight_figures_ten_equations_and_50_ieee_refs", docx_structure_ok,
+           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, Word math lines={equations_in_docx if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}.")
 
     passed = all(v["status"] == "PASS" for v in checks.values())
     manifest = {"status":"PASS" if passed else "FAIL", "checks":checks,

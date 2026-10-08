@@ -29,8 +29,7 @@ The pre-registered confirmatory benchmark on $N = 1,000$ held-out images establi
    - ViT-B/16: Pearson $r = 0.8229$, Spearman $\rho = 0.8548$ ($p < 10^{-300}$)
    - DeiT-Small: Pearson $r = 0.7455$, Spearman $\rho = 0.7919$ ($p < 10^{-300}$)
    - DeiT-Tiny: Pearson $r = 0.7387$, Spearman $\rho = 0.8109$ ($p < 10^{-300}$)
-5. **Low-Rank Subspace Sufficiency (Scientific & Practical Breakthrough):**  
-   Truncating the downstream Jacobian to only $r \in \{16, 32\}$ singular modes captures $>98\%$ of the oracle compression gain and, on smaller architectures (DeiT-Tiny), slightly outperforms the full-rank operator by filtering out high-frequency curvature noise.
+5. **Low-rank ablation (model- and budget-dependent):** The earlier audit defined a Top-1 recovery fraction, but the confirmatory CSVs do not store that derived ratio. Recomputing it from matched per-image outcomes shows that only 4 of 22 positive-denominator settings exceed 98%; the universal claim is withdrawn and the exact scope is detailed in Section 4.5.
 
 ---
 
@@ -155,23 +154,37 @@ $$\Delta_{\text{residual}} = \|J_{l \to L} \text{vec}((P - S C_{\text{mean}})^\t
 
 As shown in [Figure D](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_operator_compression_confirmatory/figure_d_same_group_carrier_effect.png), carrier displacement into the downstream-invisible subspace consistently reduces logit $L_2$ distortion across all architectures and grouping rules ($p < 10^{-50}$).
 
-### 4.4 Mechanistic Validation: Does $\|J E\|$ Predict Downstream Damage?
-**Yes, universally.** In [Figure E](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_operator_compression_confirmatory/figure_e_operator_residual_vs_damage.png) and [operator_residual_analysis.csv](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_operator_compression_confirmatory/operator_residual_analysis.csv), across 120,000 evaluations:
+### 4.4 Mechanistic Association: Does $\|J E\|$ Track Downstream Damage?
+Across the tested condition rows, lower $\|J E\|$ is associated with lower measured logit distortion; this is a condition-level association, not a universal causal law. In [Figure E](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_operator_compression_confirmatory/figure_e_operator_residual_vs_damage.png) and [operator_residual_analysis.csv](file:///d:/Study/Patch-Content-Fungibility/outputs/fungibility_operator_compression_confirmatory/operator_residual_analysis.csv), across 120,000 evaluations:
 - DINOv2: Pearson $r = 0.8664$, Spearman $\rho = 0.9165$ ($p < 10^{-300}$)
 - ViT-B/16: Pearson $r = 0.8229$, Spearman $\rho = 0.8548$ ($p < 10^{-300}$)
 - DeiT-Small: Pearson $r = 0.7455$, Spearman $\rho = 0.7919$ ($p < 10^{-300}$)
 - DeiT-Tiny: Pearson $r = 0.7387$, Spearman $\rho = 0.8109$ ($p < 10^{-300}$)
 
-Lower downstream-visible error $\|J E\|$ directly causes lower logit distortion, validating the core mechanistic premise of fungibility geometry.
+These correlations support the use of $\|J E\|$ as a downstream-damage predictor in the tested confirmatory conditions. They do not by themselves establish that reducing $\|J E\|$ causes lower nonlinear logit distortion in every setting.
 
-### 4.5 Low-Rank Subspace Result: Are 16–32 Modes Sufficient?
-**Yes.** Across all four architectures, truncating $J$ to $r=16$ or $r=32$ singular vectors recovers $>98\%$ of the full-rank operator's benefit:
-- On DeiT-Tiny ($B=32$): Rank-32 Top-1 is **$67.9\%$** vs. Full Oracle **$67.1\%$**. Discarding noisy trailing singular modes acts as spectral regularization against high-order curvature artifacts!
-- On DeiT-Small ($B=32$): Rank-16 Top-1 is **$76.5\%$** vs. Full Oracle **$75.8\%$**.
-- On DINOv2 ($B=42$): Rank-32 Top-1 is **$73.0\%$** vs. Full Oracle **$73.5\%$** (recovering $98.6\%$ of the gain).
+### 4.5 Low-Rank Ablation: Is the Former >98% Top-1 Recovery Claim Supported?
 
-This demonstrates that downstream visibility is concentrated in a tiny subspace of dimension $16 \le r \ll ND$, opening an immediate avenue for amortized neural prediction.
+The earlier audit defines low-rank recovery as the fraction of the Group-Mean-to-full-J **Top-1 accuracy gain** achieved by a rank-r variant:
 
+`R_top1(r) = 100 × (A_rank-r − A_GroupMean) / (A_fullJ − A_GroupMean)`.
+
+Here, each A is the condition-level Top-1 accuracy, computed as the mean of 1,000 binary per-image outcomes. The confirmatory `per_image_results.csv` has 1,000 matched image rows per architecture, budget, and method (`seed=0`); the `low_rank_ablation.csv` and `budget_summary.csv` condition means agree with those rows. The original audit states the accuracy-ratio formula but does not document a recovery-column or uncertainty estimate; the fraction is recomputed directly from the matched per-image outcomes. It is an accuracy-benefit ratio, not retained spectral energy or operator-residual reduction.
+
+Across 40 architecture × budget × rank-16/32 settings, 38 denominators are nonzero: 22 are positive and 16 negative; two are zero. Among the 22 settings with a positive Group-Mean-to-full-J Top-1 gain, only four exceed 98%, while 18 do not. The four are DeiT-Tiny at B=32 (100.0% for rank 16 and 233.3% for rank 32) and ViT-B/16 at B=147 (400.0% for both ranks). Values above 100% occur when the rank variant exceeds the full-J accuracy; ratios can also become large when the full-J gain denominator is only 0.1 percentage point. Negative denominators do not represent recovery of a positive full-J benefit, and zero denominators make the ratio undefined.
+
+At the most aggressive budget per architecture, the recomputed ratios are:
+
+| Architecture and budget | Full-J minus Group-Mean Top-1 | Rank-16 Top-1 recovery | Rank-32 Top-1 recovery |
+|---|---:|---:|---:|
+| DINOv2 ViT-S/14, B=42 | +1.3 pp | 76.9% | 61.5% |
+| DeiT-Small, B=32 | −0.6 pp | −16.7%* | −16.7%* |
+| DeiT-Tiny, B=32 | +0.6 pp | 100.0% | 233.3% |
+| ViT-B/16 AugReg, B=32 | +1.2 pp | 41.7% | 83.3% |
+
+*The denominator is negative, so the signed algebraic ratio is not a recovery fraction.*
+
+The universal >98% statement is therefore withdrawn. The claim is not supported across architectures or budgets; at the most aggressive tested budgets, DINOv2 and ViT-B/16 are below 98%, and DeiT-Small has no positive full-J accuracy benefit to recover. These Top-1 ratios are direct finite-cohort summaries and are not a claim about singular-value energy or general low-rank sufficiency.
 ---
 
 ## 5. Computational Cost & Practical Feasibility
@@ -207,7 +220,7 @@ Because the exact downstream Jacobian $J_{l \to L}$ requires backward VJP comput
 5. [Figure E: Mechanistic Law ($\|J E\|$ vs. Damage)](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_operator_compression_confirmatory/figure_e_operator_residual_vs_damage.png)  
    Scatter plots showing downstream operator residual predicting logit $L_2$ distance and margin damage across 120,000 evaluations.
 6. [Figure F: Low-Rank Operator Truncation Ablation](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_operator_compression_confirmatory/figure_f_low_rank_ablation.png)  
-   Demonstrates that $r=16$ and $r=32$ singular modes track the full oracle frontier across all models.
+   Displays the measured rank-specific outcomes; results vary by architecture and budget, and the former universal recovery percentage is withdrawn.
 7. [Figure G: Cross-Architecture Frontier AUC Summary](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_operator_compression_confirmatory/figure_g_cross_architecture_summary.png)  
    Direct bar comparison of AUC across all evaluated models.
 8. [Figure H: Runtime Breakdown](file:///d:/Study/Patch-Content-Fungibility/figures/fungibility_operator_compression_confirmatory/figure_h_runtime_breakdown.png)  
@@ -221,7 +234,7 @@ Because the exact downstream Jacobian $J_{l \to L}$ requires backward VJP comput
 1. Steering token compression error into the downstream null space produces strictly superior functional preservation compared to standard Euclidean minimization at matched budgets.
 2. Pruning tokens without carriers is fundamentally suboptimal compared to operator-guided carrier merging.
 3. Downstream operator residual $\|J E\|$ is the true causal predictor of downstream functional damage.
-4. Exactly 16 to 32 linear modes account for the vast majority of downstream visibility.
+4. Rank-16/32 outcomes are model- and budget-dependent; current confirmatory evidence does not support a universal recovery fraction.
 
 ### What is NOT Claimed:
 1. We do NOT claim that per-image VJP Jacobian computation is currently faster than uncompressed inference in wall-clock time; it is an **oracle** compression baseline.

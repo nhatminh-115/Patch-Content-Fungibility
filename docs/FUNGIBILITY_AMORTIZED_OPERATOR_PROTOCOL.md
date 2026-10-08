@@ -18,7 +18,7 @@
 
 The strict confirmatory benchmark established that downstream-invisible error steering:
 $$\min_C \|J_{l \to L} \text{vec}((P - S C)^\top)\|_2^2 + \lambda \|P - S C\|_F^2$$
-consistently outperforms ordinary Euclidean merging and matched-budget pruning. Crucially, truncating the downstream Jacobian $J_{l \to L}$ to its top $r \in \{16, 32\}$ singular modes captures $>98\%$ of the full-rank operator's benefit.
+consistently outperforms ordinary Euclidean merging and matched-budget pruning in the tested settings. An earlier statement that rank-16/32 retained $>98\%$ of the full-J Top-1 benefit has since been withdrawn: matched confirmatory recomputation supports that percentage in only 4 of 22 positive-denominator settings, with 16 negative and 2 zero denominators. This exploratory ratio is not a universal property of Jacobian truncation.
 
 However, computing $J_{l \to L}$ via backward Vector-Jacobian Products (VJP) requires $14\text{--}77\text{ ms}$ per image, categorizing the method as an **Oracle** technique.
 

@@ -1,9 +1,9 @@
 # Paper Final Audit: Methodological Verification & Claim Hygiene
 
-**Repository:** [Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
-**Date:** October 7, 2026  
+**Repository:** [Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)
+**Date:** October 7, 2026
 **Status:** Historical claim-hygiene audit; practical runtime claims superseded by real-final measurements
-**Commit Reference:** `ef15f365ee59234356062d30a1ba0a457a07e4a9`  
+**Commit Reference:** `ef15f365ee59234356062d30a1ba0a457a07e4a9`
 
 ---
 
@@ -48,12 +48,11 @@ The resulting recovery values are strictly monotonic, well-behaved, and bounded 
 
 To prevent reader confusion, the manuscript maintains a strict conceptual separation between two distinct historical findings:
 
-1. **The Low-Rank Full-J Oracle Compression Finding (§6):**  
-   In the unconstrained oracle setting, approximating the downstream Jacobian $J$ with its top $r=16\text{--}32$ singular modes recovers $>98\%$ of the error reduction achievable by the full dense Jacobian $J_{\text{dense}}$.  
-   *Context:* This is a mathematical property of the singular spectrum of $J$; it demonstrates that the downstream transmission operator has rapidly decaying singular values. It does **NOT** apply to neural amortized predictors.
+1. **Former low-rank full-J oracle recovery claim (§6; withdrawn 2026-10-08):**
+   The earlier audit defined the former >98% claim as a Top-1 recovery ratio, `100 × (A_rank − A_GroupMean)/(A_fullJ − A_GroupMean)`. Recomputed from the matched per-image Top-1 outcomes in the strict confirmatory CSVs, 22 of 40 settings have a positive denominator, and only 4 of those 22 exceed 98%; 16 denominators are negative and 2 are zero. At the most aggressive budget, DINOv2 and ViT-B/16 are below 98%, while DeiT-Small has a negative denominator. The universal claim and inference of universal low-rank concentration are withdrawn (see confirmatory report §4.5).
 
-2. **The Restricted Carrier Subspace Recovery Finding (§7):**  
-   Restricting the carrier update to a $q=16$ dimensional analytic Feature-PCA basis ($\delta C = R \alpha$, $\alpha \in \mathbb{R}^{16}$) recovers **$47.4\%$** of the theoretical error reduction of the stabilized full ambient oracle on DeiT-Small ($72.0\%$ at $q=32$).  
+2. **The Restricted Carrier Subspace Recovery Finding (§7):**
+   Restricting the carrier update to a $q=16$ dimensional analytic Feature-PCA basis ($\delta C = R \alpha$, $\alpha \in \mathbb{R}^{16}$) recovers **$47.4\%$** of the theoretical error reduction of the stabilized full ambient oracle on DeiT-Small ($72.0\%$ at $q=32$).
    *Context:* This measures the functional fidelity of a highly compressed, computationally efficient carrier parameterization that completely eliminates ambient tensor materialization.
 
 ---
@@ -84,8 +83,8 @@ To ensure zero information leakage:
 ## 6. Throughput and Latency Reporting Standards
 
 1. **Hardware & Timing Methodology:** All wall-clock latencies measured using CUDA events (`torch.cuda.Event(enable_timing=True)`) with explicit `torch.cuda.synchronize()`, warmup iterations, and repeated benchmark trials.
-2. **Latency vs. Throughput Regimes:**  
-   - At $BS=1$ (latency-bound), token reduction savings in suffix layers are offset by prefix execution overhead; compression yields minimal wall-clock speedup.  
-   - At $BS \ge 16$ (compute-bound), token reduction yields significant speedups ($1.3\text{--}1.5\text{x}$ suffix acceleration).  
+2. **Latency vs. Throughput Regimes:**
+   - At $BS=1$ (latency-bound), token reduction savings in suffix layers are offset by prefix execution overhead; compression yields minimal wall-clock speedup.
+   - At $BS \ge 16$ (compute-bound), token reduction yields significant speedups ($1.3\text{--}1.5\text{x}$ suffix acceleration).
    - Claims of acceleration must explicitly specify the **batched throughput regime ($BS \ge 16$)** and avoid asserting universal latency reduction at $BS=1$.
 3. **Operator Overhead:** The prior isolated-overhead claim of $0.12$–$0.22$ ms/image is withdrawn. The real-final benchmark measures complete model-call latency, not isolated operator cost; cite `outputs/fungibility_real_final/real_throughput_raw.csv` and `real_throughput_summary.csv` for end-to-end timings.

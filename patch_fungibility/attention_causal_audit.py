@@ -9,7 +9,7 @@ Decomposes the downstream response into:
 2. Attention-rerouting pathway (A_pert @ V_clean)
 3. Sub-projection pathways (Q, K, V combinations)
 4. Head-wise cancellation scalar Gamma_h(a) = sum_i w_{h,readout,i} a_i
-5. Head-level linear disturbance prediction Delta z_h^pred = alpha Gamma_h (v^T W_V^h)
+5. Frozen-attention head-context change from measured token-wise Value changes: sum_i w_{h,i} Delta v_{h,i}
 6. Attention matrix shift (Frobenius norm, KL divergence, entropy)
 7. Block-by-block disturbance propagation
 8. Residual pathway vs Attention branch vs MLP branch
@@ -428,8 +428,10 @@ def compute_headwise_gamma_and_predictions(
     """
     Computes:
     1. Head-wise cancellation scalar Gamma_h(a) = sum_i w_{h,readout,i} a_i
-    2. Linear value prediction Delta z_h^pred = alpha Gamma_h (v^T W_V^h)
-       compared against measured head disturbance Delta z_h^obs
+    2. The frozen-attention head-context change sum_i w_{h,i} Delta v_{h,i},
+       using measured post-normalization Value changes at each token. This is
+       compared against the observed context disturbance; it is not simplified
+       to alpha * Gamma_h * (v^T W_V) because normalization is token-dependent.
     """
     records_gamma = []
     records_pred = []
@@ -982,7 +984,7 @@ def generate_causal_audit_figures(
         max_val = max(df_pred["pred_norm"].max(), df_pred["obs_norm"].max()) * 1.1
         plt.plot([0, max_val], [0, max_val], 'k--', alpha=0.6, label="Ideal 1:1 Parity")
         plt.title("Figure B: Linear Head Prediction vs Observed Head Disturbance")
-        plt.xlabel(r"Predicted Value Disturbance $\|\Delta z_h^{pred}\|_2 = \alpha |\Gamma_h| \|v^T W_V^h\|$")
+        plt.xlabel(r"Attention-weighted Value change $\|\sum_i w_{h,i}^{clean} \Delta v_{h,i}\|_2$")
         plt.ylabel(r"Observed Disturbance $\|\Delta z_h^{obs}\|_2$ (Frozen Attention)")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout()

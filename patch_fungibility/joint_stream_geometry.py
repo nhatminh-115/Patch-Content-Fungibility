@@ -216,7 +216,7 @@ def estimate_functional_metric(
     device: torch.device
 ) -> torch.Tensor:
     """
-    Estimates the downstream functional metric matrix M_l = E[J^T J] on true-class margin.
+    Estimates a D-by-D metric from the outer product of each image’s mean patch gradient of the predicted-class margin. This is not the full downstream readout Jacobian Gram matrix.
     """
     embed_dim = 384 if "small" in model_key or "dinov2" in model_key else (192 if "tiny" in model_key else 768)
     M_accum = torch.zeros(embed_dim, embed_dim, dtype=torch.float64, device=device)

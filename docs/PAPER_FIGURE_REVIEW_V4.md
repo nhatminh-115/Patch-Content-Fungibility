@@ -12,7 +12,7 @@ Scores use a 1–5 scale (5 is strongest).
 | 4. Anisotropic geometry | Replaced an unnamed trend line with a direction-sensitivity heatmap and a compact vector explanation. | 4 | 5 | 4 | 5 | Yes: switched the ratio scale to logarithmic and increased precision so sub-unity values did not round to zero. | Accepted; values and direction are legible. |
 | 5. Value path | Replaced a crowded combined panel with the measured coherent/random-sign/checkerboard comparison for V-only and K+V. | 5 | 5 | 4 | 5 | Yes: offset paired markers and moved panel labels into the titles to remove overlap. | Accepted; coherent versus cancelling patterns are clear. |
 | 6. End-to-end operator | Reframed the mechanism as a local-to-downstream diagram paired with the reported held-out damage correlations and rotation angle. | 4 | 5 | 4 | 5 | No. | Accepted; the evidence distinction is explicit. |
-| 7. Confirmatory compression | Replaced the isolated low-rank bars with N=1,000 accuracy-token curves across four models and the audited >98% benefit statement. | 4 | 5 | 4 | 5 | Yes: increased footer spacing after the initial overlap. | Accepted; pruning, merging, oracle, and rank-32 are distinguishable. |
+| 7. Confirmatory compression | Replaced isolated low-rank bars with N=1,000 accuracy-token curves across four models. The current panel plots rank-32 and makes no recovery-percentage claim; separate rank-16 Top-1 values are in Table II. | 4 | 5 | 4 | 5 | Yes: increased footer spacing after the initial overlap. | Accepted; pruning, merging, oracle, and rank-32 are distinguishable. |
 | S1. Carrier boundary | Replaced dense method annotations with a four-model measured accuracy-throughput view at BS=64. | 4 | 5 | 4 | 4 | Yes: fixed the ViT-B source label and separated nearby q16/selective annotations. | Accepted; mixed practical results are visible without claiming a general win. |
 
 ## Visual QA
@@ -83,3 +83,13 @@ Scores use a 1–5 scale (5 is strongest).
 - Replaced the supplied overview source with the latest `D:/Download/Figure1_overview.png`, which adds panel (c), “Anisotropic Transmission.” The PNG and preview preserve the supplied source bytes, and the SVG embeds the same image.
 - Updated the manuscript alt text and caption, and the figure manifest, to describe all three panels.
 - Updated contact-sheet rendering to composite transparent pixels over white, avoiding a false black edge while preserving the supplied source and standalone PNG bytes exactly. No empirical data or scientific result changed.
+
+
+## Figure 1, Figure 4, and manuscript notation update requested on 2026-10-08
+
+- Replaced the Figure 1 source with the latest user-supplied `D:/Download/Figure1_overview.png`; its panels show the fixed-slot intervention, geometric/diversity constraints, and selective transmission through anisotropic sensitivity and Value-path cancellation.
+- Tightened the spacing between the two density maps in Figure 4(b) using a nested grid; the plotted observations, axes, and source data are unchanged.
+- Updated the Figure 1 in-text description, alt text, caption, and manifest to match the supplied panels. Removed the non-publication disclaimer from the caption.
+- Rendered `N<sub>img</sub>` in prose and added Word subscript formatting for this symbol in the DOCX exporter, including its occurrence in displayed equations.
+- Replaced defensive novelty wording with a concise statement that the underlying analytical tools are established, removed an internal CSV path from the Results prose, and simplified the reproducibility statement. Substantive evidence boundaries remain in place.
+- Rebuilt figures from the existing source data and visually inspected the changed assets. No experiment, raw output, or quantitative result was changed.

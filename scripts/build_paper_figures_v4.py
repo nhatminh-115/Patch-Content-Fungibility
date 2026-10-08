@@ -331,10 +331,11 @@ def fig4(root: Path, out: Path) -> None:
     values = [[next(float(r["ratio_PC1_to_PCbot"]) for r in rows if r["model_key"] == model and int(r["depth"]) == d)
                for d in depths] for model in models]
     fig = plt.figure(figsize=(12.0, 4.35))
-    grid = fig.add_gridspec(1, 3, width_ratios=[1.38, 1.0, 1.0])
+    grid = fig.add_gridspec(1, 2, width_ratios=[1.38, 2.10], wspace=.16)
     axh = fig.add_subplot(grid[0, 0])
-    ax_deit = fig.add_subplot(grid[0, 1])
-    ax_vit = fig.add_subplot(grid[0, 2], sharex=ax_deit, sharey=ax_deit)
+    density_grid = grid[0, 1].subgridspec(1, 2, wspace=.03)
+    ax_deit = fig.add_subplot(density_grid[0, 0])
+    ax_vit = fig.add_subplot(density_grid[0, 1], sharex=ax_deit, sharey=ax_deit)
     im = axh.imshow(values, cmap="Blues", norm=LogNorm(vmin=0.01, vmax=max(max(row) for row in values)*1.05), aspect="auto")
     axh.set_box_aspect(.56)
     axh.set_xticks(range(len(depths)), [str(d) for d in depths]); axh.set_yticks(range(2), ["DeiT-Small", "ViT-B/16 AugReg"])
@@ -381,7 +382,7 @@ def fig4(root: Path, out: Path) -> None:
         ax.set_axisbelow(True)
     fig.text(.70, .055, "Patch-token density · PCA scores standardized per model and component",
              ha="center", va="center", color=MUTED, fontsize=6.8)
-    fig.subplots_adjust(left=.055, right=.99, bottom=.20, top=.80, wspace=.42)
+    fig.subplots_adjust(left=.055, right=.99, bottom=.20, top=.80)
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
     pos_a = axh.get_position(); pos_a_cbar = cb.ax.get_position()
@@ -554,20 +555,20 @@ FIGURE_SOURCES = {
     "figure4_anisotropic_geometry": ("outputs/fungibility_functional_geometry/covariance_function_alignment.csv; figures/paper_final_v4/source/figure4_pca_scores.csv", "Panel (a): all 8 audited model/depth rows, displaying the PC1-to-lowest-variance-PC sensitivity ratio. Panel (b): depth-8 PCA score density for 100 images × 196 patch tokens per model; scores are standardized per model and component for display."),
     "figure5_value_path_cancellation": ("outputs/fungibility_attention_causal_audit/qkv_decomposition.csv", "model/depth pairs (deit_small,8) and (vit_base,7); token patterns global_coherent/random_sign/checkerboard; feature_dir=jac_top; scale_s=1.0; pathways V_only and K_plus_V; dz_readout_l1."),
     "figure6_end_to_end_operator": ("outputs/fungibility_multiblock_operator/validation_manifest.json", "prediction_correlations single_block/multi_block Pearson and Spearman; primary_findings mean_principal_angle_deg_b8_to_b9."),
-    "figure7_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures; rank-16/rank-32 rows are checked in low_rank_ablation.csv. The >98% benefit denominator remains stated in the manuscript caption and confirmatory report."),
+    "figure7_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures. Rank-16 and rank-32 outcomes are available in low_rank_ablation.csv and Table II; the figure itself contains only the rank-32 curve."),
     "figureS1_real_carrier_boundary": ("outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv", "batch_size=64; all four architectures and available Clean/Group Mean/q16/q32/Selective q16 rows; fields top1_accuracy and img_per_sec. Output files reside in supp/."),
 }
 
 
 def write_manifest(out: Path) -> None:
     titles = {
-          "figure1_overview": ("PCF intervention, replacement constraints, and anisotropic transmission", "User-supplied composite overview of (a) fixed-slot late-layer patch-content intervention, (b) geometry/diversity constraints and Value-path cancellation, and (c) anisotropic transmission."),
+          "figure1_overview": ("PCF intervention, replacement constraints, and selective transmission", "User-supplied composite overview of (a) fixed-slot late-layer patch-content intervention, (b) geometric and diversity constraints, and (c) anisotropic sensitivity with Value-path cancellation."),
         "figure2_depthwise": ("Depth-wise replacement controls", "Replots original V1 results and an isolated depth-6 follow-up, exposes Gaussian seed variation, and zooms the boxed panel-(a) region with Clean, Zero, Centroid, and Gaussian curves."),
         "figure3_geometry_diversity": ("Geometry and diversity constraints", "Two-panel figure: V1 geometry controls at 50% replacement for ViT-B/16 AugReg and DINOv2, and V0.8 accuracy versus K for DeiT-Tiny/Small. The cohorts are distinct; interpret contrasts within panels."),
         "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Combines the audited depth-wise functional-sensitivity ratio with data-derived PCA patch-score density maps."),
         "figure5_value_path_cancellation": ("Value-path transmission and cancellation", "Compares coherent and sign-varying token patterns through V-only and K+V pathways."),
         "figure6_end_to_end_operator": ("Local and end-to-end damage prediction", "Single-panel paired-dot comparison of local and end-to-end operator prediction correlations with measured final-logit damage."),
-        "figure7_operator_compression": ("Confirmatory operator-aware compression", "Plots the N=1,000 accuracy-token curves across four architectures; the audited >98% benefit denominator is stated in the manuscript caption and report."),
+        "figure7_operator_compression": ("Confirmatory operator-aware compression", "Plots N=1,000 accuracy-token curves across four architectures, including the measured rank-32 curve; no recovery percentage is encoded."),
         "figureS1_real_carrier_boundary": ("Real-model carrier boundary", "Shows the measured accuracy-throughput tradeoff as a bounded supplementary result."),
     }
     lines = ["# Figure Manifest v4", "", "Generated by `scripts/build_paper_figures_v4.py`. White background, DejaVu Sans, consistent typography; SVG and 300 dpi PNG saved for every panel. No models were executed.", ""]

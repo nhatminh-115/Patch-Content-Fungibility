@@ -216,7 +216,7 @@ def set_font(run, size=10.3, bold=None, italic=None, color="202A32", name="Times
 
 
 BT = chr(96)
-INLINE = re.compile(r"(\*\*(.+?)\*\*|\*(.+?)\*|" + re.escape(BT) + r"(.+?)" + re.escape(BT) + r"|\\citep\{([^}]+)\})")
+INLINE = re.compile(r"(\*\*(.+?)\*\*|\*(.+?)\*|" + re.escape(BT) + r"(.+?)" + re.escape(BT) + r"|\\citep\{([^}]+)\}|<sub>([^<]+)</sub>)")
 
 
 def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, size=10.3):
@@ -237,6 +237,10 @@ def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, 
         elif match.group(4) is not None:
             run = p.add_run(match.group(4))
             set_font(run, size=9.0, name="Consolas", color="34495E")
+        elif match.group(6) is not None:
+            run = p.add_run(match.group(6))
+            set_font(run, size=8.8 if caption else size, italic=caption, color="4C5963" if caption else "202A32")
+            run.font.subscript = True
         else:
             run = p.add_run(citation_replace(match.group(0), key_to_num))
             set_font(run, size=size, color="202A32")
@@ -245,38 +249,106 @@ def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, 
         run = p.add_run(citation_replace(text[cursor:], key_to_num))
         set_font(run, size=8.8 if caption else size, italic=caption, color="4C5963" if caption else "202A32")
     p.paragraph_format.space_after = Pt(4 if caption else 5)
+    if caption:
+        p.paragraph_format.keep_together = True
     if not caption:
         p.paragraph_format.line_spacing = 1.08
     return p
 
 
-SUBS = str.maketrans({
-    "0":"₀","1":"₁","2":"₂","3":"₃","4":"₄","5":"₅","6":"₆","7":"₇","8":"₈","9":"₉",
-    "i":"ᵢ","j":"ⱼ","k":"ₖ","n":"ₙ","m":"ₘ","x":"ₓ","y":"ᵧ","z":"ᶻ",
-    "a":"ₐ","e":"ₑ","h":"ₕ","l":"ₗ","r":"ᵣ","t":"ₜ","u":"ᵤ","v":"ᵥ","o":"ₒ","=":"₌",
-    "α":"ᵅ","β":"ᵦ","γ":"ᵧ","ℓ":"ₗ","L":"L","O":"ₒ","V":"ᵥ",
-})
-SUPERS = str.maketrans({"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹","T":"ᵀ","N":"ᴺ","V":"ⱽ","*":"*","m":"ᵐ","e":"ᵉ","a":"ᵃ","n":"ⁿ"})
-
-
 def math_text(source: str) -> str:
-    value = source.strip()
-    value = value.replace("^{(V)}", "^V").replace("D_readout", "Dreadout")
-    value = value.replace("D_readout", "Dreadout")
-    value = value.replace(r"\operatorname{vec}", "flat").replace(r"\operatorname{flat}", "flat")
+    """Render LaTeX-like source as stable, readable indexed notation in Word math."""
+    value = re.sub(r"\\tag\{\d+\}", "", source.strip())
+    value = value.replace("p\u0303", "p~")
+    value = value.replace("×", " x ").replace("·", "*")
+    value = value.replace("n_p", "ZZNPATCHZZ").replace("N_{img}", "ZZNIMAGEZZ")
+    value = value.replace("ℓ", "l").replace("ℝ", "R").replace("∇", "grad")
+    value = value.replace("ᵀ", "^T").replace("²", "^2").replace("‖", "||")
+    value = value.replace("₀", "_0").replace("₁", "_1").replace("₂", "_2")
+    value = re.sub(r"√([A-Za-z]+_[A-Za-z0-9]+)", lambda m: f"sqrt({m.group(1)})", value)
+    for command, replacement in (
+        (r"\mathbb{R}", "R"), (r"\operatorname{vec}", "vec"),
+        (r"\operatorname{flat}", "flat"), (r"\operatorname{tr}", "tr"),
+        (r"\operatorname{dim}", "dim"), (r"\mathrm{mean}", "mean"),
+        (r"\arg\min", "arg min"), (r"\left\|", "||"),
+        (r"\right\|", "||"), (r"\{", "{"), (r"\}", "}"),
+        (r"\ ", " "),
+    ):
+        value = value.replace(command, replacement)
     value = re.sub(r"\\frac\{([^{}]+)\}\{([^{}]+)\}", r"(\1)/(\2)", value)
-    value = value.replace(r"\arg\min", "arg min").replace(r"\sum", "Σ")
-    value = value.replace(r"\left\|", "‖").replace(r"\right\|", "‖")
-    value = value.replace(r"\in", "∈").replace(r"\to", "→")
-    value = value.replace(r"\cdot", "·").replace(r"\operatorname", "")
-    value = value.replace(r"\ ", " ")
-    value = re.sub(r"_\{([^{}]+)\}", lambda m: (m.group(1).translate(SUBS) if m.group(1).translate(SUBS) != m.group(1) else "_" + m.group(1)), value)
-    value = re.sub(r"_([A-Za-z0-9])", lambda m: (m.group(1).translate(SUBS) if m.group(1).translate(SUBS) != m.group(1) else "_" + m.group(1)), value)
-    value = re.sub(r"\^\{([^{}]+)\}", lambda m: m.group(1).translate(SUPERS), value)
-    value = re.sub(r"\^([0-9TNV*])", lambda m: m.group(1).translate(SUPERS), value)
-    value = value.replace("Jₗ→L", "Jₗ→ᴸ").replace("_ℓ", "ₗ").replace("G_ⱼ", "Gⱼ")
-    return re.sub(r"\s+", " ", value)
+    commands = {
+        "ell": "l", "Delta": "Delta", "Gamma": "Gamma", "nabla": "grad",
+        "partial": "d", "approx": "~", "lambda": "lambda", "Sigma": "SUM",
+        "sum": "sum", "top": "T", "in": "in", "to": "->", "cdot": "*",
+        "times": "x", "qquad": " ", "quad": " ", "left": "", "right": "",
+        "operatorname": "", "mathrm": "", "text": "",
+    }
+    value = re.sub(r"\\([A-Za-z]+)", lambda m: commands.get(m.group(1), m.group(1)), value)
+    for _ in range(3):
+        value = re.sub(r"_\{([^{}]*)\}", lambda m: f"[{m.group(1)}]", value)
+    value = re.sub(r"_([A-Za-z0-9])", lambda m: f"[{m.group(1)}]", value)
+    value = re.sub(r"\^\{([^{}]*)\}", lambda m: f"^{m.group(1)}", value)
+    value = re.sub(r"\^([A-Za-z0-9])", lambda m: f"^{m.group(1)}", value)
+    value = value.replace("ZZNPATCHZZ", "n_p").replace("ZZNIMAGEZZ", "N[img]")
+    value = value.replace("N[img]n_p", "N[img] n_p").replace("αav", "α a v")
+    value = re.sub(r"(n_p)(?=[A-Za-zΣΔΓ])", r"\1 ", value)
+    value = re.sub(r"(\^[A-Za-z]+)(?=[A-Za-zΔΓ]\[)", r"\1 ", value)
+    value = re.sub(r"\s+", " ", value).strip()
+    return value
 
+
+def wrap_math_text(text: str, max_chars: int = 76) -> list[str]:
+    """Wrap a display equation at top-level commas, then at arithmetic operators."""
+    terms, start, stack = [], 0, []
+    pairs = {")": "(", "]": "[", "}": "{"}
+    for i, char in enumerate(text):
+        if char in "([{":
+            stack.append(char)
+        elif char in ")]}":
+            if stack and stack[-1] == pairs[char]:
+                stack.pop()
+        elif char in ",;" and not stack:
+            terms.append(text[start:i].strip())
+            start = i + 1
+    terms.append(text[start:].strip())
+
+    def split_long(term: str) -> list[str]:
+        output = []
+        while len(term) > max_chars:
+            candidates = [term.rfind(op, 0, max_chars + 1) for op in (" + ", " - ", " * ", " / ")]
+            position = max(candidates)
+            if position >= max_chars // 2:
+                operator = next(op for op in (" + ", " - ", " * ", " / ") if term.rfind(op, 0, max_chars + 1) == position)
+                output.append(term[:position].rstrip() + operator.rstrip())
+                term = term[position + len(operator):].lstrip()
+                continue
+            position = term.rfind(" ", 0, max_chars + 1)
+            if position < 1:
+                position = max_chars
+                output.append(term[:position])
+                term = term[position:]
+            else:
+                output.append(term[:position].rstrip())
+                term = term[position:].lstrip()
+        if term:
+            output.append(term)
+        return output
+
+    lines, current = [], ""
+    for term in terms:
+        candidate = term if not current else current + ", " + term
+        if len(candidate) <= max_chars:
+            current = candidate
+            continue
+        if current:
+            lines.append(current + ",")
+            current = ""
+        pieces = split_long(term)
+        lines.extend(pieces[:-1])
+        current = pieces[-1] if pieces else ""
+    if current:
+        lines.append(current)
+    return lines or [text]
 
 def math_run(text: str):
     run = OxmlElement("m:r")
@@ -304,36 +376,80 @@ def math_script(base: str, sub: str | None = None, sup: str | None = None):
     return node
 
 
-def add_equation(doc, source: str):
-    text = math_text(source)
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.paragraph_format.space_before = Pt(2)
-    p.paragraph_format.space_after = Pt(4)
-    p.paragraph_format.keep_together = True
-    math_para = OxmlElement("m:oMathPara")
-    math_obj = OxmlElement("m:oMath")
-    # Keep ordinary Unicode math compact while using real Word math nodes for
-    # the few scripts without Unicode subscript/superscript glyphs.
-    special = re.compile(r"C\*=|min_C|‖P−SC‖_F²")
+def append_math_expression(parent, text: str):
+    """Append math text while rendering the manuscript's image-count subscript."""
+    pattern = re.compile(r"N\[img\]")
     cursor = 0
-    for match in special.finditer(text):
+    for match in pattern.finditer(text):
         if match.start() > cursor:
-            math_obj.append(math_run(text[cursor:match.start()]))
-        token = match.group(0)
-        if token == "C*=" or token == "C*":
-            math_obj.append(math_script("C", sup="*"))
-            if token.endswith("="):
-                math_obj.append(math_run("="))
-        elif token == "min_C":
-            math_obj.append(math_script("min", sub="C"))
-        else:
-            math_obj.append(math_script("‖P−SC‖", sub="F", sup="2"))
+            parent.append(math_run(text[cursor:match.start()]))
+        parent.append(math_script("N", sub="img"))
         cursor = match.end()
     if cursor < len(text):
-        math_obj.append(math_run(text[cursor:]))
-    math_para.append(math_obj)
-    p._p.append(math_para)
+        parent.append(math_run(text[cursor:]))
+
+
+def add_equation(doc, source: str, equation_number: str):
+    text = math_text(source)
+    table = doc.add_table(rows=1, cols=3)
+    table.alignment = 1  # centered on the text block
+    table.autofit = False
+    section = doc.sections[0]
+    available_width = section.page_width - section.left_margin - section.right_margin
+    side_width = Inches(0.36)
+    widths = (side_width, available_width - side_width * 2, side_width)
+    table_properties = table._tbl.tblPr
+    table_width = OxmlElement("w:tblW")
+    table_width.set(qn("w:w"), str(int(available_width / 635)))
+    table_width.set(qn("w:type"), "dxa")
+    table_properties.append(table_width)
+    borders = OxmlElement("w:tblBorders")
+    for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        border = OxmlElement(f"w:{edge}")
+        border.set(qn("w:val"), "nil")
+        borders.append(border)
+    table_properties.append(borders)
+    for index, width in enumerate(widths):
+        table.columns[index].width = width
+        cell = table.cell(0, index)
+        cell.width = width
+        cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+        cell_properties = cell._tc.get_or_add_tcPr()
+        margins = OxmlElement("w:tcMar")
+        for side in ("top", "left", "bottom", "right"):
+            margin = OxmlElement(f"w:{side}")
+            margin.set(qn("w:w"), "0")
+            margin.set(qn("w:type"), "dxa")
+            margins.append(margin)
+        cell_properties.append(margins)
+        paragraph = cell.paragraphs[0]
+        paragraph.paragraph_format.space_before = Pt(2)
+        paragraph.paragraph_format.space_after = Pt(4)
+        paragraph.paragraph_format.line_spacing = 1.0
+        paragraph.paragraph_format.keep_together = True
+
+    math_cell = table.cell(0, 1)
+    for line_index, line in enumerate(wrap_math_text(text)):
+        math_paragraph = math_cell.paragraphs[0] if line_index == 0 else math_cell.add_paragraph()
+        math_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        math_paragraph.paragraph_format.space_before = Pt(0)
+        math_paragraph.paragraph_format.space_after = Pt(0)
+        math_paragraph.paragraph_format.line_spacing = 1.0
+        math_paragraph.paragraph_format.keep_together = True
+        office_math = OxmlElement("m:oMath")
+        append_math_expression(office_math, line)
+        math_paragraph._p.append(office_math)
+
+    number_paragraph = table.cell(0, 2).paragraphs[0]
+    number_paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    number_run = number_paragraph.add_run(f"({equation_number})")
+    number_run.font.name = "Times New Roman"
+    number_run.font.size = Pt(9)
+    number_fonts = number_run._element.get_or_add_rPr().get_or_add_rFonts()
+    number_fonts.set(qn("w:ascii"), "Times New Roman")
+    number_fonts.set(qn("w:hAnsi"), "Times New Roman")
+    row_properties = table.rows[0]._tr.get_or_add_trPr()
+    row_properties.append(OxmlElement("w:cantSplit"))
 
 
 def shade_cell(cell, fill: str):
@@ -402,6 +518,7 @@ def add_image(doc, src: str, image_root: Path):
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.keep_together = True
+    p.paragraph_format.keep_with_next = True
     p.paragraph_format.space_after = Pt(1)
     p.add_run().add_picture(str(local), width=Inches(6.75))
 
@@ -432,8 +549,8 @@ def build(source: Path, output: Path):
     sec.right_margin = Inches(0.78)
     styles = doc.styles
     for name, size, color in [
-        ("Normal", 10.3, "202A32"), ("Title", 18, "17232D"),
-        ("Heading 1", 14, "173D52"), ("Heading 2", 11.5, "246B8E")
+        ("Normal", 10.3, "202A32"), ("Title", 18, "000000"),
+        ("Heading 1", 14, "000000"), ("Heading 2", 11.5, "000000")
     ]:
         style = styles[name]
         style.font.name = "Times New Roman"
@@ -441,6 +558,10 @@ def build(source: Path, output: Path):
         style.font.color.rgb = RGBColor.from_string(color)
         style._element.rPr.rFonts.set(qn("w:ascii"), "Times New Roman")
         style._element.rPr.rFonts.set(qn("w:hAnsi"), "Times New Roman")
+    title_ppr = styles["Title"]._element.get_or_add_pPr()
+    title_border = title_ppr.find(qn("w:pBdr"))
+    if title_border is not None:
+        title_ppr.remove(title_border)
     styles["Heading 1"].paragraph_format.space_before = Pt(14)
     styles["Heading 1"].paragraph_format.space_after = Pt(5)
     styles["Heading 2"].paragraph_format.space_before = Pt(10)
@@ -467,8 +588,12 @@ def build(source: Path, output: Path):
                 i += 1
             if i >= len(lines):
                 raise ValueError("Unclosed equation block")
-            add_equation(doc, " ".join(expr))
             equation_count += 1
+            equation_source = " ".join(expr)
+            tag = re.search(r"\\tag\{(\d+)\}", equation_source)
+            equation_number = tag.group(1) if tag else str(equation_count)
+            equation_source = re.sub(r"\\tag\{\d+\}", "", equation_source).strip()
+            add_equation(doc, equation_source, equation_number)
             i += 1
             continue
         if line.startswith("|"):
@@ -490,12 +615,12 @@ def build(source: Path, output: Path):
             elif level == 1:
                 p = doc.add_paragraph(style="Title")
                 run = p.add_run(title)
-                set_font(run, size=18, bold=True, color="17232D")
+                set_font(run, size=18, bold=True, color="000000")
                 p.paragraph_format.space_after = Pt(8)
             else:
                 p = doc.add_paragraph(style="Heading 1" if level == 2 else "Heading 2")
                 run = p.add_run(title)
-                set_font(run, size=14 if level == 2 else 11.5, bold=True, color="173D52" if level == 2 else "246B8E")
+                set_font(run, size=14 if level == 2 else 11.5, bold=True, color="000000")
                 p.paragraph_format.keep_with_next = True
             i += 1
             continue

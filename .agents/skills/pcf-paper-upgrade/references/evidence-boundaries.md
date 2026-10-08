@@ -49,7 +49,7 @@ Keep sample units distinct everywhere:
 
 The 30,000 method/budget/seed rows per architecture in confirmatory residual analysis reuse those 1,000 images; do not describe rows as independent images.
 
-Every `>98%` claim must mean: **rank-16/32 retain >98% of the Group-Mean-to-full-J-oracle compression benefit**. It is not accuracy recovery, retained spectral energy, practical predictor recovery, restricted-carrier-oracle recovery, or static-alpha recovery. Name the denominator near the claim.
+The former universal rank-16/32 `>98%` claim is withdrawn. Its original stated metric is the Top-1 accuracy ratio `100 × (A_rank − A_GroupMean)/(A_fullJ − A_GroupMean)`. Recomputed from matched per-image outcomes, 22 of 40 settings have a positive denominator; only 4 of those 22 exceed 98%, while 18 are below. Sixteen denominators are negative and two are zero, so those settings do not represent recovery of a positive full-J benefit. Never state a universal `>98%` result. Keep the bounded recomputation in the audit/traceability record, not as a manuscript headline. Do not reinterpret it as retained spectral energy, operator-residual recovery, practical-predictor recovery, restricted-carrier-oracle recovery, or static-alpha recovery.
 
 ## Research lock
 

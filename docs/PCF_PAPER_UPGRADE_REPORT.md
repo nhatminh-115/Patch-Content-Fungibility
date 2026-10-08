@@ -22,7 +22,7 @@ The PCF paper uses these works as task context and compression baselines, not as
 
 Primary venue records were checked for the three token-reduction exemplars above; arXiv records were checked for the recent adjacent works already cited in the draft. The paper keeps these adjacent works scoped to their actual model family or task. Existing citation resolution also passes the repository's manuscript validator (12 bibliography entries, no unresolved, duplicate, or uncited entries).
 
-Numeric and scientific claims were checked against the claims table, traceability map, sample-size map, current real-final validation/report, confirmatory raw outputs and report, and current figure manifest/review. No quantitative result, sample count, metric, denominator, architecture coverage, or uncertainty statement was changed. The >98% sentence retains the Group-Mean-to-full-J-oracle compression-benefit denominator. The manuscript does not inherit broader deployment or universal-dominance language from older report prose: its practical carrier conclusion remains mixed and secondary.
+The initial upgrade pass checked claims against the claims table, traceability map, sample-size map, validated outputs, and reviewed figures. A subsequent mathematical audit recovered the earlier stated Top-1 ratio, `100 × (A_rank − A_GroupMean)/(A_fullJ − A_GroupMean)`, and recomputed it from matched per-image confirmatory outcomes. Only 4 of 22 positive-denominator settings exceed 98%; 16 denominators are negative and 2 are zero. The universal claim is withdrawn; the manuscript keeps the practical carrier conclusion mixed and secondary.
 
 ## Adversarial reviewer simulation
 
