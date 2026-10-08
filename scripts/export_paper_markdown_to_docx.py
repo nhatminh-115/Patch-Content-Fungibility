@@ -216,7 +216,74 @@ def set_font(run, size=10.3, bold=None, italic=None, color="202A32", name="Times
 
 
 BT = chr(96)
-INLINE = re.compile(r"(\*\*(.+?)\*\*|\*(.+?)\*|" + re.escape(BT) + r"(.+?)" + re.escape(BT) + r"|\\citep\{([^}]+)\}|<sub>([^<]+)</sub>)")
+INLINE = re.compile(r"(\*\*(.+?)\*\*|\*(.+?)\*|" + re.escape(BT) + r"(.+?)" + re.escape(BT) + r"|\\citep\{([^}]+)\}|<sub>([^<]+)</sub>|<sup>([^<]+)</sup>)")
+INLINE_SCRIPT = re.compile(
+    r"(?P<base>\|\|.*?\|\||\([^()]*\)|\{[^{}]*\}|(?:[^\W_]|[\u0300-\u036f])+)"
+    r"(?:(?P<sub>_\{[^{}]*\}|_[^\W_])(?P<sup>\^\{[^{}]*\}|\^[^\W_])?|"
+    r"(?P<sup_only>\^\{[^{}]*\}|\^[^\W_]))"
+)
+
+
+def normalize_script_glyphs(value: str) -> str:
+    """Convert Unicode script glyphs into explicit notation for Word math parsing."""
+    super_map = {"⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4",
+                 "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9",
+                 "⁻": "-", "ᵀ": "T"}
+    sub_map = {"₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4",
+               "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9"}
+    out = []
+    depth = 0
+    i = 0
+    while i < len(value):
+        char = value[i]
+        if char == "{":
+            depth += 1
+            out.append(char)
+            i += 1
+            continue
+        if char == "}":
+            depth = max(0, depth - 1)
+            out.append(char)
+            i += 1
+            continue
+        if char in super_map:
+            chars = []
+            while i < len(value) and value[i] in super_map:
+                chars.append(super_map[value[i]])
+                i += 1
+            content = "".join(chars)
+            out.append(content if depth else "^{" + content + "}")
+            continue
+        if char in sub_map:
+            chars = []
+            while i < len(value) and value[i] in sub_map:
+                chars.append(sub_map[value[i]])
+                i += 1
+            content = "".join(chars)
+            out.append(content if depth else "_{" + content + "}")
+            continue
+        out.append(char)
+        i += 1
+    return "".join(out)
+
+
+def add_styled_fragment(p, text, key_to_num, *, size=10.3, bold=None, italic=None, color="202A32"):
+    """Append prose and inline symbols, turning every _ and ^ index into Word math."""
+    text = re.sub(r"<sub>(.*?)</sub>", r"_{\1}", text)
+    text = re.sub(r"<sup>(.*?)</sup>", r"^{\1}", text)
+    text = normalize_script_glyphs(text)
+    cursor = 0
+    for match in INLINE_SCRIPT.finditer(text):
+        if match.start() > cursor:
+            run = p.add_run(citation_replace(text[cursor:match.start()], key_to_num))
+            set_font(run, size=size, bold=bold, italic=italic, color=color)
+        math_obj = OxmlElement("m:oMath")
+        append_math_expression(math_obj, match.group(0))
+        p._p.append(math_obj)
+        cursor = match.end()
+    if cursor < len(text):
+        run = p.add_run(citation_replace(text[cursor:], key_to_num))
+        set_font(run, size=size, bold=bold, italic=italic, color=color)
 
 
 def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, size=10.3):
@@ -226,28 +293,36 @@ def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, 
     cursor = 0
     for match in INLINE.finditer(text):
         if match.start() > cursor:
-            run = p.add_run(citation_replace(text[cursor:match.start()], key_to_num))
-            set_font(run, size=8.8 if caption else size, italic=caption, color="4C5963" if caption else "202A32")
+            add_styled_fragment(p, text[cursor:match.start()], key_to_num,
+                                size=8.8 if caption else size, italic=caption,
+                                color="4C5963" if caption else "202A32")
         if match.group(2) is not None:
-            run = p.add_run(match.group(2))
-            set_font(run, size=size, bold=True)
+            add_styled_fragment(p, match.group(2), key_to_num, size=size, bold=True)
         elif match.group(3) is not None:
-            run = p.add_run(match.group(3))
-            set_font(run, size=8.8 if caption else size, italic=True, color="4C5963" if caption else "202A32")
+            add_styled_fragment(p, match.group(3), key_to_num,
+                                size=8.8 if caption else size, italic=True,
+                                color="4C5963" if caption else "202A32")
         elif match.group(4) is not None:
             run = p.add_run(match.group(4))
             set_font(run, size=9.0, name="Consolas", color="34495E")
         elif match.group(6) is not None:
             run = p.add_run(match.group(6))
-            set_font(run, size=8.8 if caption else size, italic=caption, color="4C5963" if caption else "202A32")
+            set_font(run, size=8.8 if caption else size, italic=caption,
+                     color="4C5963" if caption else "202A32")
             run.font.subscript = True
+        elif match.group(7) is not None:
+            run = p.add_run(match.group(7))
+            set_font(run, size=8.8 if caption else size, italic=caption,
+                     color="4C5963" if caption else "202A32")
+            run.font.superscript = True
         else:
             run = p.add_run(citation_replace(match.group(0), key_to_num))
             set_font(run, size=size, color="202A32")
         cursor = match.end()
     if cursor < len(text):
-        run = p.add_run(citation_replace(text[cursor:], key_to_num))
-        set_font(run, size=8.8 if caption else size, italic=caption, color="4C5963" if caption else "202A32")
+        add_styled_fragment(p, text[cursor:], key_to_num,
+                            size=8.8 if caption else size, italic=caption,
+                            color="4C5963" if caption else "202A32")
     p.paragraph_format.space_after = Pt(4 if caption else 5)
     if caption:
         p.paragraph_format.keep_together = True
@@ -257,15 +332,12 @@ def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, 
 
 
 def math_text(source: str) -> str:
-    """Render LaTeX-like source as stable, readable indexed notation in Word math."""
+    """Normalize equation source while preserving sub/superscript structure."""
     value = re.sub(r"\\tag\{\d+\}", "", source.strip())
+    value = normalize_script_glyphs(value)
     value = value.replace("p\u0303", "p~")
-    value = value.replace("×", " x ").replace("·", "*")
-    value = value.replace("n_p", "ZZNPATCHZZ").replace("N_{img}", "ZZNIMAGEZZ")
+    value = value.replace("·", " · ")
     value = value.replace("ℓ", "l").replace("ℝ", "R").replace("∇", "grad")
-    value = value.replace("ᵀ", "^T").replace("²", "^2").replace("‖", "||")
-    value = value.replace("₀", "_0").replace("₁", "_1").replace("₂", "_2")
-    value = re.sub(r"√([A-Za-z]+_[A-Za-z0-9]+)", lambda m: f"sqrt({m.group(1)})", value)
     for command, replacement in (
         (r"\mathbb{R}", "R"), (r"\operatorname{vec}", "vec"),
         (r"\operatorname{flat}", "flat"), (r"\operatorname{tr}", "tr"),
@@ -278,24 +350,15 @@ def math_text(source: str) -> str:
     value = re.sub(r"\\frac\{([^{}]+)\}\{([^{}]+)\}", r"(\1)/(\2)", value)
     commands = {
         "ell": "l", "Delta": "Delta", "Gamma": "Gamma", "nabla": "grad",
-        "partial": "d", "approx": "~", "lambda": "lambda", "Sigma": "SUM",
-        "sum": "sum", "top": "T", "in": "in", "to": "->", "cdot": "*",
-        "times": "x", "qquad": " ", "quad": " ", "left": "", "right": "",
+        "partial": "d", "approx": "~", "lambda": "lambda", "Sigma": "Σ",
+        "sum": "Σ", "top": "T", "in": "in", "to": "->", "cdot": "·",
+        "times": "×", "qquad": " ", "quad": " ", "left": "", "right": "",
         "operatorname": "", "mathrm": "", "text": "",
     }
     value = re.sub(r"\\([A-Za-z]+)", lambda m: commands.get(m.group(1), m.group(1)), value)
-    for _ in range(3):
-        value = re.sub(r"_\{([^{}]*)\}", lambda m: f"[{m.group(1)}]", value)
-    value = re.sub(r"_([A-Za-z0-9])", lambda m: f"[{m.group(1)}]", value)
-    value = re.sub(r"\^\{([^{}]*)\}", lambda m: f"^{m.group(1)}", value)
-    value = re.sub(r"\^([A-Za-z0-9])", lambda m: f"^{m.group(1)}", value)
-    value = value.replace("ZZNPATCHZZ", "n_p").replace("ZZNIMAGEZZ", "N[img]")
-    value = value.replace("N[img]n_p", "N[img] n_p").replace("αav", "α a v")
-    value = re.sub(r"(n_p)(?=[A-Za-zΣΔΓ])", r"\1 ", value)
-    value = re.sub(r"(\^[A-Za-z]+)(?=[A-Za-zΔΓ]\[)", r"\1 ", value)
+    value = re.sub(r"(_\{[^{}]*\}|_[A-Za-z0-9])(?=[A-Za-zΔΓΣ])", r"\1 ", value)
     value = re.sub(r"\s+", " ", value).strip()
     return value
-
 
 def wrap_math_text(text: str, max_chars: int = 76) -> list[str]:
     """Wrap a display equation at top-level commas, then at arithmetic operators."""
@@ -359,34 +422,116 @@ def math_run(text: str):
     return run
 
 
+def _math_group(text: str, start: int):
+    opening = text[start]
+    closing = {"{": "}", "(": ")", "[": "]"}[opening]
+    depth = 0
+    for index in range(start, len(text)):
+        if text[index] == opening:
+            depth += 1
+        elif text[index] == closing:
+            depth -= 1
+            if depth == 0:
+                return text[start + 1:index], index + 1
+    return None, start
+
+
+def _math_word_char(char: str) -> bool:
+    import unicodedata
+    return unicodedata.category(char)[0] in "LMN"
+
+
+def _math_atom(text: str, start: int):
+    if text.startswith("||", start):
+        end = text.find("||", start + 2)
+        if end >= 0:
+            return text[start:end + 2], end + 2
+    char = text[start]
+    if char in "{([":
+        inner, end = _math_group(text, start)
+        if end > start:
+            return text[start:end], end
+    if _math_word_char(char):
+        end = start + 1
+        while end < len(text) and _math_word_char(text[end]):
+            end += 1
+        return text[start:end], end
+    if text.startswith("->", start):
+        return "->", start + 2
+    return char, start + 1
+
+
+def _append_math_atom(parent, atom: str):
+    if atom.startswith("||") and atom.endswith("||") and len(atom) >= 4:
+        parent.append(math_run("||"))
+        append_math_expression(parent, atom[2:-2])
+        parent.append(math_run("||"))
+    elif atom[:1] in "{([" and atom[-1:] in "})]":
+        parent.append(math_run(atom[0]))
+        append_math_expression(parent, atom[1:-1])
+        parent.append(math_run(atom[-1]))
+    else:
+        parent.append(math_run(atom))
+
+
+def _script_content(text: str, start: int):
+    if start >= len(text):
+        return None, start
+    if text[start] == "{":
+        return _math_group(text, start)
+    atom, end = _math_atom(text, start)
+    return atom, end
+
+
 def math_script(base: str, sub: str | None = None, sup: str | None = None):
-    tag = "m:sSubSup" if sub and sup else "m:sSub" if sub else "m:sSup"
+    tag = "m:sSubSup" if sub is not None and sup is not None else "m:sSub" if sub is not None else "m:sSup"
     node = OxmlElement(tag)
     expr = OxmlElement("m:e")
-    expr.append(math_run(base))
+    append_math_expression(expr, base)
     node.append(expr)
-    if sub:
+    if sub is not None:
         sub_node = OxmlElement("m:sub")
-        sub_node.append(math_run(sub))
+        append_math_expression(sub_node, sub)
         node.append(sub_node)
-    if sup:
+    if sup is not None:
         sup_node = OxmlElement("m:sup")
-        sup_node.append(math_run(sup))
+        append_math_expression(sup_node, sup)
         node.append(sup_node)
     return node
 
 
 def append_math_expression(parent, text: str):
-    """Append math text while rendering the manuscript's image-count subscript."""
-    pattern = re.compile(r"N\[img\]")
-    cursor = 0
-    for match in pattern.finditer(text):
-        if match.start() > cursor:
-            parent.append(math_run(text[cursor:match.start()]))
-        parent.append(math_script("N", sub="img"))
-        cursor = match.end()
-    if cursor < len(text):
-        parent.append(math_run(text[cursor:]))
+    """Build Word OMML script nodes for every subscript and superscript."""
+    index = 0
+    while index < len(text):
+        if text[index].isspace():
+            end = index + 1
+            while end < len(text) and text[end].isspace():
+                end += 1
+            parent.append(math_run(text[index:end]))
+            index = end
+            continue
+        atom, end = _math_atom(text, index)
+        sub = sup = None
+        while end < len(text) and text[end] in "_^":
+            marker = text[end]
+            content, after = _script_content(text, end + 1)
+            if content is None or after <= end + 1:
+                parent.append(math_run(atom + marker))
+                atom = ""
+                end += 1
+                continue
+            if marker == "_":
+                sub = content
+            else:
+                sup = content
+            end = after
+        if atom:
+            if sub is not None or sup is not None:
+                parent.append(math_script(atom, sub=sub, sup=sup))
+            else:
+                _append_math_atom(parent, atom)
+        index = end
 
 
 def add_equation(doc, source: str, equation_number: str):

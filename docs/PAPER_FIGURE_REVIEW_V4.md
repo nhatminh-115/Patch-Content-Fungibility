@@ -90,6 +90,6 @@ Scores use a 1–5 scale (5 is strongest).
 - Replaced the Figure 1 source with the latest user-supplied `D:/Download/Figure1_overview.png`; its panels show the fixed-slot intervention, geometric/diversity constraints, and selective transmission through anisotropic sensitivity and Value-path cancellation.
 - Tightened the spacing between the two density maps in Figure 4(b) using a nested grid; the plotted observations, axes, and source data are unchanged.
 - Updated the Figure 1 in-text description, alt text, caption, and manifest to match the supplied panels. Removed the non-publication disclaimer from the caption.
-- Rendered `N<sub>img</sub>` in prose and added Word subscript formatting for this symbol in the DOCX exporter, including its occurrence in displayed equations.
+- Updated the DOCX exporter to encode subscripts and superscripts throughout equations and inline prose as Word math/script structures; figure captions use semantic subscript/superscript markup where needed.
 - Replaced defensive novelty wording with a concise statement that the underlying analytical tools are established, removed an internal CSV path from the Results prose, and simplified the reproducibility statement. Substantive evidence boundaries remain in place.
 - Rebuilt figures from the existing source data and visually inspected the changed assets. No experiment, raw output, or quantitative result was changed.

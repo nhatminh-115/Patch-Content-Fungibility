@@ -438,16 +438,19 @@ def main() -> int:
                 equation_layout_tables = len(all_tables) - manuscript_tables
                 drawings_in_docx = sum(1 for node in xml.iter() if node.tag.endswith("}drawing"))
                 equations_in_docx = sum(1 for node in xml.iter() if node.tag == M+"oMath")
+                display_math_lines = sum(
+                    1 for table in all_tables for node in table.iter() if node.tag == M+"oMath")
+                inline_math_objects = equations_in_docx - display_math_lines
                 para_text = []
                 for para in xml.iter(W+"p"):
                     para_text.append("".join(n.text or "" for n in para.iter(W+"t")))
                 ref_nums = [int(m.group(1)) for value in para_text if (m := re.match(r"\[(\d+)\]\s", value))]
                 docx_valid = [n for n in names if n.startswith("word/media/")]
-                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and equations_in_docx >= 10 and equation_layout_tables == 10 and ref_nums == list(range(1,51))
+                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and display_math_lines >= 10 and equation_layout_tables == 10 and ref_nums == list(range(1,51))
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_structure_ok = False
     record("editable_docx_contains_three_tables_eight_figures_ten_equations_and_50_ieee_refs", docx_structure_ok,
-           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, Word math lines={equations_in_docx if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}.")
+           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}.")
 
     passed = all(v["status"] == "PASS" for v in checks.values())
     manifest = {"status":"PASS" if passed else "FAIL", "checks":checks,
