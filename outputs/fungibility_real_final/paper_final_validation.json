@@ -47,7 +47,7 @@
     },
     "bibliography_resolves_without_duplicates": {
       "status": "PASS",
-      "detail": "50 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
+      "detail": "51 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
     },
     "all_manuscript_figures_exist_and_are_v4_svg": {
       "status": "PASS",
@@ -65,9 +65,9 @@
       "status": "PASS",
       "detail": "Numeric evidence families absent from traceability map: []."
     },
-    "bibliography_has_50_complete_unique_published_records": {
+    "bibliography_has_51_complete_unique_published_records": {
       "status": "PASS",
-      "detail": "Entries=50; complete fields=True; duplicate normalized titles=0; duplicate DOIs=0."
+      "detail": "Entries=51; complete fields=True; duplicate normalized titles=0; duplicate DOIs=0."
     },
     "bibliography_numbering_matches_first_citation_and_sidecar": {
       "status": "PASS",
@@ -75,7 +75,7 @@
     },
     "ieee_citation_order_and_ranges_match_docx": {
       "status": "PASS",
-      "detail": "Citation clusters=26; ordering issues=[]; reference heading found=True; source/rendered tokens=32/32; ranges=7; exact match=True."
+      "detail": "Citation clusters=27; ordering issues=[]; reference heading found=True; source/rendered tokens=33/33; ranges=7; exact match=True."
     },
     "abstract_uses_no_defined_abbreviations": {
       "status": "PASS",
@@ -105,9 +105,9 @@
       "status": "PASS",
       "detail": "Parsed rows=4; integer correct counts, N=1,000 percentages, and percentage-point changes checked."
     },
-    "editable_docx_contains_three_tables_eight_figures_ten_equations_and_50_ieee_refs": {
+    "editable_docx_contains_three_tables_eight_figures_ten_equations_and_51_ieee_refs": {
       "status": "PASS",
-      "detail": "DOCX package PAPER_DRAFT_v4_synced.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=14, inline math objects=66, references=50."
+      "detail": "DOCX package PAPER_DRAFT_v4_synced.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=14, inline math objects=64, references=51."
     }
   },
   "passed_count": 27,

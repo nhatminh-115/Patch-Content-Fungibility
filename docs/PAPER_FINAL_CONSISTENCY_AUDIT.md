@@ -6,17 +6,17 @@
 
 ## Citations and references
 
-- The manuscript has **50 in-text citation keys and 50 bibliography records**. All keys resolve one-to-one, every entry is cited, citation numbering follows first appearance, and the standalone BibTeX file matches the embedded manuscript source.
+- The manuscript has **51 in-text citation keys and 51 bibliography records**. All keys resolve one-to-one, every entry is cited, citation numbering follows first appearance, and the standalone BibTeX file matches the embedded manuscript source.
 - Title, author list, year, venue, and a DOI or official proceedings/publisher record are present for every item. Normalized titles and DOI values have no duplicates.
-- The editable Word reference list is IEEE-numbered `[1]` through `[50]`; DOI is printed where present, with the official record link used when a DOI is not listed.
-- All 25 in-text citation clusters are strictly ascending and unique; the seven rendered numeric ranges and remaining individual citations match the source exactly in the DOCX.
+- The editable Word reference list is IEEE-numbered `[1]` through `[51]`; DOI is printed where present, with the official record link used when a DOI is not listed.
+- All 27 in-text citation clusters are strictly ascending and unique; the seven rendered numeric ranges and remaining individual citations match the source exactly in the DOCX.
 - PatchDropout is cited as the published WACV 2023 paper with DOI `10.1109/WACV56688.2023.00394`. The official CVF proceedings record lists pp. 3953–3962; a DOI-derived secondary catalog lists pp. 3942–3951. The manuscript follows the official CVF proceedings record and records the conflict in `PAPER_CITATION_AUDIT.md`.
 
 ## Tables, figures, and cross-references
 
 - The paper contains **3 tables** and **8 figures** (Figures 1–7 and Supplementary Figure S1).
 - Every figure/table number resolves to one object and matching caption. Every object follows its first textual callout.
-- Table I separates evidence cohorts and sampling units. Table II gives exact strict-confirmatory accuracy at each architecture's most aggressive tested budget. Table III gives correct counts and percentage-point changes for the separate classifier-carrier study.
+- Table I groups analyses into six primary result families while retaining separate sample units and endpoints. Table II gives exact strict-confirmatory accuracy at each architecture's most aggressive tested budget. Table III gives correct counts and percentage-point changes for the separate classifier-carrier study.
 - Figures use the existing reviewed SVG source set; the exporter embeds their high-resolution PNG previews in the DOCX.
 
 ## Numeric consistency
@@ -38,8 +38,8 @@ Table III was recomputed from `real_accuracy_summary.csv`. Its four architecture
 
 - Attention causal audit: `N=100` images; functional geometry: `N=100` images; joint-stream geometry: `N=100` images per model; multi-block operator: `N=100` held-out perturbations.
 - Strict confirmatory compression and real classifier-carrier benchmark: `N=1,000` held-out images per architecture. Operator-space carrier experiments remain separate `N=100` evidence.
-- The functional-geometry matrix `M_l` is the uncentered second moment of scalar class-margin gradients pooled over patch tokens. It is not the full-logit downstream Jacobian Gram `J^T J`. The separate joint-stream direction metric averages patch-margin gradients per image; it is also not the compression Jacobian.
-- PCA uses the centered covariance of calibration patch-feature rows and denominator `M_cal - 1`, where `M_cal` counts calibration patch observations. The solver matrix `H_J` is instead a readout-space Gram matrix. The full compression Jacobian maps the row-major flattened patch matrix to `d_z` logits, with `rvec(X)=vec(X^T)`; `d_z` is the class-logit count in the confirmatory runs.
+- The functional-geometry matrix `M_l` is the uncentered second moment of scalar class-margin gradients pooled over patch tokens. It is not the Gram matrix of the full downstream pre-classifier readout Jacobian `J^T J`. The separate joint-stream direction metric averages patch-margin gradients per image; it is also not the compression Jacobian.
+- PCA uses the centered covariance of calibration patch-feature rows and denominator `M_cal - 1`, where `M_cal` counts calibration patch observations. The solver matrix `H_J` is instead a readout-space Gram matrix. The confirmatory Jacobian maps the row-major flattened patch matrix to the pre-classifier readout `u`, with `rvec(X)=vec(X^T)`: `d_u=D` for normalized CLS readouts and `d_u=2D` for DINOv2 normalized CLS concatenated with mean normalized patch features. The linear classification head is excluded; classifier outcomes are measured through the actual downstream model.
 - The 10 displayed equations now cover fixed-slot replacement, the margin-gradient metric, head-wise attention weighting and measured Value-context change, joint token-by-feature perturbation, the full downstream Jacobian, Group Mean, the Tikhonov objective, its trace-scaled solver Gram and regularizer, the closed-form carrier update, and multiplicity-aware attention. Each equation is explained in nearby prose. The carrier update is exact for the stated local quadratic objective because the Group Mean residual sums to zero within each group; this does not make it an exact nonlinear classifier optimum.
 - The attention scalar `Gamma_h(a)` summarizes alignment with clean attention weights. It does not replace token-specific `Delta v[h,i]`; the displayed context change retains the measured post-normalization Value differences. The `log(m_j)` multiplicity correction is identified as prior ToMe machinery, not a novelty claim.
 
@@ -59,6 +59,6 @@ At the most aggressive tested budgets, rank-16/rank-32 recovery is 100%/233.3% f
 
 - `python scripts/validate_real_final_benchmark.py`: **PASS, 12/12 checks**.
 - `python scripts/validate_paper_final.py`: **PASS, 27/27 checks**, including the Top-1 recovery recomputation and IEEE citation order/range equality between Markdown and DOCX.
-- The editable DOCX has 3 native manuscript tables, 8 embedded figures, 10 numbered equation layout blocks containing editable Word math lines, and 50 ordered references. The title rule was removed, and figure-caption pairs are kept together.
-- All 13 rendered DOCX pages were visually inspected with LibreOffice page images. Figures, captions, tables, equations, and reference pagination remained visible without clipping or split figure captions.
+- The editable DOCX has 3 native manuscript tables, 8 embedded figures, 10 numbered equation layout blocks containing editable Word math lines, and 51 ordered references. The title rule was removed, and figure-caption pairs are kept together.
+- The current DOCX preserves all 13 existing OOXML tables and the figure, equation, and reference layout. Targeted prose in the Introduction, Related Work, Sections 4–7, and Conclusion, the condensed Table I primary findings, and corrected Equation (5) are synchronized with the manuscript. Current page-level rendering remains unverified because the renderer cannot find soffice.exe; the previous 13-page visual inspection predates this revision.
 - No experiments or raw outputs were changed.

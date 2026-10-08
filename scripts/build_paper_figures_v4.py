@@ -533,7 +533,7 @@ def fig_s1(root: Path, out: Path) -> None:
                           "Static Feature-PCA q=32":"q32", "Selective Feature-PCA q16 target30":"sel"}[method]
                 ax.annotate(suffix, (x,y), xytext=label_offsets[method], textcoords="offset points", fontsize=6.8, color=INK)
         ax.set_title(plot_labels.get(model,model),loc="left",color=INK); ax.set_xlabel("Full-model throughput (images/s)")
-        ax.set_ylim(49,84); polish_axis(ax)
+        ax.set_ylim(64,82); ax.set_yticks([65,70,75,80]); polish_axis(ax)
     axs[0,0].set_ylabel("Top-1 accuracy (%)"); axs[1,0].set_ylabel("Top-1 accuracy (%)")
     handles, labels = axs[0,0].get_legend_handles_labels()
     # union to include only the common five methods

@@ -1,10 +1,10 @@
 # Citation and bibliography audit
 
-**Scope:** final manuscript source and its 50-key IEEE reference set, checked on 2026-10-07.
+**Scope:** final manuscript source and its 51-key IEEE reference set, checked on 2026-10-08.
 
 ## Structural checks
 
-- Cited keys: **50**; bibliography entries: **50**.
+- Cited keys: **51**; bibliography entries: **51**.
 - Citation keys are unique and every bibliography entry is cited: **True**.
 - Bibliography source order equals first-citation order: **True**.
 - Embedded BibTeX and docs/PAPER_REFERENCES.bib are synchronized: **True**.
@@ -68,6 +68,7 @@ The bibliography uses the published conference, journal, or proceedings record w
 | 48 | adebayo2018sanity | Adebayo, Julius; Gilmer, Justin; Muelly, Michael; Goodfellow, Ian; Hardt, Moritz; Kim, Been | Sanity Checks for Saliency Maps | Advances in Neural Information Processing Systems, vol. 31, pp. 9505–9515, 2018 | DOI not listed; [official record](https://proceedings.neurips.cc/paper/2018/hash/294a8ed24b1ad22ec2e7efea049b8737-Abstract.html) |
 | 49 | chefer2021transformerinterp | Chefer, Hila; Gur, Shir; Wolf, Lior | Transformer Interpretability Beyond Attention Visualization | Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 782–791, 2021 | [DOI 10.1109/CVPR46437.2021.00084](https://doi.org/10.1109/CVPR46437.2021.00084); [official record](https://openaccess.thecvf.com/content/CVPR2021/html/Chefer_Transformer_Interpretability_Beyond_Attention_Visualization_CVPR_2021_paper.html) |
 | 50 | geiger2022causal | Geiger, Atticus; Wu, Zhengxuan; Potts, Christopher; Icard, Thomas; Goodman, Noah | Inducing Causal Structure for Interpretable Neural Networks | Proceedings of the 39th International Conference on Machine Learning, vol. 162, pp. 7324–7338, 2022 | DOI not listed; [official record](https://proceedings.mlr.press/v162/geiger22a.html) |
+| 51 | parodi2026zeroablation | Parodi, Felipe; Matelsky, Jordan K.; Segado, Melanie | Zero-Ablation Overstates Register Content Dependence in DINO Vision Transformers | Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW), pp. 4164–4170, 2026 | DOI not listed; [official CVF record](https://openaccess.thecvf.com/content/CVPR2026W/HOW/html/Parodi_Zero-Ablation_Overstates_Register_Content_Dependence_in_DINO_Vision_Transformers_CVPRW_2026_paper.html) |
 
 ## Metadata notes
 
@@ -75,4 +76,4 @@ The bibliography uses the published conference, journal, or proceedings record w
 - **PatchDropout:** the WACV 2023 CVF proceedings record reports pp. 3953–3962 and identifies the IEEE-published final proceedings version; that official CVF range is retained with DOI 10.1109/WACV56688.2023.00394. Some secondary DOI-derived catalogs report pp. 3942–3951, so this discrepancy is recorded rather than silently conflated.
 - **Published-version preference:** papers with conference, journal, or proceedings records are cited at those venues, including DINOv2 (TMLR 2024) and SVD-LLM (ICLR 2025), rather than at their earlier preprint records.
 
-No reference was added or removed to change the scientific scope. The set was checked for key/title/DOI duplication, unresolved and uncited keys, and metadata-field completeness.
+Parodi et al.’s CVPRW 2026 paper was added because the reviewer audit identified it as a close methodological precedent that was not yet cited in Related Work. Its title, authors, venue, year, and pages were verified against the official CVF record, which lists no DOI. The 51-record set was checked for key/title/DOI duplication, unresolved and uncited keys, and metadata-field completeness.

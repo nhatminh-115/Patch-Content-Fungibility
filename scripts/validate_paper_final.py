@@ -222,15 +222,15 @@ def main() -> int:
         norm_titles = [re.sub(r"[^a-z0-9]+", "", exporter.clean_tex(v.get("title", "")).lower())
                        for _, v in bib_entries]
         dois = [v.get("doi", "").strip().lower() for _, v in bib_entries if v.get("doi", "").strip()]
-        record("bibliography_has_50_complete_unique_published_records",
-               len(bib_entries) == 50 and complete and len(set(norm_titles)) == len(norm_titles) and len(set(dois)) == len(dois),
+        record("bibliography_has_51_complete_unique_published_records",
+               len(bib_entries) == 51 and complete and len(set(norm_titles)) == len(norm_titles) and len(set(dois)) == len(dois),
                f"Entries={len(bib_entries)}; complete fields={complete}; duplicate normalized titles={len(norm_titles)-len(set(norm_titles))}; duplicate DOIs={len(dois)-len(set(dois))}.")
         record("bibliography_numbering_matches_first_citation_and_sidecar",
                bib_order == first_cite_order and bib_block.group(1).strip() == external_bib.strip(),
                f"First-citation ordering={bib_order == first_cite_order}; external BibTeX synchronized={bib_block.group(1).strip() == external_bib.strip()}.")
     except (ValueError, OSError, IndexError) as exc:
         bib_entries, bib_fields, first_cite_order = [], {}, []
-        record("bibliography_has_50_complete_unique_published_records", False, f"Could not parse or validate bibliography: {exc}")
+        record("bibliography_has_51_complete_unique_published_records", False, f"Could not parse or validate bibliography: {exc}")
         record("bibliography_numbering_matches_first_citation_and_sidecar", False, "Bibliography parser or sidecar check failed.")
 
 
@@ -332,7 +332,8 @@ def main() -> int:
     equation_explanation_text = re.sub(r"<sub>(.*?)</sub>", r"_\1", text, flags=re.IGNORECASE)
     equation_explanations = all(s.lower() in equation_explanation_text.lower() for s in (
         "n_img denotes the number of image samples", "uncentered second moment of scalar margin gradients",
-        "pre-output-projection head context", "row-major order",
+        "pre-output-projection head context", "row-major order", "pre-classifier readout vector",
+        "d_u=2D", "excluding the linear classification head",
         "positive-semidefinite gram matrix of grouped jacobian blocks",
         "exact minimizer of the stated quadratic objective", "proportional-attention correction is used in token merging (tome)"))
     record("ten_display_equations_match_implementation_and_are_explained",
@@ -446,10 +447,10 @@ def main() -> int:
                     para_text.append("".join(n.text or "" for n in para.iter(W+"t")))
                 ref_nums = [int(m.group(1)) for value in para_text if (m := re.match(r"\[(\d+)\]\s", value))]
                 docx_valid = [n for n in names if n.startswith("word/media/")]
-                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and display_math_lines >= 10 and equation_layout_tables == 10 and ref_nums == list(range(1,51))
+                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and display_math_lines >= 10 and equation_layout_tables == 10 and ref_nums == list(range(1,52))
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_structure_ok = False
-    record("editable_docx_contains_three_tables_eight_figures_ten_equations_and_50_ieee_refs", docx_structure_ok,
+    record("editable_docx_contains_three_tables_eight_figures_ten_equations_and_51_ieee_refs", docx_structure_ok,
            f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}.")
 
     passed = all(v["status"] == "PASS" for v in checks.values())
