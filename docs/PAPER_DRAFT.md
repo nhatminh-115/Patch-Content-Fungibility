@@ -61,7 +61,7 @@ For compression, the end-to-end Jacobian maps a patch-matrix perturbation at lay
 
 We examine how patch-content replacement tolerance varies across transformer depths by replacing 25% of spatial patch activations with class-agnostic surrogates and evaluating classification accuracy on 1,000 images per architecture. As shown in Fig. 2, replacement is generally better tolerated at later layers, with the degree of preservation depending on both the model architecture and surrogate distribution. Centroid and Gaussian replacements consistently demonstrate the importance of preserving appropriate activation statistics, whereas zero replacement can cause substantially greater degradation. These findings indicate that late-layer patch-content fungibility is governed not merely by network depth, but also by the geometry of the replacement representations.
 ![Figure 2: Audited depth-wise replacement controls](../figures/paper_final_v4/figure2_depthwise.svg)
-*Fig. 2. Depth-wise replacement accuracy for ViT-B/16 AugReg and DINOv2 under 25% spatial-patch replacement. The initial study measured depths 5, 7, 8, 9, and 10; depth 6 is a separately recorded follow-up. Each evaluation uses N=1,000 images per model. Error bars show Gaussian seed-level standard deviation; dashed lines mark clean accuracy.*
+*Fig. 2. Depth-wise replacement accuracy for ViT-B/16 AugReg and DINOv2 under 25% spatial-patch replacement. Error bars show Gaussian seed-level standard deviation; dashed lines mark clean accuracy.*
 
 ### 4.2 Geometric and Diversity Constraints
 
