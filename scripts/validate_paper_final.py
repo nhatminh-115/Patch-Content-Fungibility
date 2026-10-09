@@ -17,6 +17,8 @@ CLAIMS = DOCS / "PAPER_FINAL_CLAIMS_TABLE.md"
 SAMPLES = DOCS / "PAPER_SAMPLE_SIZE_MAP.md"
 FIGS = ROOT / "figures" / "paper_final_v4"
 DOCX_PATH = DOCS / "PAPER_DRAFT_v5.docx"
+SUPPLEMENTARY_DRAFT = DOCS / "PAPER_SUPPLEMENTARY_DRAFT.md"
+SUPPLEMENTARY_DOCX = DOCS / "PAPER_SUPPLEMENTARY.docx"
 if not DOCX_PATH.is_file():
     DOCX_PATH = DOCS / "PAPER_DRAFT_v4.docx"
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -174,17 +176,25 @@ def main() -> int:
            f"Referenced figures={len(paths)}; missing={missing}; invalid={invalid}.")
 
     # Figure generation must be reproducible from the declared audited sources.
-    figure_names = ["figure1_overview.svg", "figure2_depthwise.svg", "figure3_geometry_diversity.svg",
-                    "figure4_anisotropic_geometry.svg", "figure5_value_path_cancellation.svg",
-                    "figure6_end_to_end_operator.svg", "figure7_operator_compression.svg",
-                    "supp/figureS1_real_carrier_boundary.svg"]
+    main_figure_names = ["figure1_overview.svg", "figure2_depthwise.svg", "figure3_geometry_diversity.svg",
+                         "figure4_anisotropic_geometry.svg", "figure5_value_path_cancellation.svg",
+                         "figure6_end_to_end_operator.svg", "figure7_operator_compression.svg"]
+    supplementary_figure_names = ["supp/figureS11_value_path_replication.svg",
+                                  "supp/figureS12_primary_qkv_decomposition.svg",
+                                  "supp/figureS13_real_carrier_boundary.svg"]
+    figure_names = main_figure_names + supplementary_figure_names
     absent = [n for n in figure_names if not (FIGS/n).is_file()]
     absent_png = [n[:-4]+".png" for n in figure_names if not (FIGS/(n[:-4]+".png")).is_file()]
+    stale_carrier_assets = [str(p.relative_to(FIGS)) for p in FIGS.rglob("figureS1_real_carrier_boundary.*")]
     script = ROOT/"scripts/build_paper_figures_v4.py"
-    script_ok = script.exists() and "fungibility_real_final/real_accuracy_throughput_frontier.csv" in script.read_text(encoding="utf-8")
+    script_text = script.read_text(encoding="utf-8") if script.exists() else ""
+    script_ok = ("fungibility_real_final/real_accuracy_throughput_frontier.csv" in script_text
+                 and "figureS13_real_carrier_boundary" in script_text
+                 and "figureS12_primary_qkv_decomposition" in script_text)
     sidecars = [FIGS/"FIGURE_MANIFEST.md", FIGS/"contact_sheet.png", DOCS/"PAPER_FIGURE_REVIEW_V4.md"]
-    record("publication_figures_present_source_scoped_and_reviewed", not absent and not absent_png and script_ok and all(p.is_file() for p in sidecars),
-           f"Missing SVGs={absent}; missing PNGs={absent_png}; generator has real-final input={script_ok}; manifest/contact/review={[p.is_file() for p in sidecars]}.")
+    record("publication_figures_present_source_scoped_and_reviewed",
+           not absent and not absent_png and not stale_carrier_assets and script_ok and all(p.is_file() for p in sidecars),
+           f"Missing SVGs={absent}; missing PNGs={absent_png}; stale S1 carrier assets={stale_carrier_assets}; generator source checks={script_ok}; manifest/contact/review={[p.is_file() for p in sidecars]}.")
 
     docx_path = DOCX_PATH
     docx_ok = False
@@ -194,11 +204,26 @@ def main() -> int:
                 media = [name for name in archive.namelist() if name.startswith("word/media/")]
                 document_xml = ET.fromstring(archive.read("word/document.xml"))
             drawings = sum(1 for node in document_xml.iter() if node.tag.endswith("}drawing"))
-            docx_ok = len(media) == 8 and drawings == 8
+            docx_ok = len(media) == 7 and drawings == 7
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_ok = False
-    record("docx_export_embeds_eight_reviewed_figures", docx_ok,
-           "DOCX package has eight inline figure drawings and eight embedded PNG media assets; page layout requires a renderer for visual confirmation.")
+    record("main_docx_embeds_seven_reviewed_figures", docx_ok,
+           "Main DOCX package contains exactly seven main-text figure drawings and seven embedded PNG assets; supplementary Figures S11–S13 are kept in the separate supplement DOCX.")
+
+    supplementary_docx_ok = False
+    supp_drawings = supp_media = supp_tables = 0
+    if SUPPLEMENTARY_DOCX.is_file():
+        try:
+            with zipfile.ZipFile(SUPPLEMENTARY_DOCX) as archive:
+                supp_media = sum(1 for name in archive.namelist() if name.startswith("word/media/"))
+                supp_xml = ET.fromstring(archive.read("word/document.xml"))
+            supp_drawings = sum(1 for node in supp_xml.iter() if node.tag.endswith("}drawing"))
+            supp_tables = sum(1 for node in supp_xml.iter() if node.tag.endswith("}tbl"))
+            supplementary_docx_ok = supp_media == 13 and supp_drawings == 13 and supp_tables == 4
+        except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
+            supplementary_docx_ok = False
+    record("supplementary_docx_embeds_all_figures_and_tables", supplementary_docx_ok,
+           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} tables; required 13 figures and four tables (evidence map plus Tables S1–S3).")
 
     # Traceability matrix covers every numeric claim family carried into the draft.
     tr = TRACE.read_text(encoding="utf-8-sig") if TRACE.exists() else ""
@@ -315,7 +340,7 @@ def main() -> int:
             table_callouts.setdefault(m.group(1).upper(), i)
     fig_labels = [label for _, label in fig_objects]
     cap_labels = [label for _, label in fig_captions]
-    fig_order_ok = fig_labels == cap_labels and len(fig_labels) == 8 and len(set(fig_labels)) == 8
+    fig_order_ok = fig_labels == cap_labels and len(fig_labels) == 7 and len(set(fig_labels)) == 7
     fig_placement_ok = all(label in figure_callouts and figure_callouts[label] < pos for pos, label in fig_objects)
     table_labels = [label for _, label in table_headings]
     table_cap_labels = [label for _, label in table_captions]
@@ -324,9 +349,8 @@ def main() -> int:
     resolved_figs = set(re.findall(r"\bFigure\s+(S?\d+)\b", text))
     resolved_tables = set(m.group(1).upper() for m in re.finditer(r"\bTable\s+([IVX]+)\b", text, re.I))
 
-    # Supplementary callouts in the main draft resolve against the supplementary manuscript,
-    # which is maintained separately and is not embedded in the eight-figure main DOCX.
-    supplementary_path = DOCS / "PAPER_SUPPLEMENTARY_DRAFT.md"
+    # Supplementary callouts resolve against the separate supplementary manuscript and DOCX.
+    supplementary_path = SUPPLEMENTARY_DRAFT
     supplementary_text = supplementary_path.read_text(encoding="utf-8-sig") if supplementary_path.is_file() else ""
     supplementary_lines = supplementary_text.splitlines()
     supplementary_objects = {}
@@ -350,9 +374,17 @@ def main() -> int:
         target = (DOCS / objects[0][1]).resolve()
         if not target.is_file():
             supplementary_refs_ok = False
+    supplementary_labels = sorted(supplementary_objects, key=lambda value: int(value.lstrip("S")))
+    expected_supplementary_labels = [f"S{i}" for i in range(1, 14)]
+    supplementary_numbering_ok = (supplementary_labels == expected_supplementary_labels
+                                  and all(len(supplementary_objects[label]) == 1
+                                          and len(supplementary_captions.get(label, [])) == 1
+                                          for label in expected_supplementary_labels)
+                                  and "figureS1_real_carrier_boundary" not in supplementary_text
+                                  and "figureS13_real_carrier_boundary.svg" in supplementary_text)
     resolved_figures_ok = resolved_figs == set(fig_labels) | supplementary_refs and supplementary_refs_ok
-    record("figure_cross_references_resolve_and_precede_objects", fig_order_ok and fig_placement_ok and resolved_figures_ok,
-           f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement objects/captions/files resolve={supplementary_refs_ok}; main placement={fig_placement_ok}.")
+    record("figure_cross_references_resolve_and_precede_objects", fig_order_ok and fig_placement_ok and resolved_figures_ok and supplementary_numbering_ok,
+           f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement labels={supplementary_labels}; object/caption/path resolution={supplementary_refs_ok}; placement={fig_placement_ok}; unique S1–S13 numbering={supplementary_numbering_ok}.")
     record("table_cross_references_resolve_and_precede_objects", table_order_ok and table_placement_ok and resolved_tables == set(table_labels),
            f"Table headings={table_labels}; captions={table_cap_labels}; callouts={sorted(resolved_tables)}; placement={table_placement_ok}.")
     equation_blocks = text.count("$$") // 2
@@ -475,10 +507,10 @@ def main() -> int:
                     para_text.append("".join(n.text or "" for n in para.iter(W+"t")))
                 ref_nums = [int(m.group(1)) for value in para_text if (m := re.match(r"\[(\d+)\]\s", value))]
                 docx_valid = [n for n in names if n.startswith("word/media/")]
-                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and display_math_lines >= 10 and equation_layout_tables == 10 and ref_nums == list(range(1,52))
+                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 7 and len(docx_valid) == 7 and display_math_lines >= 10 and ref_nums == list(range(1,52))
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_structure_ok = False
-    record("editable_docx_contains_three_tables_eight_figures_ten_equations_and_51_ieee_refs", docx_structure_ok,
+    record("editable_main_docx_contains_three_tables_seven_figures_ten_equations_and_51_ieee_refs", docx_structure_ok,
            f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}.")
 
     passed = all(v["status"] == "PASS" for v in checks.values())

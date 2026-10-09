@@ -606,93 +606,134 @@ def fig4(root: Path, out: Path) -> None:
     panel_label(axn, "b")
     save_figure(fig, out, "figure4_anisotropic_geometry")
 
+
 def fig5(root: Path, out: Path) -> None:
-    primary = read_csv(root/"outputs/fungibility_attention_causal_audit/qkv_decomposition.csv")
-    replication = read_csv(root/"outputs/fungibility_attention_causal_audit/replication_summary.csv")
-    primary_models = [
+    # Matched four-architecture comparison of two common attention conditions.
+    primary = read_csv(root / "outputs/fungibility_attention_causal_audit/causal_conditions.csv")
+    reduced = read_csv(root / "outputs/fungibility_attention_causal_audit/replication_summary.csv")
+    specs = [
+        ("deit_small", 8, "DeiT-Small", "a", primary),
+        ("vit_base", 7, "ViT-B/16 AugReg", "b", primary),
+        ("deit_tiny", 8, "DeiT-Tiny", "c", reduced),
+        ("dinov2", 8, "DINOv2 ViT-S/14", "d", reduced),
+    ]
+    patterns = [
+        ("global_coherent", "Coherent"),
+        ("random_sign", "Random sign"),
+        ("checkerboard", "Checkerboard"),
+    ]
+    conditions = [
+        ("full_perturbation", "Full Q/K/V + residual", BLUE),
+        ("frozen_attn_v_only_pert_res", "Frozen A; V + residual", TEAL),
+    ]
+    verified_rows = 0
+    fig, axs = plt.subplots(2, 2, figsize=(10.0, 6.7))
+    for ax, (model, depth, title, panel, rows) in zip(axs.flat, specs):
+        values = {condition: [] for condition, _, _ in conditions}
+        for pattern, _ in patterns:
+            for condition, _, _ in conditions:
+                matches = [
+                    r for r in rows
+                    if r["model_key"] == model
+                    and int(r["depth"]) == depth
+                    and r["token_pattern"] == pattern
+                    and r["feature_dir"] == "jac_top"
+                    and float(r["scale_s"]) == 1.0
+                    and r["condition"] == condition
+                ]
+                if len(matches) != 1:
+                    raise ValueError(
+                        f"Expected one Figure 5 row for {model}/{depth}/{pattern}/{condition}; "
+                        f"got {len(matches)}"
+                    )
+                value = float(matches[0]["dz_readout_l1"])
+                if not np.isfinite(value) or value < 0:
+                    raise ValueError(f"Invalid readout norm for {model}/{pattern}/{condition}: {value}")
+                values[condition].append(value)
+                verified_rows += 1
+
+        x = np.arange(len(patterns))
+        width = .34
+        for j, (condition, label, color) in enumerate(conditions):
+            xpos = x + (j - .5) * width
+            ax.bar(xpos, values[condition], width=width, color=color, label=label, zorder=3)
+            for xp, value in zip(xpos, values[condition]):
+                ax.annotate(
+                    f"{value:.3g}", (xp, value), xytext=(0, 3), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=6.5, color=INK
+                )
+        ax.set_xticks(x, [label for _, label in patterns])
+        ax.set_ylabel("Mean per-image readout change ‖Δz‖₂")
+        ymax = max(max(v) for v in values.values())
+        ax.set_ylim(0, ymax * 1.30 if ymax else 1.0)
+        ax.set_title(title, loc="center", color=INK, fontsize=9, pad=9)
+        ax.text(.5, 1.13, f"({panel})", transform=ax.transAxes, ha="center", va="bottom",
+                fontsize=10, weight="bold", color=INK)
+        polish_axis(ax)
+    if verified_rows != 24:
+        raise ValueError(f"Figure 5 expected 24 unique rows, verified {verified_rows}")
+    handles, labels = axs[0, 0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, loc="lower center", ncol=2,
+               bbox_to_anchor=(.5, .015), fontsize=7.7)
+    fig.subplots_adjust(left=.12, right=.98, bottom=.13, top=.92, wspace=.33, hspace=.56)
+    save_figure(fig, out, "figure5_value_path_cancellation")
+
+
+def figS12(root: Path, out: Path) -> None:
+    # Preserve the primary V-only versus K+V projection-path audit.
+    rows = read_csv(root / "outputs/fungibility_attention_causal_audit/qkv_decomposition.csv")
+    models = [
         ("deit_small", 8, "DeiT-Small · Block 8", "a"),
         ("vit_base", 7, "ViT-B/16 AugReg · Block 7", "b"),
     ]
-    replication_models = [
-        ("deit_tiny", "DeiT-Tiny · Block 8", "c"),
-        ("dinov2", "DINOv2 ViT-S/14 · Block 8", "d"),
-    ]
-    primary_patterns = [
+    patterns = [
         ("global_coherent", "Coherent"),
         ("random_sign", "Random sign"),
         ("checkerboard", "Checkerboard"),
     ]
-    replication_patterns = [
-        ("global_coherent", "Coherent"),
-        ("random_sign", "Random sign"),
-        ("checkerboard", "Checkerboard"),
+    pathways = [
+        ("V_only", "V-only (clean residual)", BLUE),
+        ("K_plus_V", "K+V (clean residual)", TEAL),
     ]
-    if [p[0] for p in primary_patterns] != [p[0] for p in replication_patterns]:
-        raise ValueError("Figure 5 must use the same token-pattern order in all four panels")
-    # These are distinct protocols: the primary Q/K/V projection controls keep
-    # the residual clean, while the reduced replication compares a full block
-    # perturbation (Q/K/V and residual) to frozen-A V-only with perturbed residual.
-    pathways = [("V_only", "V-only (clean Q/K)", BLUE), ("K_plus_V", "K+V (clean Q)", TEAL)]
-    conditions = [
-        ("full_perturbation", "Full Q/K/V + residual", BLUE),
-        ("frozen_attn_v_only_pert_res", "V-only (clean A; perturbed residual)", TEAL),
-    ]
-    fig, axs = plt.subplots(2, 2, figsize=(10.2, 7.0), sharey="row")
-    primary_x = np.arange(len(primary_patterns)); primary_width = .34
-    for ax, (model, depth, title, panel) in zip(axs[0], primary_models):
-        values = {}
-        for pathway, pathway_label, _ in pathways:
-            ys = []
-            for pattern, _ in primary_patterns:
-                matches = [r for r in primary if r["model_key"] == model and int(r["depth"]) == depth
-                           and r["token_pattern"] == pattern and r["feature_dir"] == "jac_top"
-                           and float(r["scale_s"]) == 1.0 and r["pathway"] == pathway]
+    fig, axs = plt.subplots(1, 2, figsize=(9.5, 3.7))
+    for ax, (model, depth, title, panel) in zip(axs, models):
+        values = {pathway: [] for pathway, _, _ in pathways}
+        for pattern, _ in patterns:
+            for pathway, _, _ in pathways:
+                matches = [
+                    r for r in rows
+                    if r["model_key"] == model and int(r["depth"]) == depth
+                    and r["token_pattern"] == pattern and r["feature_dir"] == "jac_top"
+                    and float(r["scale_s"]) == 1.0 and r["pathway"] == pathway
+                ]
                 if len(matches) != 1:
-                    raise ValueError(f"Expected one qkv row for {model}/{depth}/{pattern}/{pathway}; got {len(matches)}")
-                ys.append(float(matches[0]["dz_readout_l1"]))
-            values[pathway] = ys
-        # The CSV's legacy dz_readout_l1 field is computed with torch.norm(dim=-1),
-        # i.e. the per-image Euclidean norm (L2); do not relabel it as L1.
-        ax.bar(primary_x-primary_width/2, values["V_only"], width=primary_width,
-               color=BLUE, label="V-only (clean Q/K)", zorder=3)
-        ax.bar(primary_x+primary_width/2, values["K_plus_V"], width=primary_width,
-               color=TEAL, label="K+V (clean Q)", zorder=3)
-        ax.set_xticks(primary_x, [p[1] for p in primary_patterns])
-        ax.set_ylim(0, 3.25)
-        ax.set_title(title, loc="center", color=INK, pad=10)
+                    raise ValueError(
+                        f"Expected one Q/K/V row for {model}/{depth}/{pattern}/{pathway}; "
+                        f"got {len(matches)}"
+                    )
+                values[pathway].append(float(matches[0]["dz_readout_l1"]))
+        x = np.arange(len(patterns))
+        width = .34
+        for j, (pathway, label, color) in enumerate(pathways):
+            xpos = x + (j - .5) * width
+            ax.bar(xpos, values[pathway], width=width, color=color, label=label, zorder=3)
+            for xp, value in zip(xpos, values[pathway]):
+                ax.annotate(f"{value:.3g}", (xp, value), xytext=(0, 3), textcoords="offset points",
+                            ha="center", va="bottom", fontsize=6.6, color=INK)
+        ax.set_xticks(x, [label for _, label in patterns])
+        ax.set_ylabel("Mean per-image readout change ‖Δz‖₂")
+        ymax = max(max(v) for v in values.values())
+        ax.set_ylim(0, ymax * 1.30 if ymax else 1.0)
+        ax.set_title(title, loc="center", color=INK, fontsize=9, pad=9)
         ax.text(.5, 1.13, f"({panel})", transform=ax.transAxes, ha="center", va="bottom",
                 fontsize=10, weight="bold", color=INK)
         polish_axis(ax)
-    axs[0, 0].set_ylabel("Mean immediate readout change ‖Δz‖₂")
-    axs[0, 1].tick_params(labelleft=True)
-    axs[0, 0].legend(frameon=False, loc="upper left", fontsize=7.5)
+    handles, labels = axs[0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, loc="lower center", ncol=2,
+               bbox_to_anchor=(.5, .015), fontsize=7.7)
+    fig.subplots_adjust(left=.11, right=.99, bottom=.18, top=.83, wspace=.32)
+    save_figure(fig, out, "figureS12_primary_qkv_decomposition")
 
-    replication_x = np.arange(len(replication_patterns)); replication_width = .34
-    for ax, (model, title, panel) in zip(axs[1], replication_models):
-        for j, (condition, condition_label, color) in enumerate(conditions):
-            values = []
-            for pattern, _ in replication_patterns:
-                matches = [r for r in replication if r["model_key"] == model and int(r["depth"]) == 8
-                           and r["token_pattern"] == pattern and r["feature_dir"] == "jac_top"
-                           and float(r["scale_s"]) == 1.0 and r["condition"] == condition]
-                if len(matches) != 1:
-                    raise ValueError(f"Expected one replication row for {model}/{pattern}/{condition}; got {len(matches)}")
-                values.append(float(matches[0]["logit_margin_drop"]))
-            xpos = replication_x+(j-.5)*replication_width
-            ax.bar(xpos, values, width=replication_width, color=color,
-                   label=condition_label, zorder=3)
-        ax.axhline(0, color=GRAY, linewidth=.9, zorder=2)
-        ax.set_xticks(replication_x, [p[1] for p in replication_patterns])
-        ax.set_ylim(-.012, .12)
-        ax.set_title(title, loc="center", color=INK, pad=10)
-        ax.text(.5, 1.13, f"({panel})", transform=ax.transAxes, ha="center", va="bottom",
-                fontsize=10, weight="bold", color=INK)
-        polish_axis(ax)
-    axs[1, 0].set_ylabel("Signed true-class logit drop")
-    axs[1, 1].tick_params(labelleft=True)
-    axs[1, 0].legend(frameon=False, loc="upper left", fontsize=7.5)
-    fig.subplots_adjust(left=.12, right=.98, bottom=.10, top=.91, wspace=.27, hspace=.62)
-    save_figure(fig, out, "figure5_value_path_cancellation")
 
 def fig6(root: Path, out: Path) -> None:
     """Compare local and end-to-end prediction across models, plus finite-radius direction ratios."""
@@ -827,9 +868,9 @@ def fig_s1(root: Path, out: Path) -> None:
             ys = [float(r["top1_accuracy"]) for r in pts]
             ax.scatter(xs, ys, s=38, color=color, marker=marker, edgecolor=PAPER, linewidth=.5, label=name, zorder=3)
             label_offsets = {"Clean": (4, 7), "Hybrid Group Mean": (5, 8),
-                             "Static Feature-PCA q=16": (5, -13),
+                             "Static Feature-PCA q=16": (8, -17),
                              "Static Feature-PCA q=32": (5, 8),
-                             "Selective Feature-PCA q16 target30": (-22, 8)}
+                             "Selective Feature-PCA q16 target30": (-30, 14)}
             for r,x,y in zip(pts,xs,ys):
                 suffix = {"Clean":"clean", "Hybrid Group Mean":"GM", "Static Feature-PCA q=16":"q16",
                           "Static Feature-PCA q=32":"q32", "Selective Feature-PCA q16 target30":"sel"}[method]
@@ -847,7 +888,7 @@ def fig_s1(root: Path, out: Path) -> None:
                frameon=False,loc="lower center",ncol=5,bbox_to_anchor=(.5,.035))
     for ax,p in zip(axs.flat,"abcd"): panel_label(ax,p)
     fig.tight_layout(rect=(0,.10,1,.98),h_pad=1.7,w_pad=1.8)
-    save_figure(fig,out,"figureS1_real_carrier_boundary")
+    save_figure(fig,out,"figureS13_real_carrier_boundary")
 
 
 def figS11(root: Path, out: Path) -> None:
@@ -860,6 +901,7 @@ def figS11(root: Path, out: Path) -> None:
     patterns = [
         ("global_coherent", "Coherent"),
         ("random_sign", "Random sign"),
+        ("checkerboard", "Checkerboard"),
     ]
     conditions = [
         ("full_perturbation", "Full perturbation", BLUE),
@@ -881,8 +923,10 @@ def figS11(root: Path, out: Path) -> None:
             xpos = x + (j-.5)*width
             ax.bar(xpos, values, width=width, color=color, label=condition_label, zorder=3)
             for xp, value in zip(xpos, values):
-                ax.annotate(f"{value:.3g}", (xp, value), xytext=(0, 3 if value >= 0 else -3),
-                            textcoords="offset points", ha="center",
+                dx = -5 if j == 0 else 5
+                ax.annotate(f"{value:.3g}", (xp, value),
+                            xytext=(dx, 3 if value >= 0 else -3), textcoords="offset points",
+                            ha="right" if j == 0 else "left",
                             va="bottom" if value >= 0 else "top", fontsize=6.8, color=INK)
         ax.axhline(0, color=GRAY, linewidth=.8, zorder=2)
         ax.set_xticks(x, [p[1] for p in patterns])
@@ -902,12 +946,13 @@ FIGURE_SOURCES = {
     "figure2_depthwise": ("outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv; outputs/fungibility_v0_6/tiny_seed_results.csv; outputs/fungibility_v0_6/small_depth_fraction_summary.csv; outputs/fungibility_v0_6/small_seed_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v1_depth6_followup/vitb_depth6_results.csv; outputs/fungibility_v1_depth6_followup/dinov2_depth6_results.csv", "Depths 5-10 at 25% replacement. DeiT rows filter fraction=25% and use clean_acc, zero_acc, global_mean_acc (calibration-derived centroid), and gaussian_acc; Gaussian seed accuracies are reconstructed from zero_acc plus paired acc_diff and reconciled to the summary means. ViT-B/DINOv2 combine original depths 5, 7-10 with the separate depth-6 follow-up. All cohorts use 1,000 calibration and 1,000 evaluation images per architecture; Gaussian SD is across five DeiT seeds or three ViT-B/DINOv2 seeds."),
     "figure3_geometry_diversity": ("outputs/fungibility_v0_7/tiny_fraction_summary.csv; outputs/fungibility_v0_7/small_fraction_summary.csv; outputs/fungibility_v0_7/tiny_prototype_comparison.csv; outputs/fungibility_v0_7/small_prototype_comparison.csv; outputs/fungibility_v0_7/tiny_sign_flip_sweep.csv; outputs/fungibility_v0_7/small_sign_flip_sweep.csv; outputs/fungibility_v1/vitb_geometry_results.csv; outputs/fungibility_v1/dinov2_geometry_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v0_8/grouped_diversity_results.csv; outputs/fungibility_v0_8/statistical_comparisons.csv; outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv; outputs/fungibility_v0_9/pc_identity_results.csv; outputs/fungibility_v0_9/random_direction_results.csv; outputs/fungibility_v1/vitb_1d_results.csv; outputs/fungibility_v1/dinov2_1d_results.csv", "Panel (a): 50% replacement geometry controls and clean baselines for all four architectures. DeiT centroid and clean values come from the V0.7 fraction summaries; DeiT coordinate-shuffle error bars summarize three saved seed outcomes; DeiT sign inversion comes from the 100%-flip V0.7 control. ViT-B/DINOv2 use V1 geometry and clean-depth CSVs, with three coordinate-shuffle seeds. Each model uses N=1,000 evaluation and N=1,000 calibration images. Panel (b): grouped-diversity Top-1 curves for DeiT-Tiny/Small (three seeds) and ViT-B/16 AugReg/DINOv2 (five seeds), each with a clean-accuracy reference. Panel (c): complete replacement at Block 8 comparing calibration-derived natural PC1 with an energy-matched random 1D direction; per-seed outcomes are shown for all four architectures, with five seeds for DeiT and three for ViT-B/DINOv2. All PCA comparisons use the audited disjoint calibration/evaluation cohorts."),
     "figure4_anisotropic_geometry": ("outputs/fungibility_section5_cross_arch_extension/functional_geometry/pc_directional_sensitivity.csv; outputs/fungibility_section5_cross_arch_extension/functional_geometry/functional_spectrum_robustness.csv", "Panel (a): raw PC1-to-lowest-variance-PC directional margin-sensitivity ratios at depths 5, 7, 8, and 10, plotted as log10(ratio). Panel (b): threshold-defined near-null fraction at λ_k≤10⁻³λ_max. All four models use a matched N=100-image calibration cohort; the updated extension reports raw sensitivities, covariance eigengaps, metric spectra, and cutoff robustness separately."),
-    "figure5_value_path_cancellation": ("outputs/fungibility_attention_causal_audit/qkv_decomposition.csv; outputs/fungibility_attention_causal_audit/replication_summary.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json", "Panels (a,b): primary DeiT-Small Block 8 and ViT-B/16 AugReg Block 7 audits; feature_dir=jac_top, scale_s=1.0, V_only (clean Q/K, clean residual) and K_plus_V (clean Q, perturbed K/V, clean residual) pathways. Panels (c,d): reduced DeiT-Tiny and DINOv2 Block-8 replications; feature_dir=jac_top, scale_s=1.0, full_perturbation (perturbed Q/K/V and residual) and frozen_attn_v_only_pert_res (clean Q/K/A, perturbed V and residual). All four panels use coherent, random-sign, and checkerboard patterns in that order. Each cohort contains 100 image outcomes; the reduced-replication direction is estimated from the first four images."),
+    "figure5_value_path_cancellation": ("outputs/fungibility_attention_causal_audit/causal_conditions.csv; outputs/fungibility_attention_causal_audit/replication_summary.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json; patch_fungibility/attention_causal_audit.py", "All panels filter full_perturbation and frozen_attn_v_only_pert_res at feature_dir=jac_top and scale_s=1.0, depths 8/7/8/8 for DeiT-Small/ViT-B/DeiT-Tiny/DINOv2; patterns coherent, random-sign, checkerboard. dz_readout_l1 is the mean of per-image Euclidean norms (torch.norm(dim=-1)), not L1. N=100 images/model; Tiny/DINOv2 are reduced replications. DINOv2 readout concatenates CLS and mean patch representations."),
     "figure6_end_to_end_operator": ("outputs/fungibility_section5_cross_arch_extension/multiblock_prediction/model_specific_correlations.csv; outputs/fungibility_multiblock_operator/replication_summary.csv", "Panels (a,b): model-specific Pearson and Spearman correlations for the prescribed 100-perturbation mixture with stratified-bootstrap 95% intervals. Panel (c): multi-block top-mode / multi-block near-null finite-radius final-logit-L2 damage ratios at s=0.4 for four architectures."),
     "figure7_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures. Rank-16 and rank-32 outcomes are available in low_rank_ablation.csv and Table II; the figure itself contains only the rank-32 curve."),
-    "figureS1_real_carrier_boundary": ("outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv", "batch_size=64; all four architectures and available Clean/Group Mean/q16/q32/Selective q16 rows; fields top1_accuracy and img_per_sec. Output files reside in supp/."),
+    "figureS12_primary_qkv_decomposition": ("outputs/fungibility_attention_causal_audit/qkv_decomposition.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json", "DeiT-Small Block 8 and ViT-B/16 AugReg Block 7; feature_dir=jac_top; scale_s=1.0; V_only and K_plus_V; coherent, random-sign, checkerboard; N=100 images. Mean per-image immediate-readout Euclidean L2."),
+    "figureS13_real_carrier_boundary": ("outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv", "batch_size=64; all four architectures and available Clean/Group Mean/q16/q32/Selective q16 rows; fields top1_accuracy and img_per_sec. Output files reside in supp/."),
     "figureS10_dinov2_margin_diversity": ("outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv", "DINOv2 ViT-S/14 true-class logit margin versus K under 100% patch replacement at Block 8; points are five-seed means and error bars are sample SD across seeds. N=1,000 held-out evaluation images per seed. Top-1 remains near its floor and is not represented as recovered accuracy."),
-    "figureS11_value_path_replication": ("outputs/fungibility_attention_causal_audit/replication_summary.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json", "Block-8 reduced Value-path replication in DeiT-Tiny and DINOv2. Shows signed true-class logit drop (clean target logit minus perturbed target logit) for full perturbation versus frozen-attention V-only with perturbed residual under coherent and random-sign token patterns. N=100 image outcomes per model; direction estimated from the first four images; this is not the full Q/K/V decomposition."),
+    "figureS11_value_path_replication": ("outputs/fungibility_attention_causal_audit/replication_summary.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json", "Block-8 reduced replication in DeiT-Tiny and DINOv2. Signed true-class logit drops under full perturbation versus frozen-attention V-only with perturbed residual for coherent, random-sign, checkerboard. N=100 outcome images/model; direction estimated from first four images; not a full Q/K/V decomposition."),
 }
 
 
@@ -917,17 +962,19 @@ def write_manifest(out: Path) -> None:
         "figure2_depthwise": ("Depth-dependent replacement tolerance across four architectures", "Four-panel 2×2 depth sweep for DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, and DINOv2 ViT-S/14, comparing Zero, Centroid, Gaussian, and clean accuracy across depths 5-10."),
         "figure3_geometry_diversity": ("Geometry, token diversity, and feature-space direction", "Panel (a) compares 50% replacement geometry controls across four architectures. Panel (b) shows four common-scale Top-1 facets for token-position diversity under complete grouped-Gaussian replacement; DINOv2 margin remains separately reported in Figure S10. Panel (c) compares calibration-derived PC1 with an energy-matched random 1D direction under complete replacement at Block 8, with per-seed outcomes and the near-floor DINOv2 values explicitly labeled."),
         "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Shows architecture-dependent covariance-PC directional margin sensitivity and the depth-wise threshold-defined near-null fraction of M_l across four models."),
-        "figureS11_value_path_replication": ("Reduced Value-path replication", "Shows coherent and random-sign signed true-class logit drops for full and frozen-attention V-only perturbations in DeiT-Tiny and DINOv2."),
-        "figure5_value_path_cancellation": ("Value-path transmission and cancellation across four architectures", "All panels use coherent, random-sign, and checkerboard patterns in the same order. Panels (a,b) compare mean Euclidean readout change for the primary V-only and K+V projection-path controls; panels (c,d) show signed true-class logit drops for the reduced full-perturbation and frozen-attention V-only replications on a separate metric scale."),
+        "figureS11_value_path_replication": ("Reduced Value-path replication", "Shows coherent, random-sign, and checkerboard signed true-class logit drops for full and frozen-attention V-only perturbations in DeiT-Tiny and DINOv2."),
+        "figure5_value_path_cancellation": ("Matched Value-path transmission comparison", "All panels use the same full-perturbation and frozen-attention V-only-with-perturbed-residual conditions, patterns, and mean per-image readout L2. Small/ViT-B are primary audit models; Tiny/DINOv2 are reduced replications. Y-scales are architecture-specific; DINOv2 uses concatenated CLS and mean-patch readout."),
         "figure6_end_to_end_operator": ("Local and end-to-end damage prediction", "Model-specific prediction correlations and finite-radius directional damage contrasts across four architectures."),
         "figure7_operator_compression": ("Confirmatory operator-aware compression", "Plots N=1,000 accuracy-token curves across four architectures, including the measured rank-32 curve; no recovery percentage is encoded."),
-        "figureS1_real_carrier_boundary": ("Real-model carrier boundary", "Shows the measured accuracy-throughput tradeoff as a bounded supplementary result."),
+        "figureS12_primary_qkv_decomposition": ("Primary Q/K/V projection-path comparison", "Compares V-only with K+V in the primary DeiT-Small and ViT-B audits, with clean residuals and mean per-image immediate-readout L2."),
+        "figureS13_real_carrier_boundary": ("Real-model carrier boundary", "Shows the measured accuracy-throughput tradeoff as a bounded supplementary result."),
         "figureS10_dinov2_margin_diversity": ("DINOv2 margin across token diversity", "Shows the five-seed mean true-class logit margin across K; DINOv2 Top-1 remains near floor, so this margin change is not accuracy recovery."),
     }
     lines = ["# Figure Manifest v4", "", "Generated by `scripts/build_paper_figures_v4.py`. White background, DejaVu Sans, consistent typography; SVG and 300 dpi PNG saved for every panel. No models were executed.", ""]
     for i, (stem, (purpose, design)) in enumerate(titles.items(), 1):
         filename = f"{stem}.svg / {stem}.png"
-        if stem in ("figureS1_real_carrier_boundary", "figureS10_dinov2_margin_diversity", "figureS11_value_path_replication"):
+        if stem in ("figureS10_dinov2_margin_diversity", "figureS11_value_path_replication",
+                    "figureS12_primary_qkv_decomposition", "figureS13_real_carrier_boundary"):
             filename = f"supp/{filename}"
         sources, filters = FIGURE_SOURCES[stem]
         design_notes = "user-supplied source image preserved pixel-for-pixel in PNG and embedded in an SVG wrapper; no empirical data."
@@ -946,7 +993,13 @@ def write_manifest(out: Path) -> None:
         if stem == "figureS11_value_path_replication":
             design_notes = "Two independent axes preserve architecture-specific signed true-class logit-drop scales. The outcome is clean target logit minus perturbed target logit; signed bars include negative values and no seed uncertainty is implied. This supplement shows the reduced coherent/random-sign replication, not a complete Q/K/V decomposition."
         if stem == "figure5_value_path_cancellation":
-            design_notes = "Four panels use coherent, random-sign, and checkerboard in that order. The top row shows mean L2 immediate-readout change: V-only uses clean Q/K and residual, whereas K+V uses clean Q, perturbed K/V, and clean residual with attention recomputed. The lower row shows signed true-class logit drop (clean minus perturbed target logit): full perturbation changes Q/K/V and residual, whereas frozen-attention V-only keeps clean Q/K/A and perturbs V/residual. Metrics use separate rows and y scales; the lower row is a reduced replication, not a full Q/K/V decomposition."
+            design_notes = "Every panel filters full_perturbation and frozen_attn_v_only_pert_res at feature_dir=jac_top and scale_s=1.0 and uses mean per-image Euclidean readout L2. Coherent, random-sign, checkerboard patterns appear in order. Panel scales vary by architecture. Tiny/DINOv2 are reduced replications; DINOv2 uses concatenated CLS and mean-patch readout."
+        if stem == "figureS12_primary_qkv_decomposition":
+            design_notes = "Primary projection-path evidence is limited to DeiT-Small Block 8 and ViT-B/16 AugReg Block 7. V-only perturbs V with clean Q/K and residual; K+V perturbs K/V with clean Q and residual and recomputes attention. Bars use mean per-image Euclidean L2."
+        if stem == "figureS13_real_carrier_boundary":
+            design_notes = "Bounded classifier-carrier result with measured accuracy and full-model throughput; q=16 has a narrow ViT-B/16 AugReg frontier contribution."
+        if stem == "figureS11_value_path_replication":
+            design_notes = "Two independent axes preserve architecture-specific signed true-class logit-drop scales; bars include negative values and no seed uncertainty is implied. This reduced replication shows coherent, random-sign, and checkerboard patterns, not a complete Q/K/V decomposition."
         generator = "`scripts/build_paper_figures_v4.py`"
         lines += [f"## {i}. {purpose}", "", f"- **Final filename:** `{filename}`", f"- **Purpose:** {design}", f"- **Source data:** {sources}", f"- **Generating script:** {generator}", f"- **Rows / filters:** {filters}", f"- **Design notes:** {design_notes}", ""]
     (out/"FIGURE_MANIFEST.md").write_text("\n".join(lines), encoding="utf-8")
@@ -978,15 +1031,31 @@ def contact_sheet(out: Path) -> None:
 def main() -> None:
     parser=argparse.ArgumentParser()
     parser.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[1])
-    root=parser.parse_args().root.resolve()
+    parser.add_argument("--only", nargs="+",
+                        choices=("figure5", "figureS11", "figureS12", "figureS13"),
+                        help="Regenerate only selected assets; the default rebuilds the complete figure set.")
+    args = parser.parse_args()
+    root=args.root.resolve()
     out=root/"figures/paper_final_v4"; (out/"supp").mkdir(parents=True,exist_ok=True)
     setup_style()
-    fig1(root,out); fig2(root,out); fig3(root,out); fig4(root,out); fig5(root,out); fig6(root,out); fig7(root,out)
-    fig_s1(root,out/"supp")
-    figS10(root,out)
-    figS11(root,out/"supp")
+    if args.only is None:
+        fig1(root,out); fig2(root,out); fig3(root,out); fig4(root,out); fig5(root,out); fig6(root,out); fig7(root,out)
+        fig_s1(root,out/"supp")
+        figS10(root,out)
+        figS11(root,out/"supp")
+        figS12(root,out/"supp")
+    else:
+        for asset in args.only:
+            if asset == "figure5":
+                fig5(root,out)
+            elif asset == "figureS11":
+                figS11(root,out/"supp")
+            elif asset == "figureS12":
+                figS12(root,out/"supp")
+            elif asset == "figureS13":
+                fig_s1(root,out/"supp")
     write_manifest(out); contact_sheet(out)
-    print(f"Rendered 7 main figures + 3 supplements; contact sheet: {out/'contact_sheet.png'}")
+    print(f"Rendered requested figure assets; contact sheet: {out/'contact_sheet.png'}")
 
 
 if __name__ == "__main__":

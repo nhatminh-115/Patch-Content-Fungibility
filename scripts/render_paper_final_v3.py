@@ -216,7 +216,7 @@ def main() -> None:
     figure5(root,out/"figure5_value_end_to_end.svg")
     figure6(root,out/"figure6_confirmatory_frontier.svg")
     figure7(root,out/"figure7_low_rank.svg")
-    figure_s1(root,supp/"figureS1_real_carrier_boundary.svg")
+    figure_s1(root,supp/"figureS13_real_carrier_boundary.svg")
     print(f"Rendered 7 main figures and one supplement to {out}")
 
 

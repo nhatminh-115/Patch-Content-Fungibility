@@ -1,30 +1,25 @@
 # Paper Submission Readiness
 
-**Status: REPORTING AUDIT COMPLETE; REQUIRED VALIDATORS PASS; DOCX VISUALLY INSPECTED**
+**Status: Figure 5 consistency correction complete; both Word deliverables validated and visually inspected (2026-10-09).**
 
-The manuscript-wide scientific-writing and reporting audit covered Sections 3–9, figure/table captions, and the supplementary draft. Cohort definitions, seed construction, aggregation, and statistical procedures are documented in Methods and the supplement; Results lead with findings and retain the evidence needed to interpret them. Existing claims, numerical results, and sample-unit boundaries were preserved. No experiment was rerun and no raw output was modified.
+This focused correction used audited experimental outputs only. It did not rerun models, change raw results, or alter unrelated manuscript sections. The main Word document’s hand-formatted tables were preserved while its main-text figures and supplementary cross-reference were updated.
 
 ## Completed checks
 
-- [x] `python scripts/validate_real_final_benchmark.py`: PASS, 12/12 checks, 2026-10-09.
-- [x] `python scripts/validate_paper_final.py`: PASS, 27/27 checks, 2026-10-09.
-- [x] The manuscript retains separate sample units for image audits, held-out perturbations, confirmatory compression, and classifier-carrier evaluation.
-- [x] Seed counts, split construction, aggregation rules, and statistical tests are recorded by evidence family in the supplementary reproducibility section.
-- [x] The figure review record distinguishes DeiT-Small's 57.6% ± 5.9% coordinate-permutation seed mean from the legacy 58.2% majority-correctness summary.
-- [x] AUROC is expanded at first use in the main text.
-- [x] `docs/PAPER_DRAFT_v5.docx` was regenerated from the current Markdown. It contains eight reviewed figures, three manuscript data tables, ten numbered equations, and 51 references; the existing formatted table and equation layouts were preserved.
-- [x] All 15 rendered DOCX pages were visually inspected. Figures, equations, tables, captions, and references have no visible clipping or overlap.
-- [x] Existing local edits were preserved; no raw experimental outputs or generated figure data were changed during this audit.
-
-## Remaining issues
-
-No blocking manuscript or layout issue was identified by this audit or the required validators. The manuscript continues to state the limits of the local functional metrics and the practical classifier-carrier results without treating them as general deployment evidence.
+- [x] Figure 5 uses exactly `full_perturbation` and `frozen_attn_v_only_pert_res` for all four architectures, with `feature_dir=jac_top`, `scale_s=1.0`, and each model’s specified block. All 24 model × pattern × condition rows are unique.
+- [x] Figure 5 reports the mean per-image Euclidean (L_2) immediate-readout change for coherent, random-sign, and checkerboard patterns. The caption describes the distinct DINOv2 CLS-plus-mean-patch readout.
+- [x] Primary clean-residual V-only/(K+V) decomposition remains in Supplementary Figure S12; reduced Tiny/DINO signed-logit replications remain in Figure S11. The held-out classifier-carrier plot is now Supplementary Figure S13; Figure S1 remains spatial-mask robustness.
+- [x] Supplementary Figures S1–S13 have unique object/caption labels. Supplementary Tables S1–S3 and the evidence-map table are present in the editable Word supplement; table notation uses readable subscripts and superscripts.
+- [x] `docs/PAPER_DRAFT_v5.docx` contains seven main figures, three manuscript data tables, ten numbered equations, and 51 references. Its formatted table XML matches the saved pre-edit version.
+- [x] `docs/PAPER_SUPPLEMENTARY.docx` contains 13 supplementary figures and four tables and was exported without inventing a bibliography.
+- [x] All 15 main DOCX pages and 13 supplementary DOCX pages were rendered and visually inspected. Figure 5, Tables S1–S3, and Figures S11–S13 have no visible clipping, duplication, or split caption.
+- [x] `python scripts/validate_real_final_benchmark.py`: PASS, 12/12 checks.
+- [x] `python scripts/validate_paper_final.py`: PASS, 28/28 checks.
 
 ## Validation and review artifacts
 
 - `outputs/fungibility_real_final/validation_manifest.json`
 - `outputs/fungibility_real_final/paper_final_validation.json`
 - `docs/PAPER_FIGURE_REVIEW_V4.md`
-- `docs/PCF_PAPER_SKILL_TEST.md`
-- `docs/PCF_PAPER_UPGRADE_REPORT.md`
-- Final DOCX render preview: `D:\Study\ResCancel\pcf_reporting_audit_qa_20261009c`
+- `docs/PAPER_DRAFT_v5.docx`
+- `docs/PAPER_SUPPLEMENTARY.docx`

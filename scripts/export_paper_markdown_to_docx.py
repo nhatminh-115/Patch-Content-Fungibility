@@ -286,7 +286,7 @@ def add_styled_fragment(p, text, key_to_num, *, size=10.3, bold=None, italic=Non
         set_font(run, size=size, bold=bold, italic=italic, color=color)
 
 
-def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, size=10.3):
+def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, size=10.3, keep_together=False, keep_with_next=False):
     p = doc.add_paragraph()
     if caption or center:
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -328,8 +328,10 @@ def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, 
                             size=8.8 if caption else size, italic=caption,
                             color="4C5963" if caption else "202A32")
     p.paragraph_format.space_after = Pt(4 if caption else 5)
-    if caption:
+    if caption or keep_together:
         p.paragraph_format.keep_together = True
+    if keep_with_next:
+        p.paragraph_format.keep_with_next = True
     if not caption:
         p.paragraph_format.line_spacing = 1.08
     return p
@@ -683,10 +685,18 @@ def add_reference(doc, index: int, fields):
     set_font(run, size=8.8, color="26343D")
 
 
-def build(source: Path, output: Path):
+def build(source: Path, output: Path, *, allow_no_bibliography: bool = False):
     markdown = source.read_text(encoding="utf-8-sig")
-    bib_block, entries = bibliography(markdown)
-    body = markdown.replace(bib_block.group(0), "")
+    bib_block = re.search(re.escape(FENCE) + r"bibtex\s*\n(.*?)\n" + re.escape(FENCE), markdown, re.S)
+    if bib_block:
+        _, entries = bibliography(markdown)
+        body = markdown.replace(bib_block.group(0), "")
+    elif allow_no_bibliography:
+        entries = []
+        body = markdown
+    else:
+        bibliography(markdown)
+        raise ValueError("BibTeX block is missing")
     order = cited_order(body, entries)
     fields_by_key = dict(entries)
     key_to_num = {key: i + 1 for i, key in enumerate(order)}
@@ -758,9 +768,10 @@ def build(source: Path, output: Path):
         if heading:
             level, title = len(heading.group(1)), heading.group(2).strip()
             if title == "References":
-                doc.add_heading("References", level=1)
-                for number, key in enumerate(order, 1):
-                    add_reference(doc, number, fields_by_key[key])
+                if order:
+                    doc.add_heading("References", level=1)
+                    for number, key in enumerate(order, 1):
+                        add_reference(doc, number, fields_by_key[key])
                 references_inserted = True
             elif level == 1:
                 p = doc.add_paragraph(style="Title")
@@ -808,14 +819,26 @@ def build(source: Path, output: Path):
             paragraph.append(nxt)
             i += 1
         joined = " ".join(paragraph).replace("\\ ", "").strip()
-        add_inline_paragraph(doc, joined, key_to_num)
+        is_supp_table_caption = joined.startswith("**Table S")
+        is_supp_figure_caption = joined.startswith("**Supplementary Figure")
+        is_supp_carrier_figure_intro = joined.startswith("The held-out classifier-carrier study reports accuracy and measured full-model throughput")
+        add_inline_paragraph(
+            doc, joined, key_to_num,
+            keep_together=(r"v^\top M_\ell v=" in joined or is_supp_table_caption or is_supp_figure_caption),
+            keep_with_next=(joined.startswith("Figure 4 characterizes two complementary properties") or is_supp_table_caption or is_supp_carrier_figure_intro),
+        )
 
-    if not references_inserted:
+    if not references_inserted and order:
         doc.add_heading("References", level=1)
         for number, key in enumerate(order, 1):
             add_reference(doc, number, fields_by_key[key])
-    doc.core_properties.title = "Patch-Content Fungibility: Geometry, Functional Transmission, and Operator-Aware Token Compression"
-    doc.core_properties.subject = "Evidence-checked manuscript with IEEE-numbered references"
+    manuscript_title = "Patch-Content Fungibility: Geometry, Functional Transmission, and Operator-Aware Token Compression"
+    if allow_no_bibliography:
+        doc.core_properties.title = f"Supplementary Material for: {manuscript_title}"
+        doc.core_properties.subject = "Supplementary figures, tables, and reproducibility details"
+    else:
+        doc.core_properties.title = manuscript_title
+        doc.core_properties.subject = "Evidence-checked manuscript with IEEE-numbered references"
     output.parent.mkdir(parents=True, exist_ok=True)
     doc.save(output)
     print(f"Created {output}; references={len(order)}; figures={image_count}; tables={table_count}; equations={equation_count}")
@@ -826,5 +849,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--allow-no-bibliography", action="store_true",
+                        help="Export supplementary material without inventing a BibTeX bibliography.")
     args = parser.parse_args()
-    build(args.source.resolve(), args.output.resolve())
+    build(args.source.resolve(), args.output.resolve(),
+          allow_no_bibliography=args.allow_no_bibliography)
