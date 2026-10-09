@@ -1,26 +1,24 @@
 # Paper Submission Readiness
 
-**Status: MANUSCRIPT REVISED; FIGURES APPROVED; DOCX STRUCTURE VALIDATED — PAGE-RENDER QA UNAVAILABLE**
+**Status: REPORTING AUDIT COMPLETE; REQUIRED VALIDATORS PASS; DOCX VISUALLY INSPECTED**
 
-The manuscript prose was selectively upgraded after the PCF skill's audit-only test passed. Scientific results, quantitative claims, evidence units, and figure data remain unchanged. The current draft keeps the carrier branch bounded and secondary.
+The manuscript-wide scientific-writing and reporting audit covered Sections 3–9, figure/table captions, and the supplementary draft. Cohort definitions, seed construction, aggregation, and statistical procedures are documented in Methods and the supplement; Results lead with findings and retain the evidence needed to interpret them. Existing claims, numerical results, and sample-unit boundaries were preserved. No experiment was rerun and no raw output was modified.
 
 ## Completed checks
 
-- [x] Real-final benchmark gate passes: 12/12 checks; authoritative real-final evidence is present.
-- [x] Manuscript and v4 figure publication gate passes: 16/16 checks.
-- [x] Structure, related-work positioning, claim boundaries, sample units, and practical limitations were reviewed during the initial manuscript revision; original V1 raw outputs remain unchanged.
-- [x] Visual review accepted seven main figures and one supplement; all have SVG and 300 dpi PNG outputs.
-- [x] 2026-10-07 figure-style pass removed embedded headline/footer text, fixed Figure 2's Clean-reference collision and added an in-panel zoom showing all replacement curves with two dashed connectors, changed Figure 5 to paired bars, removed Figure 6's bottom note, and tightened Figure 7's per-architecture accuracy ranges without clipping data; all eight figures were rebuilt and visually inspected.
-- [x] Figure 1 replaced with the user-supplied overview image; its source is retained and the manuscript-compatible SVG embeds the supplied image unchanged.
-- [x] Figure 2 includes an isolated post hoc depth-6 follow-up (N=1,000 calibration and N=1,000 evaluation images per architecture); original V1 raw outputs remain unchanged, and the manuscript labels the extension explicitly.
-- [x] Figure 3 uses two explicit panels with model/replacement conditions, clean references, and seed-level summaries; the shared-versus-independent panel was removed at the user's request, with empirical source values unchanged.
-- [x] Figure sources, row filters, and design decisions are recorded in `figures/paper_final_v4/FIGURE_MANIFEST.md`.
-- [x] `docs/PAPER_DRAFT_v4.docx` was regenerated from the revised Markdown after the figure pass; structural check confirms eight inline figures, eight embedded PNGs, and 12 formatted references.
-- [x] The practical carrier remains a bounded, mixed result; the full-J oracle is described as offline.
+- [x] `python scripts/validate_real_final_benchmark.py`: PASS, 12/12 checks, 2026-10-09.
+- [x] `python scripts/validate_paper_final.py`: PASS, 27/27 checks, 2026-10-09.
+- [x] The manuscript retains separate sample units for image audits, held-out perturbations, confirmatory compression, and classifier-carrier evaluation.
+- [x] Seed counts, split construction, aggregation rules, and statistical tests are recorded by evidence family in the supplementary reproducibility section.
+- [x] The figure review record distinguishes DeiT-Small's 57.6% ± 5.9% coordinate-permutation seed mean from the legacy 58.2% majority-correctness summary.
+- [x] AUROC is expanded at first use in the main text.
+- [x] `docs/PAPER_DRAFT_v5.docx` was regenerated from the current Markdown. It contains eight reviewed figures, three manuscript data tables, ten numbered equations, and 51 references; the existing formatted table and equation layouts were preserved.
+- [x] All 15 rendered DOCX pages were visually inspected. Figures, equations, tables, captions, and references have no visible clipping or overlap.
+- [x] Existing local edits were preserved; no raw experimental outputs or generated figure data were changed during this audit.
 
-## Remaining verification limit
+## Remaining issues
 
-DOCX page rendering could not be completed on this Windows host: the packaged renderer requires `soffice.exe`, which is absent, and `WINWORD` is not available on PATH. The refreshed DOCX package and its eight embedded images were checked structurally, but page layout has not been visually verified.
+No blocking manuscript or layout issue was identified by this audit or the required validators. The manuscript continues to state the limits of the local functional metrics and the practical classifier-carrier results without treating them as general deployment evidence.
 
 ## Validation and review artifacts
 
@@ -29,3 +27,4 @@ DOCX page rendering could not be completed on this Windows host: the packaged re
 - `docs/PAPER_FIGURE_REVIEW_V4.md`
 - `docs/PCF_PAPER_SKILL_TEST.md`
 - `docs/PCF_PAPER_UPGRADE_REPORT.md`
+- Final DOCX render preview: `D:\Study\ResCancel\pcf_reporting_audit_qa_20261009c`

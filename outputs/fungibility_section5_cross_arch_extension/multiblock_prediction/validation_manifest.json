@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "device": "cuda",
+  "models": {
+    "deit_small": {
+      "model_id": "deit_small_patch16_224",
+      "depth": 8,
+      "readout": "normalized CLS readout",
+      "D_readout": 384,
+      "N_patches": 196,
+      "N_reference_images": 20,
+      "N_perturbations": 100,
+      "scale_s": 0.4,
+      "linearization_image_global_index": 29
+    },
+    "deit_tiny": {
+      "model_id": "deit_tiny_patch16_224",
+      "depth": 8,
+      "readout": "normalized CLS readout",
+      "D_readout": 192,
+      "N_patches": 196,
+      "N_reference_images": 20,
+      "N_perturbations": 100,
+      "scale_s": 0.4,
+      "linearization_image_global_index": 29
+    },
+    "vit_base": {
+      "model_id": "vit_base_patch16_224.augreg_in1k",
+      "depth": 8,
+      "readout": "normalized CLS readout",
+      "D_readout": 768,
+      "N_patches": 196,
+      "N_reference_images": 20,
+      "N_perturbations": 100,
+      "scale_s": 0.4,
+      "linearization_image_global_index": 29
+    },
+    "dinov2": {
+      "model_id": "dinov2_vits14_lc",
+      "depth": 8,
+      "readout": "official CLS+mean-patch linear readout",
+      "D_readout": 768,
+      "N_patches": 256,
+      "N_reference_images": 20,
+      "N_perturbations": 100,
+      "scale_s": 0.4,
+      "linearization_image_global_index": 29
+    }
+  },
+  "calibration_split_seeds": {
+    "calibration": 9101,
+    "evaluation": 9201
+  },
+  "prediction_metrics": "Pearson and Spearman between ||A_8 DeltaP|| or ||J_8_to_L DeltaP|| and observed final-logit L2 change",
+  "perturbation_families": {
+    "top_end_to_end_modes": 25,
+    "middle_end_to_end_modes": 25,
+    "end_to_end_null_modes": 25,
+    "isotropic_gaussian_controls": 25
+  },
+  "bootstrap": {
+    "replicates": 2000,
+    "seed": 52026,
+    "method": "stratified percentile bootstrap; resample 25 perturbations within each family",
+    "confidence_level": 0.95
+  },
+  "unit_and_limit": "100 designed perturbation vectors per architecture, each evaluated on the same 20-image calibration reference batch; vectors are the correlation unit, not images/tokens. J is linearized at the first image.",
+  "existing_outputs_modified": false,
+  "git_head_at_run": "b7ccab0e9e5799bb4a702f61195db109a203151d",
+  "rows": {
+    "per_perturbation_results": 400,
+    "model_specific_correlations": 8,
+    "within_family_correlations": 32,
+    "stratified_bootstrap_correlations": 16000
+  },
+  "checkpoint_provenance": "../checkpoint_provenance.json"
+}

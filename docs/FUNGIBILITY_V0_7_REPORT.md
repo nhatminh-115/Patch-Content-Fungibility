@@ -42,16 +42,10 @@ Using $N_{\text{calib}} = 1,000$ and $N_{\text{eval}} = 1,000$ strictly disjoint
      rather, Blocks 7-9 inhabit a coherent late-layer representation manifold aligned
      along a shared regional centroid (cos(mu_7, mu_8) = 0.89-0.91, cos(mu_9, mu_8) = 0.88-0.93).
 
-2. REFUTATION OF ARBITRARY FILL (H4 Refuted):
-   - Coordinate Permutation: Shuffling channel dimensions (preserving norm, mean, variance)
-     causes catastrophic collapse across both architectures:
-     * Tiny (50% replacement): Acc collapses from 66.3% to 52.2% (dz = +0.561, p = 1.80e-61).
-     * Small (50% replacement): Acc falls from 75.6% to 58.2% (dz = +0.755, p = 5.20e-100).
-     Downstream blocks strictly require exact coordinate-channel correspondence.
-   - Sign Inversion: Reversing prototype direction (-mu_8) completely destroys classification:
-     * Tiny (50% replacement): Acc drops to 0.7% (dz = +1.084, p = 6.07e-171).
-     * Small (50% replacement): Acc drops to 10.5% (dz = +0.903, p = 1.16e-131).
-     Partial sign flips (25%, 50%, 75%) show a monotonic dose-response collapse.
+2. GEOMETRY-SENSITIVE REPLACEMENT:
+   - Coordinate permutation preserves centroid norm and its coordinate-value multiset while reassigning values to channels. At 50% replacement, ordinary per-seed Top-1 means ± sample SD across three runs are 50.1% ± 7.9% for Tiny and 57.6% ± 5.9% for Small, versus single-run centroid controls of 66.3% and 75.6%.
+   - The legacy `coord_perm_avg` accuracy values (52.2% Tiny; 58.2% Small) are per-image majority-correctness rates: binary correctness is averaged across three seeds and thresholded at 0.5. They are neither arithmetic means of seed-level Top-1 nor ensemble predictions. The associated paired margin contrasts are Δm=0.945 (d_z=0.561, p=1.80e-61) and Δm=1.868 (d_z=0.755, p=5.20e-100), respectively.
+   - Sign inversion preserves norm while reversing orientation; its single-run Top-1 values are 0.7% (Tiny) and 10.5% (Small). These results indicate sensitivity to feature-coordinate assignment and direction in the tested settings, not a universal requirement for exact coordinate correspondence. Partial sign-flip outcomes are reported in the dose-response analysis.
 
 3. MONOTONIC COSINE ALIGNMENT TRAJECTORY:
    - Evaluated across synthetic vectors r_alpha with exact norm ||r_alpha|| = ||mu_8|| and
@@ -120,7 +114,7 @@ $$\text{Prototype Retention}(f) = \frac{\text{Damage}_{\text{zero}}(f) - \text{D
 
 $$\text{Prototype Advantage} = \text{Margin}(\mu_8) - \text{Margin}(\text{Control})$$
 
-All hypothesis tests use $N=1,000$ independent evaluation images. 95% Bootstrap CIs are based on 10,000 paired resamples. BH-FDR $q$-values are corrected within logical contrast families.
+All hypothesis tests use $N=1,000$ independent evaluation images. 95% Bootstrap CIs are based on 10,000 paired resamples. BH-FDR $q$-values are corrected within logical contrast families. In rows marked Coordinate Permuted†, Acc (Ctrl) is the per-image majority-correctness rate across three coordinate-shuffle seeds (threshold at 0.5); it is not a seed-mean Top-1 accuracy or a prediction ensemble. The margin-advantage statistics use averaged per-image margins, and McNemar's test compares centroid correctness with the derived majority-correctness outcomes. Other control accuracy cells are standard single-run Top-1.
 
 | Architecture | Control Vector | Advantage ($\Delta m$) | 95% Bootstrap CI | Cohen's $d_z$ | Paired $t$-test $p$ | BH-FDR $q$ | Acc ($\mu_8$) | Acc (Ctrl) | McNemar $p$ |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -132,7 +126,7 @@ All hypothesis tests use $N=1,000$ independent evaluation images. 95% Bootstrap 
 | | Wrong Depth 7 ($\mu_7$) | **+0.001** | [-0.004, +0.007] | **+0.013** | $0.677$ | $0.713$ | 66.3% | 66.1% | $0.727$ |
 | | Norm-Matched $\mu'_7$ | **-0.002** | [-0.005, +0.001] | **-0.037** | $0.236$ | $0.278$ | 66.3% | 66.1% | $0.625$ |
 | | Wrong Depth 9 ($\mu_9$) | **+0.001** | [+0.000, +0.003] | **+0.084** | $0.008$ | $0.017$ | 66.3% | 66.3% | $1.000$ |
-| | Coordinate Permuted | **+0.945** | [+0.842, +1.050] | **+0.561** | $1.80 \times 10^{-61}$ | $4.80 \times 10^{-61}$ | 66.3% | 52.2% | $7.97 \times 10^{-30}$ |
+| | Coordinate Permuted† | **+0.945** | [+0.842, +1.050] | **+0.561** | $1.80 \times 10^{-61}$ | $4.80 \times 10^{-61}$ | 66.3% | 52.2% | $7.97 \times 10^{-30}$ |
 | | Full Inversion ($-\mu_8$) | **+3.096** | [+2.920, +3.272] | **+1.084** | $6.07 \times 10^{-171}$ | $4.85 \times 10^{-170}$ | 66.3% | 0.7% | $1.10 \times 10^{-195}$ |
 | | Cosine $\alpha = 0.0$ | **+0.904** | [+0.816, +0.993] | **+0.577** | $1.39 \times 10^{-64}$ | $2.78 \times 10^{-64}$ | 66.3% | 50.8% | $3.59 \times 10^{-30}$ |
 | **DeiT-Small**| Zero Ablation | **+1.800** | [+1.670, +1.930] | **+0.676** | $5.39 \times 10^{-83}$ | $1.08 \times 10^{-82}$ | 75.6% | 63.0% | $4.18 \times 10^{-28}$ |
@@ -143,7 +137,7 @@ All hypothesis tests use $N=1,000$ independent evaluation images. 95% Bootstrap 
 | | Wrong Depth 7 ($\mu_7$) | **-0.001** | [-0.005, +0.002] | **-0.019** | $0.539$ | $0.567$ | 75.6% | 75.5% | $1.000$ |
 | | Norm-Matched $\mu'_7$ | **-0.001** | [-0.004, +0.003] | **-0.010** | $0.743$ | $0.750$ | 75.6% | 75.5% | $1.000$ |
 | | Wrong Depth 9 ($\mu_9$) | **+0.001** | [+0.000, +0.002] | **+0.094** | $3.04 \times 10^{-3}$ | $4.68 \times 10^{-3}$ | 75.6% | 75.7% | $1.000$ |
-| | Coordinate Permuted | **+1.868** | [+1.717, +2.022] | **+0.755** | $5.20 \times 10^{-100}$ | $1.39 \times 10^{-99}$ | 75.6% | 58.2% | $7.75 \times 10^{-35}$ |
+| | Coordinate Permuted† | **+1.868** | [+1.717, +2.022] | **+0.755** | $5.20 \times 10^{-100}$ | $1.39 \times 10^{-99}$ | 75.6% | 58.2% | $7.75 \times 10^{-35}$ |
 | | Full Inversion ($-\mu_8$) | **+2.913** | [+2.714, +3.114] | **+0.903** | $1.16 \times 10^{-131}$ | $9.25 \times 10^{-131}$ | 75.6% | 10.5% | $6.55 \times 10^{-189}$ |
 | | Cosine $\alpha = 0.0$ | **+1.728** | [+1.590, +1.866] | **+0.697** | $1.81 \times 10^{-88}$ | $3.62 \times 10^{-88}$ | 75.6% | 60.1% | $1.97 \times 10^{-32}$ |
 
@@ -186,9 +180,11 @@ At 100% patch replacement, **all 196 spatial patch tokens** are replaced simulta
 | **Zero Ablation** | 7.9% | 1.973 | 36.9% | 2.503 |
 | **Block-8 Mean $\mu_8$** | 10.2% | 2.432 | 17.0% | 3.663 |
 | **Best Wrong Mean ($\mu_7$)** | 7.5% | 2.806 | 12.2% | 4.170 |
-| **Coordinate Permuted** | 0.9% | 2.806 | 21.1% | 4.269 |
+| **Coordinate Permuted†** | 0.9% | 2.806 | 21.1% | 4.269 |
 | **Orthogonal Vector ($\alpha=0$)** | 1.4% | 2.944 | 22.4% | 2.915 |
 | **Sign Inverted $-\mu_8$** | 0.4% | 3.313 | 10.1% | 4.544 |
+
+† Coordinate-permuted accuracy is the legacy per-image majority-correctness rate across three shuffle seeds, as defined above; it is not the arithmetic mean of seed-level Top-1 accuracy or an ensemble prediction. Other rows show standard single-run Top-1.
 
 #### Scientific Explanation of the 100% Collapse
 Why does $\mu_8$ perform near baseline up to 75% replacement ($73.6\%$ on Small), yet collapse to $17.0\%$ at 100%?
@@ -280,4 +276,4 @@ The results reject both extremes of prior interpretation:
 
 ### Saved-output correction for the 50% DeiT-Small geometry rows
 
-The previously summarized DeiT-Small coordinate-permutation and full sign-inversion accuracies did not match the archived V0.7 outputs. The report now records 58.2% and 10.5%, respectively, and its paired statistics use the corresponding rows in small_prototype_comparison.csv. Raw experiment outputs were not modified.
+The earlier DeiT-Small coordinate-permutation and sign-inversion summary used saved V0.7 outputs but did not distinguish their aggregation units. The 58.2% coordinate-permutation value is the legacy per-image majority-correctness rate across three seeds; the ordinary seed-level Top-1 mean is 57.6% (sample SD 5.9%). The 10.5% sign-inversion value is a single-run Top-1 estimate. Paired statistics remain tied to the corresponding archived comparison rows; raw experiment outputs were not modified.

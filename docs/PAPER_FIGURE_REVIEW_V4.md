@@ -107,13 +107,29 @@ Scores use a 1–5 scale (5 is strongest).
 
 - Added DeiT-Tiny and DeiT-Small to panel (a), alongside ViT-B/16 AugReg and DINOv2 ViT-S/14. The same model color/marker mapping is used in panels (a) and (b).
 - Panel (a) uses color-coded bars for the saved 50% replacement centroid, coordinate-shuffle, and sign-inversion controls, with model-specific clean baselines. Coordinate-shuffle bars summarize three saved seeds per model with individual outcomes and sample-SD error bars; no models were rerun.
-- Moved both figure-level panel labels to the same horizontal baseline. Corrected the manuscript-facing DeiT-Small coordinate-shuffle aggregate and sign-inversion values to match their saved source CSVs (58.2% and 10.5%).
+- Moved both figure-level panel labels to the same horizontal baseline. The plotted DeiT-Small coordinate-shuffle summary is the arithmetic seed mean, 57.6% ± 5.9%; 58.2% is the distinct legacy per-image majority-correctness aggregation. The single-run sign-inversion value is 10.5%.
 - Updated the Figure 3 caption, sample-size map, claim table, number traceability, figure manifest, and editable DOCX. Source CSVs and raw outcomes are unchanged.
 
 
 ## Figure 4 functional-geometry update on 2026-10-09
 
-- Kept panel (a) as the depth-wise PC1-to-lowest-variance-PC directional margin-sensitivity ratio and verified its labels against `covariance_function_alignment.csv`; the depth-8 ratios are 24.4553 for DeiT-Small and 0.0241773 for ViT-B/16 AugReg.
-- Replaced panel (b) with the depth-wise fraction of M_ℓ eigenvalues at or below 10⁻³λ_max, from `fungible_dimension.csv`. Endpoint labels report 57.03% (DeiT-Small) and 49.61% (ViT-B) at depth 10; both begin at 0.26% at depth 5.
-- Removed the standardized PCA score-density maps rather than moving them to the supplement: they described score distributions but did not provide an independent functional-sensitivity result, and standardization obscured raw variance scale. Effective-rank changes are reported in Section 5.1 from the same audited CSV.
-- Regenerated Figure 4 SVG, 300-dpi PNG, preview, manifest, and contact sheet from existing CSVs only. No models were executed, no experiments were run, and no raw measurements changed.
+- Superseded by the cross-architecture audit. The legacy covariance eigenvalues were flipped before sorting the eigenvectors, leaving them in ascending variance order. Historical PC1 and PCbottom labels were reversed, so the earlier ratios and interpretation were invalid.
+- Historical source CSVs remain unchanged. Correctly ordered PC directions, raw sensitivities, covariance eigengaps, PSD checks, and cutoff-robust spectra in the isolated Section 5 extension now drive Figure 4.
+- The corrected ViT-B depth-8 ratio is 65.2 in the new float64 reanalysis. Its selected lowest-variance eigenvector is weakly separated (relative eigengap \(1.53\times10^{-5}\)); the manuscript identifies this as a sample-eigenvector comparison.
+
+
+## Figure 3 PCA-aligned variation panel on 2026-10-09
+
+- Added panel (c), centered below the geometry-control panel (a) and the four-architecture diversity facets (b). The bottom comparison uses model colors, hatching for the energy-matched random direction, seed-level outcomes overlaid on mean bars, and explicit labels for the near-floor DINOv2 means.
+- Panel (c) uses existing audited rows only: DeiT natural PC1 from `pc_identity_results.csv` and matched random 1D directions from `random_direction_results.csv`; ViT-B/DINOv2 use the corresponding V1 1D result CSVs. Seed IDs are checked in the generator (five per condition for DeiT; three for ViT-B/DINOv2).
+- The plotted means reconcile to the manuscript claims: 18.64/10.80% (Tiny), 28.08/20.78% (Small), 40.10/6.70% (ViT-B), and 0.17/0.00% (DINOv2). DINOv2 remains labeled as near the accuracy floor; no margin scale is mixed into the Top-1 panel.
+- The SVG, 300-dpi PNG, preview, Figure Manifest, contact sheet, sample-size map, claim-number traceability, supplementary seed cross-reference, and DOCX were updated. The rendered DOCX page containing Figure 3 was reviewed; labels, values, caption, and cross-panel placement are legible. No models were run and no raw outputs changed.
+
+
+## Section 5 cross-architecture update on 2026-10-09
+
+- Figure 4 now covers all four architectures at depths 5, 7, 8, and 10. Panel (a) uses correctly ordered covariance PC1 and lowest-variance-PC sensitivity directions; panel (b) uses the \(10^{-3}\lambda_{\max}\) threshold-defined near-null fraction. DINOv2 cutoff sensitivity and normalized effective ranks are in Supplementary Table S2.
+- Figure 5 now uses coherent, random-sign, and checkerboard patterns in that order across all four panels. Panels (a,b) show primary V-only/K+V subprojection controls; panels (c,d) show distinct reduced full-perturbation/frozen-attention V-only conditions. The caption identifies the Q/K/V and residual choices, separates mean readout L2 change from signed true-class logit drop, and does not equate full perturbation with K+V.
+- Audit correction: checkerboard outcomes were present in `replication_summary.csv`; the previous generator pattern list had omitted them. The regenerated Figure 5 now includes the audited rows for Tiny and DINOv2. The raw CSVs were not changed. The final Figure 5 image and rendered DOCX page were visually inspected.
+- Figure 6 separates model-specific Pearson and Spearman correlations from the finite-radius top-mode/near-null damage ratio. Intervals resample perturbations within four fixed families; perturbation vectors are not images.
+- Revised Figure 4/6 and Supplementary Figure S11 SVG/PNG, previews, figure manifest, contact sheet, manuscript text, tables, traceability maps, and evidence matrix. No old raw outputs were modified.

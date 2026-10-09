@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "device": "cuda",
+  "num_images": 100,
+  "sample_split": "first 100 of existing calibration split",
+  "split_seeds": {
+    "calibration": 9101,
+    "evaluation": 9201
+  },
+  "depths": [
+    5,
+    7,
+    8,
+    10
+  ],
+  "models": {
+    "deit_tiny": {
+      "model_id": "deit_tiny_patch16_224",
+      "readout": "cls_token",
+      "embed_dim": 192,
+      "num_patches": 196,
+      "elapsed_seconds": 1.9517786502838135
+    },
+    "deit_small": {
+      "model_id": "deit_small_patch16_224",
+      "readout": "cls_token",
+      "embed_dim": 384,
+      "num_patches": 196,
+      "elapsed_seconds": 2.1188466548919678
+    },
+    "vit_base": {
+      "model_id": "vit_base_patch16_224.augreg_in1k",
+      "readout": "cls_token",
+      "embed_dim": 768,
+      "num_patches": 196,
+      "elapsed_seconds": 6.007050514221191
+    },
+    "dinov2": {
+      "model_id": "dinov2_vits14_lc",
+      "readout": "cls_and_patch_mean",
+      "embed_dim": 384,
+      "num_patches": 256,
+      "elapsed_seconds": 2.476684331893921
+    }
+  },
+  "source": "scripts/run_section5_cross_arch_extension.py",
+  "metric_definition": "mean outer product of per-image, per-patch gradient of the clean predicted-class vs clean runner-up logit margin",
+  "metric_notation": "D x D margin-gradient second moment; distinct from the all-patch readout Jacobian Gram",
+  "DINOv2_readout": "official linear_head on concatenated normalized CLS and mean normalized patch features",
+  "covariance_definition": "centered pooled patch activation covariance from the same N_img=100 image cohort",
+  "numeric_policy": {
+    "accumulation_dtype": "float64",
+    "eigensolver_dtype": "float64",
+    "psd_tolerance_relative_to_lambda_max": 1e-10,
+    "primary_near_null_cutoff": 0.001,
+    "cutoff_sensitivity_values": [
+      0.0001,
+      0.001,
+      0.01
+    ],
+    "ratio_denominator_instability_threshold_relative_to_lambda_max": 1e-10
+  },
+  "existing_outputs_modified": false,
+  "rows": {
+    "functional_spectrum_robustness": 48,
+    "pc_directional_sensitivity": 16,
+    "raw_eigenspectrum": 6912
+  },
+  "git_head_at_run": "b7ccab0e9e5799bb4a702f61195db109a203151d",
+  "checkpoint_provenance": "../checkpoint_provenance.json"
+}

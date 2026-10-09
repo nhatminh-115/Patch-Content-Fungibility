@@ -1,0 +1,8 @@
+{
+  "calibration_seed": 9101,
+  "evaluation_seed": 9201,
+  "calibration_size": 1000,
+  "evaluation_size": 1000,
+  "same_first_100_calibration_ids_for_geometry": true,
+  "same_first_20_calibration_ids_for_multiblock": true
+}

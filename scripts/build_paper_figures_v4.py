@@ -10,6 +10,7 @@ import csv
 import json
 import re
 import statistics
+import numpy as np
 from collections import defaultdict
 from pathlib import Path
 
@@ -269,13 +270,20 @@ def fig2(root: Path, out: Path) -> None:
 
 
 def fig3(root: Path, out: Path) -> None:
-    fig = plt.figure(figsize=(14.6, 7.1))
-    grid = fig.add_gridspec(2, 3, width_ratios=[1.55, .95, .95], hspace=.40, wspace=.42)
-    ax = fig.add_subplot(grid[:, 0])
+    fig = plt.figure(figsize=(14.2, 8.6))
+    outer = fig.add_gridspec(
+        2, 2, width_ratios=[1.05, 1.72], height_ratios=[1.16, .84],
+        hspace=.48, wspace=.40,
+    )
+    ax = fig.add_subplot(outer[0, 0])
+    diversity_grid = outer[0, 1].subgridspec(2, 2, wspace=.38, hspace=.48)
     diversity_axes = [
-        fig.add_subplot(grid[0, 1]), fig.add_subplot(grid[0, 2]),
-        fig.add_subplot(grid[1, 1]), fig.add_subplot(grid[1, 2]),
+        fig.add_subplot(diversity_grid[0, 0]), fig.add_subplot(diversity_grid[0, 1]),
+        fig.add_subplot(diversity_grid[1, 0]), fig.add_subplot(diversity_grid[1, 1]),
     ]
+    # A centered, narrower third panel keeps the bottom row visually balanced.
+    pca_grid = outer[1, :].subgridspec(1, 3, width_ratios=[.68, 1.64, .68], wspace=.04)
+    ax_pc = fig.add_subplot(pca_grid[0, 1])
     all_arch_specs = [
         ("deit_tiny_patch16_224", "DeiT-Tiny", BLUE, "o"),
         ("deit_small_patch16_224", "DeiT-Small", TEAL, "s"),
@@ -326,7 +334,7 @@ def fig3(root: Path, out: Path) -> None:
             }
         else:
             rows = [r for r in v1_geometry[model] if abs(float(r["fraction"]) - .5) < 1e-9]
-            clean = next(float(r["top1_accuracy"]) * 100 for r in v1_depth[model] if r["condition"] == "CLEAN")
+            clean = 100 * next(float(r["top1_accuracy"]) for r in v1_depth[model] if r["condition"] == "CLEAN")
             by_condition = {
                 "CENTROID": [r for r in rows if r["condition"] == "CENTROID"],
                 "COORDINATE_PERMUTED_CENTROID": [r for r in rows if r["condition"] == "COORDINATE_PERMUTED_CENTROID"],
@@ -368,7 +376,7 @@ def fig3(root: Path, out: Path) -> None:
     ax.set_xticks(range(3), condition_labels)
     ax.set_xlim(-.60, 2.60); ax.set_ylim(0, 84)
     ax.set_ylabel("Top-1 accuracy (%)")
-    ax.set_title("Geometry at 50% replacement", loc="left", color=INK, pad=10)
+    ax.set_title("Geometry at 50% replacement", loc="left", color=INK, pad=9)
     polish_axis(ax)
 
     # (b) Architecture-specific accuracy facets for the grouped-diversity sweep.
@@ -400,23 +408,111 @@ def fig3(root: Path, out: Path) -> None:
         ax_b.set_xscale("log", base=2)
         ax_b.set_xticks(ks, [str(k) for k in ks])
         ax_b.set_ylim(0, 84)
-        ax_b.set_title(model_label, loc="left", color=INK, fontsize=9.0, pad=5)
-        ax_b.set_xlabel(f"Distinct vectors, K (N={196 if model != 'dinov2' else 256})", fontsize=7.7)
+        ax_b.set_title(model_label, loc="left", color=INK, fontsize=8.7, pad=4)
+        patch_count = 256 if model == "dinov2" else 196
+        ax_b.set_xlabel(f"Distinct vectors, K ({patch_count} patches)", fontsize=7.3)
         if index % 2 == 0:
-            ax_b.set_ylabel("Top-1 accuracy (%)")
+            ax_b.set_ylabel("Top-1 accuracy (%)", fontsize=7.8)
         polish_axis(ax_b)
 
-    # Keep panel labels on the same figure-level baseline despite the unequal panel heights.
-    fig.text(.012, .988, "(a)", ha="left", va="top", fontsize=10, weight="bold", color=INK)
-    fig.text(.405, .988, "(b)", ha="left", va="top", fontsize=10, weight="bold", color=INK)
+    # (c) Calibration-derived PC1 versus a variance-matched random 1D direction.
+    deit_pc1 = read_csv(root / "outputs/fungibility_v0_9/pc_identity_results.csv")
+    deit_random = read_csv(root / "outputs/fungibility_v0_9/random_direction_results.csv")
+    v1_1d = {
+        "vitb": read_csv(root / "outputs/fungibility_v1/vitb_1d_results.csv"),
+        "dinov2": read_csv(root / "outputs/fungibility_v1/dinov2_1d_results.csv"),
+    }
+    pca_rows = {}
+    for model, model_label, color, marker in all_arch_specs:
+        if model.startswith("deit_"):
+            pc1_rows = [r for r in deit_pc1 if r["model"] == model
+                        and r["condition_type"] == "natural" and r["pc_index"] == "1"]
+            random_rows = [r for r in deit_random if r["model"] == model]
+            pc1_seeds = {int(r["seed"]) for r in pc1_rows}
+            random_seeds = {int(r["seed"]) for r in random_rows}
+            expected_pc1 = set(range(17001, 17006))
+            expected_random = set(range(18001, 18006))
+            if (len(pc1_rows) != 5 or len(random_rows) != 5
+                    or pc1_seeds != expected_pc1 or random_seeds != expected_random):
+                raise ValueError(f"Unexpected audited PCA seed rows for {model}: PC1={pc1_seeds}; random={random_seeds}.")
+            pc1_values = [100 * float(r["accuracy"]) for r in pc1_rows]
+            random_values = [100 * float(r["accuracy"]) for r in random_rows]
+        else:
+            model_rows = v1_1d[model]
+            pc1_rows = [r for r in model_rows if r["condition"] == "NATURAL_PC1"]
+            random_rows = [r for r in model_rows if r["condition"] == "RANDOM_1D"]
+            pc1_seeds = {int(float(r["seed"])) for r in pc1_rows}
+            random_seeds = {int(float(r["seed"])) for r in random_rows}
+            expected = {25001, 25002, 25003}
+            if (len(pc1_rows) != 3 or len(random_rows) != 3
+                    or pc1_seeds != expected or random_seeds != expected):
+                raise ValueError(f"Unexpected audited PCA seed rows for {model}: PC1={pc1_seeds}; random={random_seeds}.")
+            pc1_values = [100 * float(r["top1_accuracy"]) for r in pc1_rows]
+            random_values = [100 * float(r["top1_accuracy"]) for r in random_rows]
+        pca_rows[model] = {"pc1": pc1_values, "random": random_values}
+
+        center = all_arch_specs.index((model, model_label, color, marker))
+        group_x = float(center)
+        for condition, values, offset in (("pc1", pc1_values, -.18), ("random", random_values, .18)):
+            x = group_x + offset
+            mean = statistics.mean(values)
+            bar = ax_pc.bar(
+                x, mean, width=.28,
+                color=color if condition == "pc1" else "white",
+                alpha=.42 if condition == "pc1" else 1.0,
+                edgecolor=color, linewidth=.9,
+                hatch=None if condition == "pc1" else "///", zorder=2,
+            )
+            jitter = [((j / (len(values) - 1)) - .5) * .07 for j in range(len(values))]
+            if condition == "pc1":
+                ax_pc.scatter([x + dx for dx in jitter], values, s=19, marker=marker,
+                              color=color, edgecolor=PAPER, linewidth=.5, zorder=4)
+            else:
+                ax_pc.scatter([x + dx for dx in jitter], values, s=19, marker=marker,
+                              facecolors=PAPER, edgecolors=color, linewidth=.95, zorder=4)
+            if model == "dinov2":
+                # Explicit labels keep the near-floor DINOv2 values interpretable on the shared scale.
+                label_y = 2.3 if condition == "pc1" else 4.3
+                ax_pc.annotate(f"{mean:.2f}", xy=(x, mean), xytext=(x, label_y),
+                               ha="center", va="bottom", fontsize=7.2, color=color,
+                               arrowprops={"arrowstyle": "-", "color": color, "lw": .65})
+            else:
+                label_y = max(values) + 1.0
+                ax_pc.text(x, label_y, f"{mean:.1f}", ha="center", va="bottom",
+                           fontsize=7.2, color=color)
+
+    ax_pc.set_xlim(-.62, 3.62); ax_pc.set_ylim(0, 46)
+    ax_pc.set_xticks(range(4), [spec[1] for spec in all_arch_specs])
+    ax_pc.set_ylabel("Top-1 accuracy (%)")
+    ax_pc.set_title("Calibration-derived PC1 vs. energy-matched random 1D",
+                    loc="left", color=INK, fontsize=9.2, pad=8)
+    polish_axis(ax_pc)
+    treatment_handles = [
+        Rectangle((0, 0), 1, 1, facecolor="#B8C8D2", edgecolor=INK,
+                  label="Calibration-derived PC1"),
+        Rectangle((0, 0), 1, 1, facecolor="white", edgecolor=INK, hatch="///",
+                  label="Energy-matched random 1D"),
+    ]
+    ax_pc.legend(handles=treatment_handles, frameon=False, fontsize=7.0,
+                 loc="upper right", ncol=2, handlelength=1.2,
+                 columnspacing=.9, handletextpad=.35, borderaxespad=.25)
+
+    fig.subplots_adjust(left=.06, right=.99, top=.92, bottom=.13, wspace=.40, hspace=.48)
+    fig.canvas.draw()
+    pos_a = ax.get_position(); pos_b = diversity_axes[0].get_position(); pos_c = ax_pc.get_position()
+    fig.text(pos_a.x0, pos_a.y1 + .035, "(a)", ha="left", va="bottom",
+             fontsize=10, weight="bold", color=INK)
+    fig.text(pos_b.x0, pos_b.y1 + .035, "(b)", ha="left", va="bottom",
+             fontsize=10, weight="bold", color=INK)
+    fig.text(pos_c.x0, pos_c.y1 + .035, "(c)", ha="left", va="bottom",
+             fontsize=10, weight="bold", color=INK)
     legend_handles = [
         Line2D([0], [0], color=color, marker=marker, linewidth=1.5, label=model_label)
         for _, model_label, color, marker in all_arch_specs
     ] + [Line2D([0], [0], color=GRAY, linestyle="--", linewidth=1.0, label="Clean accuracy")]
-    fig.legend(handles=legend_handles, frameon=False, fontsize=7.5, ncol=5,
-               loc="lower center", bbox_to_anchor=(.60, .005), handlelength=1.45,
-               columnspacing=1.0, handletextpad=.35)
-    fig.subplots_adjust(left=.055, right=.99, top=.95, bottom=.14, wspace=.42, hspace=.42)
+    fig.legend(handles=legend_handles, frameon=False, fontsize=7.2, ncol=5,
+               loc="lower center", bbox_to_anchor=(.50, .005), handlelength=1.35,
+               columnspacing=.9, handletextpad=.32)
     save_figure(fig, out, "figure3_geometry_diversity")
 
 def figS10(root: Path, out: Path) -> None:
@@ -444,138 +540,229 @@ def figS10(root: Path, out: Path) -> None:
 
 
 def fig4(root: Path, out: Path) -> None:
-    alignment = read_csv(root/"outputs/fungibility_functional_geometry/covariance_function_alignment.csv")
-    dimensions = read_csv(root/"outputs/fungibility_functional_geometry/fungible_dimension.csv")
+    """Plot four-model PC-direction sensitivity and functional-spectrum depth trends."""
+    alignment = read_csv(root/"outputs/fungibility_section5_cross_arch_extension/functional_geometry/pc_directional_sensitivity.csv")
+    spectrum = read_csv(root/"outputs/fungibility_section5_cross_arch_extension/functional_geometry/functional_spectrum_robustness.csv")
     depths = [5, 7, 8, 10]
     models = [
-        ("deit_small", "DeiT-Small", BLUE, "o"),
-        ("vit_base", "ViT-B/16 AugReg", ORANGE, "s"),
+        ("deit_tiny", "DeiT-Tiny", BLUE, "o"),
+        ("deit_small", "DeiT-Small", ORANGE, "s"),
+        ("vit_base", "ViT-B/16 AugReg", TEAL, "^"),
+        ("dinov2", "DINOv2 ViT-S/14", PURPLE, "D"),
     ]
 
-    def value_for(rows, model, depth, key):
-        matches = [row for row in rows if row["model_key"] == model and int(row["depth"]) == depth]
+    def one(rows, model, depth, key, **filters):
+        matches = [r for r in rows if r["model_key"] == model and int(r["depth"]) == depth
+                   and all(r[k] == str(v) for k, v in filters.items())]
         if len(matches) != 1:
-            raise ValueError(f"Expected one {model} depth-{depth} row for {key}; found {len(matches)}.")
+            raise ValueError(f"Expected one {model} depth-{depth} row for {key}; got {len(matches)}.")
         return float(matches[0][key])
 
-    ratios = [[value_for(alignment, model, depth, "ratio_PC1_to_PCbot") for depth in depths]
+    ratios = [[one(alignment, model, depth, "ratio_PC1_to_PC_bottom_raw") for depth in depths]
               for model, _, _, _ in models]
-    fig = plt.figure(figsize=(11.7, 4.2))
-    grid = fig.add_gridspec(1, 2, width_ratios=[1.05, 1.35], wspace=.34)
+    log_ratios = [[np.log10(value) for value in row] for row in ratios]
+
+    fig = plt.figure(figsize=(12.0, 4.8))
+    grid = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.28], wspace=.34)
     axh = fig.add_subplot(grid[0, 0])
     axn = fig.add_subplot(grid[0, 1])
 
-    im = axh.imshow(ratios, cmap="Blues", norm=LogNorm(vmin=.01, vmax=max(max(row) for row in ratios)*1.05), aspect="auto")
-    axh.set_box_aspect(.57)
-    axh.set_xticks(range(len(depths)), [str(depth) for depth in depths])
+    im = axh.imshow(log_ratios, cmap="RdBu_r",
+                    norm=matplotlib.colors.TwoSlopeNorm(vmin=-2, vcenter=0, vmax=2),
+                    aspect="auto")
+    axh.set_xticks(range(len(depths)), [str(d) for d in depths])
     axh.set_yticks(range(len(models)), [model[1] for model in models])
     axh.set_xlabel("Intervention depth")
     axh.set_title("PC1 / lowest-variance PC sensitivity", loc="left", color=INK, fontsize=8.5, pad=8)
     for i, row in enumerate(ratios):
         for j, value in enumerate(row):
-            axh.text(j, i, f"{value:.4g}×", ha="center", va="center",
-                     color="white" if value > 17 else INK, fontsize=8.1, weight="semibold")
+            axh.text(j, i, f"{value:.3g}×", ha="center", va="center",
+                     color="white" if abs(np.log10(value)) > 1.15 else INK,
+                     fontsize=7.7, weight="semibold")
     axh.tick_params(length=0, labelsize=7.5)
     for side in axh.spines.values():
         side.set_visible(False)
-    cb = fig.colorbar(im, ax=axh, fraction=.045, pad=.025)
-    cb.set_label("Ratio of directional sensitivities", fontsize=7.3)
-    cb.ax.tick_params(labelsize=7)
+    cb = fig.colorbar(im, ax=axh, fraction=.045, pad=.025, ticks=[-2, -1, 0, 1, 2])
+    cb.ax.set_yticklabels(["0.01×", "0.1×", "1×", "10×", "100×"])
+    cb.set_label("PC1-to-PCbottom sensitivity ratio (log scale)", fontsize=7.1)
+    cb.ax.tick_params(labelsize=6.8)
 
-    for (model, name, color, marker) in models:
-        y = [100.0*value_for(dimensions, model, depth, "null_subspace_fraction") for depth in depths]
-        axn.plot(depths, y, color=color, marker=marker, linewidth=1.9, markersize=4.5,
+    for model, name, color, marker in models:
+        y = [100*one(spectrum, model, d, "near_null_fraction", relative_cutoff=0.001) for d in depths]
+        axn.plot(depths, y, color=color, marker=marker, linewidth=1.8, markersize=4.4,
                  label=name, zorder=3)
     axn.set_xticks(depths)
-    axn.set_xlim(4.7, 10.8)
-    axn.set_ylim(0, 65)
-    axn.set_yticks(range(0, 61, 10))
+    axn.set_xlim(4.7, 10.6)
+    axn.set_ylim(0, 70)
+    axn.set_yticks(range(0, 71, 10))
     axn.set_xlabel("Intervention depth")
-    axn.set_ylabel("Threshold-defined near-null fraction (%)")
-    axn.set_title("Near-null fraction across depth", loc="left", color=INK, fontsize=8.5, pad=8)
-    axn.legend(frameon=False, loc="upper left", fontsize=7.3, handlelength=1.6)
-    axn.annotate("57.03%", (10, 57.03125), xytext=(7, 0), textcoords="offset points",
-                 ha="left", va="center", fontsize=7.2, color=BLUE)
-    axn.annotate("49.61%", (10, 49.609375), xytext=(7, -1), textcoords="offset points",
-                 ha="left", va="center", fontsize=7.2, color=ORANGE)
+    axn.set_ylabel("Near-null eigenvalues (%)")
+    axn.set_title("Threshold-defined near-null fraction", loc="left", color=INK, fontsize=8.5, pad=8)
+    axn.legend(frameon=False, loc="upper left", fontsize=7.0, handlelength=1.5, ncol=2)
     polish_axis(axn)
-    axh.spines["top"].set_visible(False)
-    axh.spines["right"].set_visible(False)
-    axh.spines["left"].set_visible(False)
-    axh.spines["bottom"].set_visible(False)
 
-    fig.subplots_adjust(left=.12, right=.98, bottom=.18, top=.76)
-    for ax, label_text in ((axh, "(a)"), (axn, "(b)")):
-        ax.text(.5, 1.18, label_text, transform=ax.transAxes, ha="center", va="bottom",
-                fontsize=10, weight="bold", color=INK)
+    fig.subplots_adjust(left=.14, right=.98, bottom=.16, top=.78)
+    panel_label(axh, "a")
+    panel_label(axn, "b")
     save_figure(fig, out, "figure4_anisotropic_geometry")
 
-
 def fig5(root: Path, out: Path) -> None:
-    rows = read_csv(root/"outputs/fungibility_attention_causal_audit/qkv_decomposition.csv")
-    models = [("deit_small", 8, "DeiT-Small · Block 8"), ("vit_base", 7, "ViT-B/16 AugReg · Block 7")]
-    patterns = [("global_coherent", "Coherent"), ("random_sign", "Random sign"), ("checkerboard", "Checkerboard")]
-    fig, axs = plt.subplots(1, 2, figsize=(9.8, 4.4), sharey=True)
-    x = list(range(len(patterns))); width = .34
-    for ax, (model, depth, title) in zip(axs, models):
+    primary = read_csv(root/"outputs/fungibility_attention_causal_audit/qkv_decomposition.csv")
+    replication = read_csv(root/"outputs/fungibility_attention_causal_audit/replication_summary.csv")
+    primary_models = [
+        ("deit_small", 8, "DeiT-Small · Block 8", "a"),
+        ("vit_base", 7, "ViT-B/16 AugReg · Block 7", "b"),
+    ]
+    replication_models = [
+        ("deit_tiny", "DeiT-Tiny · Block 8", "c"),
+        ("dinov2", "DINOv2 ViT-S/14 · Block 8", "d"),
+    ]
+    primary_patterns = [
+        ("global_coherent", "Coherent"),
+        ("random_sign", "Random sign"),
+        ("checkerboard", "Checkerboard"),
+    ]
+    replication_patterns = [
+        ("global_coherent", "Coherent"),
+        ("random_sign", "Random sign"),
+        ("checkerboard", "Checkerboard"),
+    ]
+    if [p[0] for p in primary_patterns] != [p[0] for p in replication_patterns]:
+        raise ValueError("Figure 5 must use the same token-pattern order in all four panels")
+    # These are distinct protocols: the primary Q/K/V projection controls keep
+    # the residual clean, while the reduced replication compares a full block
+    # perturbation (Q/K/V and residual) to frozen-A V-only with perturbed residual.
+    pathways = [("V_only", "V-only (clean Q/K)", BLUE), ("K_plus_V", "K+V (clean Q)", TEAL)]
+    conditions = [
+        ("full_perturbation", "Full Q/K/V + residual", BLUE),
+        ("frozen_attn_v_only_pert_res", "V-only (clean A; perturbed residual)", TEAL),
+    ]
+    fig, axs = plt.subplots(2, 2, figsize=(10.2, 7.0), sharey="row")
+    primary_x = np.arange(len(primary_patterns)); primary_width = .34
+    for ax, (model, depth, title, panel) in zip(axs[0], primary_models):
         values = {}
-        for pathway, name in [("V_only", "V-only"), ("K_plus_V", "K+V")]:
+        for pathway, pathway_label, _ in pathways:
             ys = []
-            for pattern, _ in patterns:
-                matches = [r for r in rows if r["model_key"] == model and int(r["depth"]) == depth
+            for pattern, _ in primary_patterns:
+                matches = [r for r in primary if r["model_key"] == model and int(r["depth"]) == depth
                            and r["token_pattern"] == pattern and r["feature_dir"] == "jac_top"
                            and float(r["scale_s"]) == 1.0 and r["pathway"] == pathway]
                 if len(matches) != 1:
                     raise ValueError(f"Expected one qkv row for {model}/{depth}/{pattern}/{pathway}; got {len(matches)}")
                 ys.append(float(matches[0]["dz_readout_l1"]))
             values[pathway] = ys
-        ax.bar([v-width/2 for v in x], values["V_only"], width=width, color=BLUE, label="V-only", zorder=3)
-        ax.bar([v+width/2 for v in x], values["K_plus_V"], width=width, color=TEAL, label="K+V", zorder=3)
-        ax.set_xticks(x, [p[1] for p in patterns])
-        ax.set_title(title, loc="left", color=INK, pad=9)
-        panel_label(ax, "a" if model == "deit_small" else "b")
+        # The CSV's legacy dz_readout_l1 field is computed with torch.norm(dim=-1),
+        # i.e. the per-image Euclidean norm (L2); do not relabel it as L1.
+        ax.bar(primary_x-primary_width/2, values["V_only"], width=primary_width,
+               color=BLUE, label="V-only (clean Q/K)", zorder=3)
+        ax.bar(primary_x+primary_width/2, values["K_plus_V"], width=primary_width,
+               color=TEAL, label="K+V (clean Q)", zorder=3)
+        ax.set_xticks(primary_x, [p[1] for p in primary_patterns])
+        ax.set_ylim(0, 3.25)
+        ax.set_title(title, loc="center", color=INK, pad=10)
+        ax.text(.5, 1.13, f"({panel})", transform=ax.transAxes, ha="center", va="bottom",
+                fontsize=10, weight="bold", color=INK)
         polish_axis(ax)
-    axs[0].set_ylabel("Immediate readout disturbance ‖Δz‖₁")
-    axs[0].legend(frameon=False, loc="upper right")
-    fig.tight_layout(rect=(0, .02, 1, .98), w_pad=2.0)
+    axs[0, 0].set_ylabel("Mean immediate readout change ‖Δz‖₂")
+    axs[0, 1].tick_params(labelleft=True)
+    axs[0, 0].legend(frameon=False, loc="upper left", fontsize=7.5)
+
+    replication_x = np.arange(len(replication_patterns)); replication_width = .34
+    for ax, (model, title, panel) in zip(axs[1], replication_models):
+        for j, (condition, condition_label, color) in enumerate(conditions):
+            values = []
+            for pattern, _ in replication_patterns:
+                matches = [r for r in replication if r["model_key"] == model and int(r["depth"]) == 8
+                           and r["token_pattern"] == pattern and r["feature_dir"] == "jac_top"
+                           and float(r["scale_s"]) == 1.0 and r["condition"] == condition]
+                if len(matches) != 1:
+                    raise ValueError(f"Expected one replication row for {model}/{pattern}/{condition}; got {len(matches)}")
+                values.append(float(matches[0]["logit_margin_drop"]))
+            xpos = replication_x+(j-.5)*replication_width
+            ax.bar(xpos, values, width=replication_width, color=color,
+                   label=condition_label, zorder=3)
+        ax.axhline(0, color=GRAY, linewidth=.9, zorder=2)
+        ax.set_xticks(replication_x, [p[1] for p in replication_patterns])
+        ax.set_ylim(-.012, .12)
+        ax.set_title(title, loc="center", color=INK, pad=10)
+        ax.text(.5, 1.13, f"({panel})", transform=ax.transAxes, ha="center", va="bottom",
+                fontsize=10, weight="bold", color=INK)
+        polish_axis(ax)
+    axs[1, 0].set_ylabel("Signed true-class logit drop")
+    axs[1, 1].tick_params(labelleft=True)
+    axs[1, 0].legend(frameon=False, loc="upper left", fontsize=7.5)
+    fig.subplots_adjust(left=.12, right=.98, bottom=.10, top=.91, wspace=.27, hspace=.62)
     save_figure(fig, out, "figure5_value_path_cancellation")
 
 def fig6(root: Path, out: Path) -> None:
-    manifest = read_json(root/"outputs/fungibility_multiblock_operator/validation_manifest.json")
-    c = manifest["prediction_correlations"]
-    single = [c["single_block_pearson_r"], c["single_block_spearman_rho"]]
-    multi = [c["multi_block_pearson_r"], c["multi_block_spearman_rho"]]
-
-    # A single full-width plot avoids repeating the method description in a
-    # schematic; the caption defines the local and end-to-end operators.
-    fig, ax = plt.subplots(figsize=(6.75, 2.75))
-    x = [0, 1]
-    offset = .15
-    for i, val in enumerate(single):
-        xpos = x[i] - offset
-        ax.scatter([xpos], [val], s=58, color=GRAY, edgecolor=PAPER, linewidth=.8, zorder=4)
-        ax.annotate(f"{val:.3f}", (xpos, val), xytext=(0, 7), textcoords="offset points",
-                    ha="center", va="bottom", fontsize=8.0, color=MUTED)
-    for i, val in enumerate(multi):
-        xpos = x[i] + offset
-        ax.scatter([xpos], [val], s=62, color=TEAL, edgecolor=PAPER, linewidth=.8, zorder=4)
-        ax.annotate(f"{val:.3f}", (xpos, val), xytext=(0, 7), textcoords="offset points",
-                    ha="center", va="bottom", fontsize=8.0, color=TEAL, weight="semibold")
-
-    ax.set_xlim(-.42, 1.42); ax.set_ylim(.60, 1.06)
-    ax.set_xticks(x, ["Pearson r", "Spearman ρ"])
-    ax.set_yticks([.60, .70, .80, .90, 1.00])
-    ax.set_ylabel("Correlation with held-out damage", fontsize=8.5)
-    handles = [
-        Line2D([], [], marker="o", linestyle="none", markersize=5.8, color=GRAY, label="Single block"),
-        Line2D([], [], marker="o", linestyle="none", markersize=5.8, color=TEAL, label="End-to-end multi-block"),
+    """Compare local and end-to-end prediction across models, plus finite-radius direction ratios."""
+    correlations = read_csv(root/"outputs/fungibility_section5_cross_arch_extension/multiblock_prediction/model_specific_correlations.csv")
+    damage = read_csv(root/"outputs/fungibility_multiblock_operator/replication_summary.csv")
+    models = [
+        ("deit_tiny", "Tiny", BLUE),
+        ("deit_small", "Small", ORANGE),
+        ("vit_base", "ViT-B", TEAL),
+        ("dinov2", "DINOv2", PURPLE),
     ]
-    ax.legend(handles=handles, frameon=False, loc="lower right", fontsize=7.3,
-              borderaxespad=.35, handletextpad=.45)
-    polish_axis(ax)
-    ax.tick_params(axis="both", labelsize=8.0)
-    fig.subplots_adjust(left=.105, right=.985, bottom=.22, top=.97)
+    predictors = [
+        ("single_block", "Single-block A", GRAY, -.13),
+        ("end_to_end", "End-to-end J", TEAL, .13),
+    ]
+
+    fig = plt.figure(figsize=(10.8, 5.7))
+    grid = fig.add_gridspec(2, 4, height_ratios=[1.15, .82], hspace=.54, wspace=.45)
+    axes = [fig.add_subplot(grid[0, :2]), fig.add_subplot(grid[0, 2:])]
+    metric_specs = [
+        ("pearson_r", "pearson_ci95_low", "pearson_ci95_high", "Pearson r"),
+        ("spearman_rho", "spearman_ci95_low", "spearman_ci95_high", "Spearman ρ"),
+    ]
+    x = np.arange(len(models))
+    for ax, (value_key, low_key, high_key, title) in zip(axes, metric_specs):
+        for predictor, predictor_label, color, offset in predictors:
+            ys, lows, highs = [], [], []
+            for model, _, _ in models:
+                row = next(r for r in correlations if r["model_key"] == model and r["predictor"] == predictor)
+                y = float(row[value_key])
+                ys.append(y)
+                lows.append(y-float(row[low_key]))
+                highs.append(float(row[high_key])-y)
+            ax.errorbar(x+offset, ys, yerr=[lows, highs], fmt="o", color=color,
+                        markersize=4.8, capsize=2.6, linewidth=1.0, zorder=3,
+                        label=predictor_label)
+        ax.set_xticks(x, [m[1] for m in models])
+        ax.set_xlim(-.48, 3.48)
+        ax.set_ylim(.62, 1.015)
+        ax.set_yticks([.6, .7, .8, .9, 1.0])
+        ax.set_ylabel("Correlation with observed damage")
+        panel = "a" if title == "Pearson r" else "b"
+        ax.set_title(f"({panel}) {title}", loc="left", color=INK, fontsize=8.7, pad=8)
+        polish_axis(ax)
+        ax.tick_params(axis="both", labelsize=7.5)
+    axes[0].legend(frameon=False, loc="lower left", fontsize=7.0, ncol=2,
+                   handletextpad=.35, columnspacing=.7)
+    axr = fig.add_subplot(grid[1, 1:3])
+    ratio_rows = []
+    for model, name, color in models:
+        row = next(r for r in damage if r["arch"] == model)
+        ratio = float(row["multi_top_damage_s04"])/float(row["multi_null_damage_s04"])
+        ratio_rows.append((name, color, ratio))
+    ypos = np.arange(len(ratio_rows))
+    axr.barh(ypos, [row[2] for row in ratio_rows], color=[row[1] for row in ratio_rows],
+             height=.58, zorder=3)
+    axr.set_yticks(ypos, [row[0] for row in ratio_rows])
+    axr.invert_yaxis()
+    axr.set_xlim(0, 14.5)
+    axr.set_xticks([0, 2, 4, 6, 8, 10, 12, 14])
+    axr.set_xlabel("Top-mode / multi-block near-null damage ratio")
+    axr.set_title("(c) Finite-radius logit damage at s = 0.4", loc="left", color=INK, fontsize=8.7, pad=8)
+    for y, (_, _, value) in enumerate(ratio_rows):
+        axr.text(value+.18, y, f"{value:.2f}×", va="center", ha="left",
+                 fontsize=7.4, color=INK, weight="semibold")
+    polish_axis(axr, grid="x")
+    axr.tick_params(axis="both", labelsize=7.3)
+    fig.subplots_adjust(left=.10, right=.98, bottom=.11, top=.88)
     save_figure(fig, out, "figure6_end_to_end_operator")
+
 def fig7(root: Path, out: Path) -> None:
     rows = read_csv(root/"outputs/fungibility_operator_compression_confirmatory/budget_summary.csv")
     rank_rows = read_csv(root/"outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv")
@@ -663,16 +850,64 @@ def fig_s1(root: Path, out: Path) -> None:
     save_figure(fig,out,"figureS1_real_carrier_boundary")
 
 
+def figS11(root: Path, out: Path) -> None:
+    """Show the reduced Block-8 margin replication for DeiT-Tiny and DINOv2."""
+    rows = read_csv(root/"outputs/fungibility_attention_causal_audit/replication_summary.csv")
+    models = [
+        ("deit_tiny", "DeiT-Tiny"),
+        ("dinov2", "DINOv2 ViT-S/14"),
+    ]
+    patterns = [
+        ("global_coherent", "Coherent"),
+        ("random_sign", "Random sign"),
+    ]
+    conditions = [
+        ("full_perturbation", "Full perturbation", BLUE),
+        ("frozen_attn_v_only_pert_res", "Frozen-attention V-only", TEAL),
+    ]
+    fig, axs = plt.subplots(1, 2, figsize=(8.8, 3.45))
+    x = np.arange(len(patterns))
+    width = .34
+    for ax, (model, title) in zip(axs, models):
+        for j, (condition, condition_label, color) in enumerate(conditions):
+            values = []
+            for pattern, _ in patterns:
+                match = [r for r in rows if r["model_key"] == model and r["depth"] == "8"
+                         and r["token_pattern"] == pattern and r["feature_dir"] == "jac_top"
+                         and float(r["scale_s"]) == 1.0 and r["condition"] == condition]
+                if len(match) != 1:
+                    raise ValueError(f"Expected one replication row for {model}/{pattern}/{condition}; got {len(match)}")
+                values.append(float(match[0]["logit_margin_drop"]))
+            xpos = x + (j-.5)*width
+            ax.bar(xpos, values, width=width, color=color, label=condition_label, zorder=3)
+            for xp, value in zip(xpos, values):
+                ax.annotate(f"{value:.3g}", (xp, value), xytext=(0, 3 if value >= 0 else -3),
+                            textcoords="offset points", ha="center",
+                            va="bottom" if value >= 0 else "top", fontsize=6.8, color=INK)
+        ax.axhline(0, color=GRAY, linewidth=.8, zorder=2)
+        ax.set_xticks(x, [p[1] for p in patterns])
+        ax.set_ylabel("Signed true-class logit drop")
+        ax.set_title(title, loc="left", color=INK, fontsize=9, pad=8)
+        polish_axis(ax)
+        ax.tick_params(axis="both", labelsize=7.2)
+    axs[0].legend(frameon=False, fontsize=7.0, loc="upper right")
+    for ax, label_text in zip(axs, ("a", "b")):
+        panel_label(ax, label_text)
+    fig.tight_layout(rect=(0, .02, 1, .98), w_pad=1.6)
+    save_figure(fig, out, "figureS11_value_path_replication")
+
+
 FIGURE_SOURCES = {
     "figure1_overview": ("figures/paper_final_v4/source/figure1_overview_user.png (user-supplied image); no empirical data.", "The supplied overview is reproduced pixel-for-pixel; no numeric result is encoded."),
     "figure2_depthwise": ("outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv; outputs/fungibility_v0_6/tiny_seed_results.csv; outputs/fungibility_v0_6/small_depth_fraction_summary.csv; outputs/fungibility_v0_6/small_seed_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v1_depth6_followup/vitb_depth6_results.csv; outputs/fungibility_v1_depth6_followup/dinov2_depth6_results.csv", "Depths 5-10 at 25% replacement. DeiT rows filter fraction=25% and use clean_acc, zero_acc, global_mean_acc (calibration-derived centroid), and gaussian_acc; Gaussian seed accuracies are reconstructed from zero_acc plus paired acc_diff and reconciled to the summary means. ViT-B/DINOv2 combine original depths 5, 7-10 with the separate depth-6 follow-up. All cohorts use 1,000 calibration and 1,000 evaluation images per architecture; Gaussian SD is across five DeiT seeds or three ViT-B/DINOv2 seeds."),
-    "figure3_geometry_diversity": ("outputs/fungibility_v0_7/tiny_fraction_summary.csv; outputs/fungibility_v0_7/small_fraction_summary.csv; outputs/fungibility_v0_7/tiny_prototype_comparison.csv; outputs/fungibility_v0_7/small_prototype_comparison.csv; outputs/fungibility_v0_7/tiny_sign_flip_sweep.csv; outputs/fungibility_v0_7/small_sign_flip_sweep.csv; outputs/fungibility_v1/vitb_geometry_results.csv; outputs/fungibility_v1/dinov2_geometry_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v0_8/grouped_diversity_results.csv; outputs/fungibility_v0_8/statistical_comparisons.csv; outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv", "Panel (a): 50% replacement geometry controls and clean baselines for all four architectures. DeiT centroid and clean values come from the V0.7 fraction summaries; DeiT coordinate-shuffle error bars summarize three saved seed outcomes; DeiT sign inversion comes from the 100%-flip V0.7 control. ViT-B/DINOv2 use V1 geometry and clean-depth CSVs, with three coordinate-shuffle seeds. Each model uses N=1,000 evaluation and N=1,000 calibration images. Panel (b): grouped-diversity Top-1 curves for DeiT-Tiny/Small (three seeds) and ViT-B/16 AugReg/DINOv2 (five seeds), each with a clean-accuracy reference. The extension reuses the V1 calibration/evaluation splits and statistics."),
-    "figure4_anisotropic_geometry": ("outputs/fungibility_functional_geometry/covariance_function_alignment.csv; outputs/fungibility_functional_geometry/fungible_dimension.csv", "Panel (a): PC1-to-lowest-variance-PC directional margin-sensitivity ratios at depths 5, 7, 8, and 10. Panel (b): threshold-defined near-null eigenvalue fraction (λ_k≤10⁻³λ_max) across the same depths. Both panels use the N=100-image functional-geometry pilot for DeiT-Small and ViT-B/16 AugReg."),
-    "figure5_value_path_cancellation": ("outputs/fungibility_attention_causal_audit/qkv_decomposition.csv", "model/depth pairs (deit_small,8) and (vit_base,7); token patterns global_coherent/random_sign/checkerboard; feature_dir=jac_top; scale_s=1.0; pathways V_only and K_plus_V; dz_readout_l1."),
-    "figure6_end_to_end_operator": ("outputs/fungibility_multiblock_operator/validation_manifest.json", "prediction_correlations single_block/multi_block Pearson and Spearman; primary_findings mean_principal_angle_deg_b8_to_b9."),
+    "figure3_geometry_diversity": ("outputs/fungibility_v0_7/tiny_fraction_summary.csv; outputs/fungibility_v0_7/small_fraction_summary.csv; outputs/fungibility_v0_7/tiny_prototype_comparison.csv; outputs/fungibility_v0_7/small_prototype_comparison.csv; outputs/fungibility_v0_7/tiny_sign_flip_sweep.csv; outputs/fungibility_v0_7/small_sign_flip_sweep.csv; outputs/fungibility_v1/vitb_geometry_results.csv; outputs/fungibility_v1/dinov2_geometry_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v0_8/grouped_diversity_results.csv; outputs/fungibility_v0_8/statistical_comparisons.csv; outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv; outputs/fungibility_v0_9/pc_identity_results.csv; outputs/fungibility_v0_9/random_direction_results.csv; outputs/fungibility_v1/vitb_1d_results.csv; outputs/fungibility_v1/dinov2_1d_results.csv", "Panel (a): 50% replacement geometry controls and clean baselines for all four architectures. DeiT centroid and clean values come from the V0.7 fraction summaries; DeiT coordinate-shuffle error bars summarize three saved seed outcomes; DeiT sign inversion comes from the 100%-flip V0.7 control. ViT-B/DINOv2 use V1 geometry and clean-depth CSVs, with three coordinate-shuffle seeds. Each model uses N=1,000 evaluation and N=1,000 calibration images. Panel (b): grouped-diversity Top-1 curves for DeiT-Tiny/Small (three seeds) and ViT-B/16 AugReg/DINOv2 (five seeds), each with a clean-accuracy reference. Panel (c): complete replacement at Block 8 comparing calibration-derived natural PC1 with an energy-matched random 1D direction; per-seed outcomes are shown for all four architectures, with five seeds for DeiT and three for ViT-B/DINOv2. All PCA comparisons use the audited disjoint calibration/evaluation cohorts."),
+    "figure4_anisotropic_geometry": ("outputs/fungibility_section5_cross_arch_extension/functional_geometry/pc_directional_sensitivity.csv; outputs/fungibility_section5_cross_arch_extension/functional_geometry/functional_spectrum_robustness.csv", "Panel (a): raw PC1-to-lowest-variance-PC directional margin-sensitivity ratios at depths 5, 7, 8, and 10, plotted as log10(ratio). Panel (b): threshold-defined near-null fraction at λ_k≤10⁻³λ_max. All four models use a matched N=100-image calibration cohort; the updated extension reports raw sensitivities, covariance eigengaps, metric spectra, and cutoff robustness separately."),
+    "figure5_value_path_cancellation": ("outputs/fungibility_attention_causal_audit/qkv_decomposition.csv; outputs/fungibility_attention_causal_audit/replication_summary.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json", "Panels (a,b): primary DeiT-Small Block 8 and ViT-B/16 AugReg Block 7 audits; feature_dir=jac_top, scale_s=1.0, V_only (clean Q/K, clean residual) and K_plus_V (clean Q, perturbed K/V, clean residual) pathways. Panels (c,d): reduced DeiT-Tiny and DINOv2 Block-8 replications; feature_dir=jac_top, scale_s=1.0, full_perturbation (perturbed Q/K/V and residual) and frozen_attn_v_only_pert_res (clean Q/K/A, perturbed V and residual). All four panels use coherent, random-sign, and checkerboard patterns in that order. Each cohort contains 100 image outcomes; the reduced-replication direction is estimated from the first four images."),
+    "figure6_end_to_end_operator": ("outputs/fungibility_section5_cross_arch_extension/multiblock_prediction/model_specific_correlations.csv; outputs/fungibility_multiblock_operator/replication_summary.csv", "Panels (a,b): model-specific Pearson and Spearman correlations for the prescribed 100-perturbation mixture with stratified-bootstrap 95% intervals. Panel (c): multi-block top-mode / multi-block near-null finite-radius final-logit-L2 damage ratios at s=0.4 for four architectures."),
     "figure7_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures. Rank-16 and rank-32 outcomes are available in low_rank_ablation.csv and Table II; the figure itself contains only the rank-32 curve."),
     "figureS1_real_carrier_boundary": ("outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv", "batch_size=64; all four architectures and available Clean/Group Mean/q16/q32/Selective q16 rows; fields top1_accuracy and img_per_sec. Output files reside in supp/."),
     "figureS10_dinov2_margin_diversity": ("outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv", "DINOv2 ViT-S/14 true-class logit margin versus K under 100% patch replacement at Block 8; points are five-seed means and error bars are sample SD across seeds. N=1,000 held-out evaluation images per seed. Top-1 remains near its floor and is not represented as recovered accuracy."),
+    "figureS11_value_path_replication": ("outputs/fungibility_attention_causal_audit/replication_summary.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json", "Block-8 reduced Value-path replication in DeiT-Tiny and DINOv2. Shows signed true-class logit drop (clean target logit minus perturbed target logit) for full perturbation versus frozen-attention V-only with perturbed residual under coherent and random-sign token patterns. N=100 image outcomes per model; direction estimated from the first four images; this is not the full Q/K/V decomposition."),
 }
 
 
@@ -680,10 +915,11 @@ def write_manifest(out: Path) -> None:
     titles = {
           "figure1_overview": ("PCF intervention, replacement constraints, and selective transmission", "User-supplied composite overview of (a) fixed-slot late-layer patch-content intervention, (b) geometric and diversity constraints, and (c) anisotropic sensitivity with Value-path cancellation."),
         "figure2_depthwise": ("Depth-dependent replacement tolerance across four architectures", "Four-panel 2×2 depth sweep for DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, and DINOv2 ViT-S/14, comparing Zero, Centroid, Gaussian, and clean accuracy across depths 5-10."),
-        "figure3_geometry_diversity": ("Geometry and diversity constraints", "Panel (a) compares 50% replacement geometry controls across all four architectures. Panel (b) uses four architecture-specific, common-scale Top-1 facets for grouped diversity; DINOv2 margin is reported separately in Figure S10."),
-        "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Combines architecture-dependent PC-to-margin-sensitivity alignment with the depth-wise threshold-defined near-null fraction of M_l."),
-        "figure5_value_path_cancellation": ("Value-path transmission and cancellation", "Compares coherent and sign-varying token patterns through V-only and K+V pathways."),
-        "figure6_end_to_end_operator": ("Local and end-to-end damage prediction", "Single-panel paired-dot comparison of local and end-to-end operator prediction correlations with measured final-logit damage."),
+        "figure3_geometry_diversity": ("Geometry, token diversity, and feature-space direction", "Panel (a) compares 50% replacement geometry controls across four architectures. Panel (b) shows four common-scale Top-1 facets for token-position diversity under complete grouped-Gaussian replacement; DINOv2 margin remains separately reported in Figure S10. Panel (c) compares calibration-derived PC1 with an energy-matched random 1D direction under complete replacement at Block 8, with per-seed outcomes and the near-floor DINOv2 values explicitly labeled."),
+        "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Shows architecture-dependent covariance-PC directional margin sensitivity and the depth-wise threshold-defined near-null fraction of M_l across four models."),
+        "figureS11_value_path_replication": ("Reduced Value-path replication", "Shows coherent and random-sign signed true-class logit drops for full and frozen-attention V-only perturbations in DeiT-Tiny and DINOv2."),
+        "figure5_value_path_cancellation": ("Value-path transmission and cancellation across four architectures", "All panels use coherent, random-sign, and checkerboard patterns in the same order. Panels (a,b) compare mean Euclidean readout change for the primary V-only and K+V projection-path controls; panels (c,d) show signed true-class logit drops for the reduced full-perturbation and frozen-attention V-only replications on a separate metric scale."),
+        "figure6_end_to_end_operator": ("Local and end-to-end damage prediction", "Model-specific prediction correlations and finite-radius directional damage contrasts across four architectures."),
         "figure7_operator_compression": ("Confirmatory operator-aware compression", "Plots N=1,000 accuracy-token curves across four architectures, including the measured rank-32 curve; no recovery percentage is encoded."),
         "figureS1_real_carrier_boundary": ("Real-model carrier boundary", "Shows the measured accuracy-throughput tradeoff as a bounded supplementary result."),
         "figureS10_dinov2_margin_diversity": ("DINOv2 margin across token diversity", "Shows the five-seed mean true-class logit margin across K; DINOv2 Top-1 remains near floor, so this margin change is not accuracy recovery."),
@@ -691,22 +927,26 @@ def write_manifest(out: Path) -> None:
     lines = ["# Figure Manifest v4", "", "Generated by `scripts/build_paper_figures_v4.py`. White background, DejaVu Sans, consistent typography; SVG and 300 dpi PNG saved for every panel. No models were executed.", ""]
     for i, (stem, (purpose, design)) in enumerate(titles.items(), 1):
         filename = f"{stem}.svg / {stem}.png"
-        if stem in ("figureS1_real_carrier_boundary", "figureS10_dinov2_margin_diversity"):
+        if stem in ("figureS1_real_carrier_boundary", "figureS10_dinov2_margin_diversity", "figureS11_value_path_replication"):
             filename = f"supp/{filename}"
         sources, filters = FIGURE_SOURCES[stem]
         design_notes = "user-supplied source image preserved pixel-for-pixel in PNG and embedded in an SVG wrapper; no empirical data."
         if stem != "figure1_overview":
             design_notes = "restrained mechanism blue and compression teal; gray references; explicit units and sample units; concise panel titles only, no figure-level headline or embedded bottom caption; vector SVG plus 300 dpi PNG."
         if stem == "figure4_anisotropic_geometry":
-            design_notes = "Panel (a) displays all 8 audited PC1-to-lowest-variance-PC directional margin-sensitivity ratios on a logarithmic color scale, with four significant digits. Panel (b) plots the threshold-defined near-null eigenvalue fraction across depths, with endpoint values labeled. Both panels use N=100 image samples per architecture; standardized PCA score-density maps were removed because they added no independent functional evidence."
+            design_notes = "Panel (a) displays all 16 four-model PC1-to-lowest-variance-PC ratios, with color encoding log10(ratio) so values below and above one are visible; raw sensitivities and bottom-PC eigengaps remain available in the source CSV. Panel (b) plots the λ≤10⁻³λmax near-null fraction across depths for all four models. Each model uses N=100 calibration images; cutoff sensitivity and normalized effective ranks are recorded in the supplementary table."
         if stem == "figure3_geometry_diversity":
-            design_notes = "Panel (a) is widened and uses color-coded bars for the four models; coordinate-shuffle bars show seed means with overlaid individual outcomes and sample-SD error bars, while centroid and sign-inversion bars show single-run estimates. Gray dashed lines mark model-specific clean baselines; model colors/markers match panel (b). Panel (b) uses four common-scale accuracy small multiples with model-specific K endpoints and seed-level SD error bars. DINOv2 margin is separated into Supplementary Figure S10 because its accuracy remains at floor. The figure-level (a)/(b) labels share one horizontal baseline."
+            design_notes = "Three-panel layout: geometry controls at upper left, four common-scale token-diversity facets at upper right, and a narrower centered PC1-versus-random comparison below. Panel (a) uses model-colored bars; coordinate-shuffle bars show seed means with overlaid individual outcomes and sample-SD error bars, while centroid and sign-inversion bars show single-run estimates. Panel (b) uses seed-level SD error bars and model-specific patch-count endpoints. Panel (c) retains model colors, distinguishes the random direction with hatching and hollow seed markers, and overlays individual seed outcomes on mean bars; DINOv2 means are labeled because both accuracies remain near zero on the shared scale. DINOv2's diversity margin remains in Supplementary Figure S10. No experimental data were changed."
         if stem == "figureS10_dinov2_margin_diversity":
             design_notes = "Code-generated line plot of mean true-class logit margin across K; error bars show SD across five seeds. The margin axis is separate from the Top-1 accuracy display and does not imply accuracy recovery."
         if stem == "figure2_depthwise":
             design_notes = "Clean 2×2 architecture layout with common Top-1 scale, consistent Zero/Centroid/Gaussian colors and markers, and gray dashed clean baselines. Error bars show Gaussian seed-level sample SD; DeiT panels use five seeds, while ViT-B/16 AugReg and DINOv2 panels use three seeds. DeiT centroids use the calibration-derived global mean."
         if stem == "figure6_end_to_end_operator":
-            design_notes = "A single full-width panel uses paired dots for Pearson r and Spearman rho, with no connecting lines between distinct metrics. Correlations are evaluated on N=100 held-out perturbations; the caption defines the single-block A8 and end-to-end J8→12 operators."
+            design_notes = "Panels (a,b) show model-specific Pearson and Spearman estimates for single-block A and end-to-end J with stratified-bootstrap 95% intervals. Panel (c) separately plots finite-radius multi-block top-mode / near-null damage ratios. Perturbation vectors, not images or tokens, are the correlation unit."
+        if stem == "figureS11_value_path_replication":
+            design_notes = "Two independent axes preserve architecture-specific signed true-class logit-drop scales. The outcome is clean target logit minus perturbed target logit; signed bars include negative values and no seed uncertainty is implied. This supplement shows the reduced coherent/random-sign replication, not a complete Q/K/V decomposition."
+        if stem == "figure5_value_path_cancellation":
+            design_notes = "Four panels use coherent, random-sign, and checkerboard in that order. The top row shows mean L2 immediate-readout change: V-only uses clean Q/K and residual, whereas K+V uses clean Q, perturbed K/V, and clean residual with attention recomputed. The lower row shows signed true-class logit drop (clean minus perturbed target logit): full perturbation changes Q/K/V and residual, whereas frozen-attention V-only keeps clean Q/K/A and perturbs V/residual. Metrics use separate rows and y scales; the lower row is a reduced replication, not a full Q/K/V decomposition."
         generator = "`scripts/build_paper_figures_v4.py`"
         lines += [f"## {i}. {purpose}", "", f"- **Final filename:** `{filename}`", f"- **Purpose:** {design}", f"- **Source data:** {sources}", f"- **Generating script:** {generator}", f"- **Rows / filters:** {filters}", f"- **Design notes:** {design_notes}", ""]
     (out/"FIGURE_MANIFEST.md").write_text("\n".join(lines), encoding="utf-8")
@@ -744,8 +984,9 @@ def main() -> None:
     fig1(root,out); fig2(root,out); fig3(root,out); fig4(root,out); fig5(root,out); fig6(root,out); fig7(root,out)
     fig_s1(root,out/"supp")
     figS10(root,out)
+    figS11(root,out/"supp")
     write_manifest(out); contact_sheet(out)
-    print(f"Rendered 7 main figures + 2 supplements; contact sheet: {out/'contact_sheet.png'}")
+    print(f"Rendered 7 main figures + 3 supplements; contact sheet: {out/'contact_sheet.png'}")
 
 
 if __name__ == "__main__":

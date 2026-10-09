@@ -104,3 +104,16 @@
 
 
 
+
+
+## Section 5 cross-architecture audit (2026-10-09)
+
+| Scientific claim | Models and conditions actually measured | Status | Evidence unit | Main / supplementary figure | Scope and missing evidence |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| Margin-gradient anisotropy and spectral depth change | DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, and DINOv2 at depths 5, 7, 8, 10; same 100 calibration images/model within the extension | D — matched four-model pilot | 100 images/model; patch observations aggregated | Figure 4; Table S2 | Effective rank/D falls in all four. Near-null fraction at \(10^{-3}\lambda_{\max}\) expands strongly in three; DINOv2 changes 0.26%→1.56% and is cutoff-sensitive. Exploratory, not causal. Historical PCA labels were reversed; corrected extension data drive current figure. |
+| Frozen-attention Value-path contribution | DeiT-Small Block 8 and ViT-B/16 AugReg Block 7 complete Q/K/V and gap attribution; DeiT-Tiny and DINOv2 Block 8 coherent/random-sign reduced replication | C — primary plus partial replications | 100 image outcomes/model; selected direction estimated on 4 images | Figure 5; Figure S11 | Four coherent V-only/full immediate-readout ratios are close to 1, but complete Q/K/V decomposition and gap attribution exist only for the primary two models. Replications do not establish four-model rerouting or path attribution. |
+| Local versus end-to-end damage prediction | All four architectures at Block 8, scale 0.4, 100 perturbations/model with 25 in each of four families; each model has a 20-image reference batch | D — matched perturbation mixture; reference-point asymmetry documented | 100 perturbation vectors/model, not images | Figure 6(a,b); Table S3 | End-to-end correlations are higher for each model over the fixed mixed distribution; within-family correlations vary and can be negative. A averages over 20 images while J is linearized at the first image. |
+| Multi-block top-mode versus near-null damage | All four models, scale 0.4, multi-block top and near-null modes | D — matched directional contrast | Existing per-model finite-radius outcomes | Figure 6(c) | Top-mode / near-null logit-L2 damage ratios are 4.62, 8.35, 12.55, and 10.87. This is a directional damage contrast, not the held-out correlation result. |
+| Joint token–feature geometry | DeiT-Small and ViT-B/16 AugReg at multiple depths; DeiT-Tiny and DINOv2 at Block 8 | C — depth-wise grid plus limited replications | 100 images/model | Section 5.3; source audit | Condition outcomes support dependence on both axes in tested finite-radius settings. The regression interaction fit is saturated (no residual degrees of freedom); no formal inferential interaction or four-model depth trend is established. |
+
+The machine-readable extension and frozen protocol are in outputs/fungibility_section5_cross_arch_extension/ and docs/FUNGIBILITY_SECTION5_CROSS_ARCH_EXTENSION_PROTOCOL.md. New measurements use separate output paths; existing experiment CSVs remain unchanged. See docs/PAPER_SECTION5_CROSS_ARCHITECTURE_AUDIT.md for the claim-by-claim evidence matrix, numerical correction record, and unresolved scope.

@@ -1,0 +1,61 @@
+{
+  "extension": "Section 5 cross-architecture functional geometry and multiblock prediction",
+  "source_script": "scripts/run_section5_cross_arch_extension.py",
+  "git_head_at_measurement": "b7ccab0e9e5799bb4a702f61195db109a203151d",
+  "split_seeds": {
+    "calibration": 9101,
+    "evaluation": 9201
+  },
+  "sampling": {
+    "functional_geometry_images": 100,
+    "functional_geometry_ids": "functional_geometry/calibration_sample_ids.csv",
+    "multiblock_reference_images": 20,
+    "multiblock_reference_ids": "multiblock_prediction/calibration_reference_image_ids.csv",
+    "perturbation_vectors_per_model": 100,
+    "perturbation_seed": 42,
+    "scale": 0.4
+  },
+  "checkpoints": [
+    {
+      "model_key": "deit_tiny",
+      "model_id": "deit_tiny_patch16_224",
+      "source": "timm Hugging Face snapshot 80e968688553f219e4a86f940ed945a23709c16f",
+      "file": "model.safetensors",
+      "bytes": 22883348,
+      "sha256": "21d4764d94f6c3ffdb6da3581115a0a1ee2d505537d96883b540e54766407c9e"
+    },
+    {
+      "model_key": "deit_small",
+      "model_id": "deit_small_patch16_224",
+      "source": "timm Hugging Face snapshot 91327a9c99f98fe6b524cd4d397b7226b80e1365",
+      "file": "model.safetensors",
+      "bytes": 88216496,
+      "sha256": "1e747b4a8d0df2cfbd3c450e8c97685d867448ab0c2ddfb34b6885f5cb23e5b"
+    },
+    {
+      "model_key": "vit_base",
+      "model_id": "vit_base_patch16_224.augreg_in1k",
+      "source": "timm Hugging Face snapshot 458542882691a06a8b667c6fb5fe5c9573093a81",
+      "file": "model.safetensors",
+      "bytes": 346284714,
+      "sha256": "678a1ce471be7da9822fe2508497a5bcf6da4c6802053151b232ba88a42c21a2"
+    },
+    {
+      "model_key": "dinov2",
+      "model_id": "dinov2_vits14_lc",
+      "source": "facebookresearch/dinov2 local torch.hub cache; official backbone and linear head",
+      "files": [
+        {
+          "file": "dinov2_vits14_pretrain.pth",
+          "bytes": 88283115,
+          "sha256": "b938bf1bc15cd2ec0feacfe3a1bb553fe8ea9ca46a7e1d8d00217f29aef60cd9"
+        },
+        {
+          "file": "dinov2_vits14_linear_head.pth",
+          "bytes": 3077159,
+          "sha256": "74d2e1e9e662cd2f614edb87866352fd956d0377f62ff2ba110e1e5e848b65b5"
+        }
+      ]
+    }
+  ]
+}

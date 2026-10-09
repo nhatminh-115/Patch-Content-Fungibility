@@ -216,7 +216,7 @@ def set_font(run, size=10.3, bold=None, italic=None, color="202A32", name="Times
 
 
 BT = chr(96)
-INLINE = re.compile(r"(\*\*(.+?)\*\*|\*(.+?)\*|" + re.escape(BT) + r"(.+?)" + re.escape(BT) + r"|\\citep\{([^}]+)\}|<sub>([^<]+)</sub>|<sup>([^<]+)</sup>)")
+INLINE = re.compile(r"(\*\*(.+?)\*\*|\*(.+?)\*|" + re.escape(BT) + r"(.+?)" + re.escape(BT) + r"|\\citep\{([^}]+)\}|<sub>([^<]+)</sub>|<sup>([^<]+)</sup>|\\\((.+?)\\\))")
 INLINE_SCRIPT = re.compile(
     r"(?P<base>\|\|.*?\|\||\([^()]*\)|\{[^{}]*\}|(?:[^\W_]|[\u0300-\u036f])+)"
     r"(?:(?P<sub>_\{[^{}]*\}|_[^\W_])(?P<sup>\^\{[^{}]*\}|\^[^\W_])?|"
@@ -315,6 +315,10 @@ def add_inline_paragraph(doc, text, key_to_num, *, caption=False, center=False, 
             set_font(run, size=8.8 if caption else size, italic=caption,
                      color="4C5963" if caption else "202A32")
             run.font.superscript = True
+        elif match.group(8) is not None:
+            math_obj = OxmlElement("m:oMath")
+            append_math_expression(math_obj, math_text(match.group(8)))
+            p._p.append(math_obj)
         else:
             run = p.add_run(citation_replace(match.group(0), key_to_num))
             set_font(run, size=size, color="202A32")
@@ -349,9 +353,10 @@ def math_text(source: str) -> str:
         value = value.replace(command, replacement)
     value = re.sub(r"\\frac\{([^{}]+)\}\{([^{}]+)\}", r"(\1)/(\2)", value)
     commands = {
-        "ell": "l", "Delta": "Delta", "Gamma": "Gamma", "nabla": "grad",
-        "partial": "d", "approx": "~", "lambda": "lambda", "Sigma": "Σ",
-        "sum": "Σ", "top": "T", "in": "in", "to": "->", "cdot": "·",
+        "ell": "ℓ", "Delta": "Δ", "Gamma": "Γ", "nabla": "∇",
+        "partial": "∂", "approx": "≈", "lambda": "λ", "Sigma": "Σ",
+        "sum": "Σ", "top": "T", "in": "∈", "to": "→", "le": "≤",
+        "ge": "≥", "cdot": "·",
         "times": "×", "qquad": " ", "quad": " ", "left": "", "right": "",
         "operatorname": "", "mathrm": "", "text": "",
     }

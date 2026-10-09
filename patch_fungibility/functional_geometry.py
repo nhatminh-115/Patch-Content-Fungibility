@@ -575,8 +575,9 @@ def run_functional_geometry_experiment(
 
             # 5. Natural Covariance vs Functional Geometry Alignment
             evals_cov, evecs_cov = torch.linalg.eigh(cov_matrix)
-            evals_cov = evals_cov.flip(dims=[0])
-            evecs_cov = evecs_cov[:, torch.argsort(evals_cov, descending=True)]
+            idx_cov = torch.argsort(evals_cov, descending=True)
+            evals_cov = evals_cov[idx_cov]
+            evecs_cov = evecs_cov[:, idx_cov]
 
             # Eigenspectrum of Sigma^{1/2} M Sigma^{1/2}
             try:
