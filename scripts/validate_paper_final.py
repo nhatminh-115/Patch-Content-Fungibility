@@ -301,15 +301,15 @@ def main() -> int:
     # Every figure/table callout must resolve to the numbered object and precede its placement.
     lines = text.splitlines()
     fig_objects = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"!\[Figure\s+(S?\d+)", line.strip()))]
-    fig_captions = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*Fig\.\s*(S?\d+)\.", line.strip()))]
+    fig_captions = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*Figure\s*(S?\d+)\.", line.strip()))]
     table_headings = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*\*TABLE\s+([IVX]+)\*\*", line.strip()))]
     table_captions = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*Table\s+([IVX]+)\.", line.strip()))]
     figure_callouts = {}
     table_callouts = {}
     for i, line in enumerate(lines):
-        if line.strip().startswith(("![", "*Fig.", "**TABLE", "*Table ")):
+        if line.strip().startswith(("![", "*Figure", "**TABLE", "*Table ")):
             continue
-        for m in re.finditer(r"\b(?:Fig\.|Figure)\s+(S?\d+)\b", line):
+        for m in re.finditer(r"\bFigure\s+(S?\d+)\b", line):
             figure_callouts.setdefault(m.group(1), i)
         for m in re.finditer(r"\bTable\s+([IVX]+)\b", line, re.I):
             table_callouts.setdefault(m.group(1).upper(), i)
@@ -321,7 +321,7 @@ def main() -> int:
     table_cap_labels = [label for _, label in table_captions]
     table_order_ok = table_labels == table_cap_labels == ["I", "II", "III"]
     table_placement_ok = all(label in table_callouts and table_callouts[label] < pos for pos, label in table_headings)
-    resolved_figs = set(re.findall(r"\b(?:Fig\.|Figure)\s+(S?\d+)\b", text))
+    resolved_figs = set(re.findall(r"\bFigure\s+(S?\d+)\b", text))
     resolved_tables = set(m.group(1).upper() for m in re.finditer(r"\bTable\s+([IVX]+)\b", text, re.I))
     record("figure_cross_references_resolve_and_precede_objects", fig_order_ok and fig_placement_ok and resolved_figs == set(fig_labels),
            f"Figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; placement={fig_placement_ok}.")
