@@ -16,7 +16,7 @@ TRACE = DOCS / "PAPER_NUMBER_TRACEABILITY.md"
 CLAIMS = DOCS / "PAPER_FINAL_CLAIMS_TABLE.md"
 SAMPLES = DOCS / "PAPER_SAMPLE_SIZE_MAP.md"
 FIGS = ROOT / "figures" / "paper_final_v4"
-DOCX_PATH = DOCS / "PAPER_DRAFT_v5_synced.docx"
+DOCX_PATH = DOCS / "PAPER_DRAFT_v5.docx"
 if not DOCX_PATH.is_file():
     DOCX_PATH = DOCS / "PAPER_DRAFT_v4.docx"
 sys.path.insert(0, str(ROOT / "scripts"))
