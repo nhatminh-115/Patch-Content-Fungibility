@@ -1,0 +1,150 @@
+{
+  "experiment": "PCF grouped-token-diversity cross-architecture extension",
+  "status": "completed",
+  "started_utc": "2026-10-09T03:10:33.089680+00:00",
+  "frozen_protocol": "docs/FUNGIBILITY_V1_GROUPED_DIVERSITY_EXTENSION_PROTOCOL.md",
+  "frozen_protocol_sha256": "cc862113de5e59e1f82dd8b141c191d0483b167ff245900e028cfdab2a346462",
+  "repository_head": "eb2e8d83c738add8c3067b24d0eedc69f4d52306",
+  "script_sha256": "302b7ce971af622c03fb589306d16dfe968267e18cf3834a7ce2284c8cf9422e",
+  "device": "cuda",
+  "device_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "torch": "2.11.0+cu128",
+  "cuda_runtime": "12.8",
+  "numpy": "2.4.6",
+  "pandas": "2.3.3",
+  "scipy": "1.15.3",
+  "seeds": [
+    26001,
+    26002,
+    26003,
+    26004,
+    26005
+  ],
+  "n_calibration_images": 1000,
+  "n_evaluation_images": 1000,
+  "calibration_split_seed": 9101,
+  "evaluation_split_seed": 9201,
+  "target_depth_output_block": 8,
+  "status_note": "No DeiT outcomes were rerun or modified.",
+  "models": {
+    "vitb": {
+      "architecture": "ViT-B/16 AugReg",
+      "model_id": "vit_base_patch16_224.augreg_in1k",
+      "source": "timm",
+      "embed_dim": 768,
+      "depth": 12,
+      "num_heads": 12,
+      "patch_size": 16,
+      "num_patches": 196,
+      "regime": "supervised_augreg",
+      "readout": "cls_token",
+      "data_config": {
+        "input_size": "(3, 224, 224)",
+        "interpolation": "bicubic",
+        "mean": "(0.5, 0.5, 0.5)",
+        "std": "(0.5, 0.5, 0.5)",
+        "crop_pct": "0.9",
+        "crop_mode": "center"
+      },
+      "parameters_frozen": true,
+      "state_dict_sha256": "faf2e08fc664f4cb00b5cb8497272519050660181abffdf427d327c91e755b73",
+      "model_state_sha256": "faf2e08fc664f4cb00b5cb8497272519050660181abffdf427d327c91e755b73",
+      "batch_size": 16,
+      "n_patches": 196,
+      "k_values": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        196
+      ],
+      "preprocessing": {
+        "input_size": "(3, 224, 224)",
+        "interpolation": "bicubic",
+        "mean": "(0.5, 0.5, 0.5)",
+        "std": "(0.5, 0.5, 0.5)",
+        "crop_pct": "0.9",
+        "crop_mode": "center"
+      },
+      "clean_top1_accuracy": 0.761,
+      "clean_mean_true_class_margin": 3.192275285720825,
+      "clean_margin_max_abs_diff_vs_archived_v1": 0.0,
+      "calibration_statistic_checks": {
+        "mu_8": {
+          "shape_match": true,
+          "max_absolute_difference": 0.0,
+          "allclose_atol_1e-6_rtol_1e-5": true
+        },
+        "sigma_8": {
+          "shape_match": true,
+          "max_absolute_difference": 0.0,
+          "allclose_atol_1e-6_rtol_1e-5": true
+        }
+      }
+    },
+    "dinov2": {
+      "architecture": "DINOv2 ViT-S/14",
+      "model_id": "dinov2_vits14_lc_layers1",
+      "source": "facebookresearch/dinov2",
+      "embed_dim": 384,
+      "depth": 12,
+      "num_heads": 6,
+      "patch_size": 14,
+      "num_patches": 256,
+      "regime": "self_supervised_dinov2",
+      "readout": "cls_and_patch_mean",
+      "head_in_features": 768,
+      "num_classes": 1000,
+      "parameters_frozen": true,
+      "state_dict_sha256": "3d789f3555f9ef4483eaef2f0fb48fe7b27a0bbe17ddd6ea3b70565c10a29f2a",
+      "model_state_sha256": "3d789f3555f9ef4483eaef2f0fb48fe7b27a0bbe17ddd6ea3b70565c10a29f2a",
+      "batch_size": 32,
+      "n_patches": 256,
+      "k_values": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        256
+      ],
+      "preprocessing": "official transform returned by v1_models.py",
+      "clean_top1_accuracy": 0.788,
+      "clean_mean_true_class_margin": 2.7604994773864746,
+      "clean_margin_max_abs_diff_vs_archived_v1": 0.0,
+      "calibration_statistic_checks": {
+        "mu_8": {
+          "shape_match": true,
+          "max_absolute_difference": 0.0,
+          "allclose_atol_1e-6_rtol_1e-5": true
+        },
+        "sigma_8": {
+          "shape_match": true,
+          "max_absolute_difference": 0.0,
+          "allclose_atol_1e-6_rtol_1e-5": true
+        }
+      }
+    }
+  },
+  "calibration_split_source": "outputs/fungibility_v0_6/calibration_split.csv",
+  "calibration_split_sha256": "32df41c745ed84d8a24b55d09c9c5939be203228ea1200ccdf0acabc8e36851a",
+  "evaluation_split_source": "outputs/fungibility_v0_6/evaluation_split.csv",
+  "evaluation_split_sha256": "829cb109c008538d8253134386cb5d241ffb304bd07934d9408752c57a731a93",
+  "split_identity_verified": true,
+  "split_overlap_count": 0,
+  "archived_calibration_statistics": "outputs/fungibility_v1/calibration_statistics.npz",
+  "calibration_statistics_sha256": "43e817b90cdf5997df2f4b992499fd4d1893bb570db8219bfe05e5fde745e6ef",
+  "finished_utc": "2026-10-09T03:12:38.244311+00:00",
+  "runtime_seconds": 125.20695376396179,
+  "peak_gpu_memory_gb": 0.4670748710632324,
+  "raw_per_image_rows": 80000,
+  "validation_all_passed": true,
+  "validation_file": "validation_results.json"
+}

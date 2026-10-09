@@ -87,7 +87,7 @@
     },
     "figure_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
-      "detail": "Figure objects=['1', '2', '3', '4', '5', '6', '7', 'S1']; captions=['1', '2', '3', '4', '5', '6', '7', 'S1']; callouts=['1', '2', '3', '4', '5', '6', '7', 'S1']; placement=True."
+      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7', 'S1']; captions=['1', '2', '3', '4', '5', '6', '7', 'S1']; callouts=['1', '2', '3', '4', '5', '6', '7', 'S1', 'S10']; supplementary callouts=['S10']; supplement objects/captions/files resolve=True; main placement=True."
     },
     "table_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
@@ -107,7 +107,7 @@
     },
     "editable_docx_contains_three_tables_eight_figures_ten_equations_and_51_ieee_refs": {
       "status": "PASS",
-      "detail": "DOCX package PAPER_DRAFT_v4_synced.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=14, inline math objects=64, references=51."
+      "detail": "DOCX package PAPER_DRAFT_v5_synced.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=14, inline math objects=73, references=51."
     }
   },
   "passed_count": 27,

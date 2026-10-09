@@ -8,7 +8,7 @@ Scores use a 1–5 scale (5 is strongest).
 |---|---|---:|---:|---:|---:|---|---|
 | 1. Overview | Latest supplied composite overview: (a) intervention, (b) replacement constraints and Value-path cancellation, and (c) anisotropic transmission. | — | — | — | — | Source image reproduced unchanged. | Accepted as requested. |
 | 2. Depth-wise replacement | Plots audited V1 CSV rows plus a separately recorded depth-6 follow-up, with clean references and Gaussian seed variability. | 5 | 5 | 4 | 5 | Follow-up added at the user's request. | Accepted; depth 6 is visible and the late-layer failure of zero replacement remains easy to see. |
-| 3. Geometry and diversity | Panel (a) shows V1 50% geometry controls for ViT-B/16 and DINOv2; panel (b) shows the V0.8 grouped-diversity K sweep for DeiT-Tiny/Small. The caption marks the distinct cohorts. | 5 | 5 | 4 | 5 | Reduced from three panels to two at the user's request; the panel-(a) legend remains below the plot. | Accepted; K sweep retained and relabeled as (b). |
+| 3. Geometry and diversity | Panel (a) shows 50% geometry controls for all four models; panel (b) shows grouped-diversity K sweeps for the same four models. Model colors match across panels; the figure-level labels share a baseline. | 5 | 5 | 4 | 5 | Added DeiT-Tiny/Small to panel (a) and aligned “(b)” with “(a)” at the figure top. | Regenerated from archived V0.7/V1 geometry outputs and visually inspected. |
 | 4. Anisotropic geometry | Replaced an unnamed trend line with a direction-sensitivity heatmap and a compact vector explanation. | 4 | 5 | 4 | 5 | Yes: switched the ratio scale to logarithmic and increased precision so sub-unity values did not round to zero. | Accepted; values and direction are legible. |
 | 5. Value path | Replaced a crowded combined panel with the measured coherent/random-sign/checkerboard comparison for V-only and K+V. | 5 | 5 | 4 | 5 | Yes: offset paired markers and moved panel labels into the titles to remove overlap. | Accepted; coherent versus cancelling patterns are clear. |
 | 6. End-to-end operator | Reframed the mechanism as a local-to-downstream diagram paired with the reported held-out damage correlations and rotation angle. | 4 | 5 | 4 | 5 | No. | Accepted; the evidence distinction is explicit. |
@@ -93,3 +93,27 @@ Scores use a 1–5 scale (5 is strongest).
 - Updated the DOCX exporter to encode subscripts and superscripts throughout equations and inline prose as Word math/script structures; figure captions use semantic subscript/superscript markup where needed.
 - Replaced defensive novelty wording with a concise statement that the underlying analytical tools are established, removed an internal CSV path from the Results prose, and simplified the reproducibility statement. Substantive evidence boundaries remain in place.
 - Rebuilt figures from the existing source data and visually inspected the changed assets. No experiment, raw output, or quantitative result was changed.
+
+## Figure 2 four-architecture update on 2026-10-09
+
+- Replaced the earlier two-panel depth plot with a 2x2 layout: DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, and DINOv2 ViT-S/14, all across depths 5-10 at 25% patch replacement.
+- DeiT centroid values use the calibration-derived `global_mean_acc` field, not `same_mean_acc`. Gaussian seed accuracies reconstructed from paired `acc_diff` values reconcile with the depth-summary means; error bars show sample SD over five seeds for DeiT and three seeds for ViT-B/DINOv2.
+- All four panels show the clean baseline and use a shared Top-1 scale, consistent colors, distinct markers, and readable depth ticks. The visual pass found no clipped labels, missing depth, or legend collision; the hollow Centroid markers preserve visibility where Gaussian and centroid results nearly overlap.
+- Regenerated Figure 2 SVG, 300-dpi PNG, preview, manifest, and contact sheet from existing CSVs. Each model uses 1,000 held-out and 1,000 disjoint calibration images; depth 6 for ViT-B/DINOv2 remains identified as a separate follow-up. No model was run, no raw data changed, and no other figure was regenerated.
+- In the rendered DOCX, removed redundant x-axis titles from the shared upper row; the labeled depth ticks remain on the lower row.
+
+
+## Figure 3 geometry panel extension requested on 2026-10-09
+
+- Added DeiT-Tiny and DeiT-Small to panel (a), alongside ViT-B/16 AugReg and DINOv2 ViT-S/14. The same model color/marker mapping is used in panels (a) and (b).
+- Panel (a) uses color-coded bars for the saved 50% replacement centroid, coordinate-shuffle, and sign-inversion controls, with model-specific clean baselines. Coordinate-shuffle bars summarize three saved seeds per model with individual outcomes and sample-SD error bars; no models were rerun.
+- Moved both figure-level panel labels to the same horizontal baseline. Corrected the manuscript-facing DeiT-Small coordinate-shuffle aggregate and sign-inversion values to match their saved source CSVs (58.2% and 10.5%).
+- Updated the Figure 3 caption, sample-size map, claim table, number traceability, figure manifest, and editable DOCX. Source CSVs and raw outcomes are unchanged.
+
+
+## Figure 4 functional-geometry update on 2026-10-09
+
+- Kept panel (a) as the depth-wise PC1-to-lowest-variance-PC directional margin-sensitivity ratio and verified its labels against `covariance_function_alignment.csv`; the depth-8 ratios are 24.4553 for DeiT-Small and 0.0241773 for ViT-B/16 AugReg.
+- Replaced panel (b) with the depth-wise fraction of M_ℓ eigenvalues at or below 10⁻³λ_max, from `fungible_dimension.csv`. Endpoint labels report 57.03% (DeiT-Small) and 49.61% (ViT-B) at depth 10; both begin at 0.26% at depth 5.
+- Removed the standardized PCA score-density maps rather than moving them to the supplement: they described score distributions but did not provide an independent functional-sensitivity result, and standardization obscured raw variance scale. Effective-rank changes are reported in Section 5.1 from the same audited CSV.
+- Regenerated Figure 4 SVG, 300-dpi PNG, preview, manifest, and contact sheet from existing CSVs only. No models were executed, no experiments were run, and no raw measurements changed.

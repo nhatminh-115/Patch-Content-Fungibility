@@ -16,7 +16,7 @@ TRACE = DOCS / "PAPER_NUMBER_TRACEABILITY.md"
 CLAIMS = DOCS / "PAPER_FINAL_CLAIMS_TABLE.md"
 SAMPLES = DOCS / "PAPER_SAMPLE_SIZE_MAP.md"
 FIGS = ROOT / "figures" / "paper_final_v4"
-DOCX_PATH = DOCS / "PAPER_DRAFT_v4_synced.docx"
+DOCX_PATH = DOCS / "PAPER_DRAFT_v5_synced.docx"
 if not DOCX_PATH.is_file():
     DOCX_PATH = DOCS / "PAPER_DRAFT_v4.docx"
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -323,8 +323,36 @@ def main() -> int:
     table_placement_ok = all(label in table_callouts and table_callouts[label] < pos for pos, label in table_headings)
     resolved_figs = set(re.findall(r"\bFigure\s+(S?\d+)\b", text))
     resolved_tables = set(m.group(1).upper() for m in re.finditer(r"\bTable\s+([IVX]+)\b", text, re.I))
-    record("figure_cross_references_resolve_and_precede_objects", fig_order_ok and fig_placement_ok and resolved_figs == set(fig_labels),
-           f"Figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; placement={fig_placement_ok}.")
+
+    # Supplementary callouts in the main draft resolve against the supplementary manuscript,
+    # which is maintained separately and is not embedded in the eight-figure main DOCX.
+    supplementary_path = DOCS / "PAPER_SUPPLEMENTARY_DRAFT.md"
+    supplementary_text = supplementary_path.read_text(encoding="utf-8-sig") if supplementary_path.is_file() else ""
+    supplementary_lines = supplementary_text.splitlines()
+    supplementary_objects = {}
+    for i, line in enumerate(supplementary_lines):
+        match = re.match(r"!\[Supplementary Figure\s+(S?\d+)[^]]*\]\(([^)]+)\)", line.strip())
+        if match:
+            supplementary_objects.setdefault(match.group(1), []).append((i, match.group(2)))
+    supplementary_captions = {}
+    for i, line in enumerate(supplementary_lines):
+        match = re.match(r"\*\*Supplementary Figure\s+(S?\d+)\.", line.strip())
+        if match:
+            supplementary_captions.setdefault(match.group(1), []).append(i)
+    supplementary_refs = resolved_figs - set(fig_labels)
+    supplementary_refs_ok = True
+    for label in supplementary_refs:
+        objects = supplementary_objects.get(label, [])
+        captions = supplementary_captions.get(label, [])
+        if len(objects) != 1 or len(captions) != 1 or objects[0][0] >= captions[0]:
+            supplementary_refs_ok = False
+            continue
+        target = (DOCS / objects[0][1]).resolve()
+        if not target.is_file():
+            supplementary_refs_ok = False
+    resolved_figures_ok = resolved_figs == set(fig_labels) | supplementary_refs and supplementary_refs_ok
+    record("figure_cross_references_resolve_and_precede_objects", fig_order_ok and fig_placement_ok and resolved_figures_ok,
+           f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement objects/captions/files resolve={supplementary_refs_ok}; main placement={fig_placement_ok}.")
     record("table_cross_references_resolve_and_precede_objects", table_order_ok and table_placement_ok and resolved_tables == set(table_labels),
            f"Table headings={table_labels}; captions={table_cap_labels}; callouts={sorted(resolved_tables)}; placement={table_placement_ok}.")
     equation_blocks = text.count("$$") // 2

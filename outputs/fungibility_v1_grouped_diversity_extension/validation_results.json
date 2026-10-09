@@ -1,0 +1,202 @@
+{
+  "all_passed": true,
+  "assertions": {
+    "exact_historical_split_identity": true,
+    "disjoint_split_images": true,
+    "models_frozen": {
+      "vitb": true,
+      "dinov2": true
+    },
+    "calibration_statistics_match_archived": {
+      "vitb": {
+        "mu_8": {
+          "shape_match": true,
+          "max_absolute_difference": 0.0,
+          "allclose_atol_1e-6_rtol_1e-5": true
+        },
+        "sigma_8": {
+          "shape_match": true,
+          "max_absolute_difference": 0.0,
+          "allclose_atol_1e-6_rtol_1e-5": true
+        }
+      },
+      "dinov2": {
+        "mu_8": {
+          "shape_match": true,
+          "max_absolute_difference": 0.0,
+          "allclose_atol_1e-6_rtol_1e-5": true
+        },
+        "sigma_8": {
+          "shape_match": true,
+          "max_absolute_difference": 0.0,
+          "allclose_atol_1e-6_rtol_1e-5": true
+        }
+      }
+    },
+    "clean_prediction_and_margin_parity": {
+      "vitb": {
+        "top1_accuracy": 0.761,
+        "mean_true_class_margin": 3.192275285720825,
+        "max_abs_margin_diff_vs_v1": 0.0
+      },
+      "dinov2": {
+        "top1_accuracy": 0.788,
+        "mean_true_class_margin": 2.7604994773864746,
+        "max_abs_margin_diff_vs_v1": 0.0
+      }
+    },
+    "raw_row_count": 80000,
+    "expected_raw_row_count": 80000,
+    "unique_per_image_condition_keys": true,
+    "endpoint_compatibility_all_pass": true,
+    "endpoint_rows": [
+      {
+        "model": "dinov2",
+        "architecture": "DINOv2 ViT-S/14",
+        "k": 1,
+        "reference_condition": "shared_gaussian",
+        "metric": "top1_accuracy",
+        "n_new_seeds": 5,
+        "n_archived_seeds": 5,
+        "new_mean": 0.0012000000000000001,
+        "new_sd_across_seeds": 0.0008366600265340755,
+        "archived_mean": 0.0024000000000000002,
+        "archived_sd_across_seeds": 0.0016733200530681513,
+        "absolute_difference": 0.0012000000000000001,
+        "combined_standard_error": 0.0008366600265340756,
+        "difference_in_combined_se": 1.4342743312012722,
+        "compatibility_threshold_combined_se": 2.0,
+        "status": "PASS"
+      },
+      {
+        "model": "dinov2",
+        "architecture": "DINOv2 ViT-S/14",
+        "k": 1,
+        "reference_condition": "shared_gaussian",
+        "metric": "mean_true_class_margin",
+        "n_new_seeds": 5,
+        "n_archived_seeds": 5,
+        "new_mean": -9.2327985498228,
+        "new_sd_across_seeds": 0.05550386961202281,
+        "archived_mean": -9.076791191101075,
+        "archived_sd_across_seeds": 0.2843715046242478,
+        "absolute_difference": 0.156007358721725,
+        "combined_standard_error": 0.12957455937348739,
+        "difference_in_combined_se": 1.2039968299027541,
+        "compatibility_threshold_combined_se": 2.0,
+        "status": "PASS"
+      },
+      {
+        "model": "dinov2",
+        "architecture": "DINOv2 ViT-S/14",
+        "k": 256,
+        "reference_condition": "independent_gaussian",
+        "metric": "top1_accuracy",
+        "n_new_seeds": 5,
+        "n_archived_seeds": 5,
+        "new_mean": 0.001,
+        "new_sd_across_seeds": 0.0007071067811865475,
+        "archived_mean": 0.0012000000000000001,
+        "archived_sd_across_seeds": 0.00044721359549995795,
+        "absolute_difference": 0.0002000000000000001,
+        "combined_standard_error": 0.00037416573867739413,
+        "difference_in_combined_se": 0.534522483824849,
+        "compatibility_threshold_combined_se": 2.0,
+        "status": "PASS"
+      },
+      {
+        "model": "dinov2",
+        "architecture": "DINOv2 ViT-S/14",
+        "k": 256,
+        "reference_condition": "independent_gaussian",
+        "metric": "mean_true_class_margin",
+        "n_new_seeds": 5,
+        "n_archived_seeds": 5,
+        "new_mean": -7.982412631498801,
+        "new_sd_across_seeds": 0.04606699328701634,
+        "archived_mean": -7.953426933288574,
+        "archived_sd_across_seeds": 0.06671489098440742,
+        "absolute_difference": 0.028985698210227007,
+        "combined_standard_error": 0.036257535905153224,
+        "difference_in_combined_se": 0.7994392748048639,
+        "compatibility_threshold_combined_se": 2.0,
+        "status": "PASS"
+      },
+      {
+        "model": "vitb",
+        "architecture": "ViT-B/16 AugReg",
+        "k": 1,
+        "reference_condition": "shared_gaussian",
+        "metric": "top1_accuracy",
+        "n_new_seeds": 5,
+        "n_archived_seeds": 5,
+        "new_mean": 0.0324,
+        "new_sd_across_seeds": 0.008018728078691783,
+        "archived_mean": 0.0294,
+        "archived_sd_across_seeds": 0.01066770828247567,
+        "absolute_difference": 0.002999999999999999,
+        "combined_standard_error": 0.005968249324550709,
+        "difference_in_combined_se": 0.5026599655713679,
+        "compatibility_threshold_combined_se": 2.0,
+        "status": "PASS"
+      },
+      {
+        "model": "vitb",
+        "architecture": "ViT-B/16 AugReg",
+        "k": 1,
+        "reference_condition": "shared_gaussian",
+        "metric": "mean_true_class_margin",
+        "n_new_seeds": 5,
+        "n_archived_seeds": 5,
+        "new_mean": -2.26208281024044,
+        "new_sd_across_seeds": 0.021344244146416017,
+        "archived_mean": -2.20004825592041,
+        "archived_sd_across_seeds": 0.09669161521730651,
+        "absolute_difference": 0.06203455432003002,
+        "combined_standard_error": 0.04428283010719499,
+        "difference_in_combined_se": 1.4008714928531807,
+        "compatibility_threshold_combined_se": 2.0,
+        "status": "PASS"
+      },
+      {
+        "model": "vitb",
+        "architecture": "ViT-B/16 AugReg",
+        "k": 196,
+        "reference_condition": "independent_gaussian",
+        "metric": "top1_accuracy",
+        "n_new_seeds": 5,
+        "n_archived_seeds": 5,
+        "new_mean": 0.14579999999999999,
+        "new_sd_across_seeds": 0.004658325879540841,
+        "archived_mean": 0.14679999999999999,
+        "archived_sd_across_seeds": 0.005019960159204457,
+        "absolute_difference": 0.0010000000000000009,
+        "combined_standard_error": 0.0030626785662227107,
+        "difference_in_combined_se": 0.32651157422416993,
+        "compatibility_threshold_combined_se": 2.0,
+        "status": "PASS"
+      },
+      {
+        "model": "vitb",
+        "architecture": "ViT-B/16 AugReg",
+        "k": 196,
+        "reference_condition": "independent_gaussian",
+        "metric": "mean_true_class_margin",
+        "n_new_seeds": 5,
+        "n_archived_seeds": 5,
+        "new_mean": -0.8294630022204892,
+        "new_sd_across_seeds": 0.006949455731852728,
+        "archived_mean": -0.8297057032585144,
+        "archived_sd_across_seeds": 0.01078543852380647,
+        "absolute_difference": 0.00024270103802526144,
+        "combined_standard_error": 0.005737954672525558,
+        "difference_in_combined_se": 0.042297482618216066,
+        "compatibility_threshold_combined_se": 2.0,
+        "status": "PASS"
+      }
+    ],
+    "all_k_values_have_five_seeds_and_1000_images": true,
+    "patch_positions_are_not_treated_as_independent_samples": true,
+    "seeds_are_not_treated_as_independent_images": true
+  }
+}

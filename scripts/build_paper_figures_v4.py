@@ -147,255 +147,370 @@ def grouped(rows: list[dict[str, str]], key_fields: tuple[str, ...], value_field
 
 
 def fig2(root: Path, out: Path) -> None:
-    paths = {
-        "ViT-B/16 AugReg": root/"outputs/fungibility_v1/vitb_depth_results.csv",
-        "DINOv2 ViT-S/14": root/"outputs/fungibility_v1/dinov2_depth_results.csv",
-    }
-    followup_paths = {
-        "ViT-B/16 AugReg": root/"outputs/fungibility_v1_depth6_followup/vitb_depth6_results.csv",
-        "DINOv2 ViT-S/14": root/"outputs/fungibility_v1_depth6_followup/dinov2_depth6_results.csv",
-    }
-    conditions = [("ZERO", "Zero", RED, "--"), ("CENTROID", "Centroid", BLUE, "-"),
-                  ("DIAGONAL_GAUSSIAN", "Gaussian", TEAL, "-")]
-    fig, axs = plt.subplots(1, 2, figsize=(10.6, 4.2), sharey=True)
-    plotted_by_model = {}
-    clean_by_model = {}
-    for ax, (model, path) in zip(axs, paths.items()):
-        rows = read_csv(path)
-        followup = read_csv(followup_paths[model])
-        rows.extend(r for r in followup if r["condition"] != "CLEAN")
-        clean = next(float(r["top1_accuracy"])*100 for r in rows if r["condition"] == "CLEAN")
-        clean_by_model[model] = clean
-        ax.axhline(clean, color=GRAY, linewidth=1.1, linestyle=(0, (3, 2)), label="Clean reference (dashed)")
-        plotted = {}
-        for cond, name, color, ls in conditions:
-            agg = grouped([r for r in rows if r["condition"] == cond], ("depth",), "top1_accuracy")
-            depths, means, errs = [], [], []
-            for depth in sorted({int(k[0]) for k in agg}):
-                vals = agg[(str(depth),)]
-                depths.append(depth); means.append(sum(vals)/len(vals)*100)
-                if len(vals) > 1:
-                    mean = sum(vals)/len(vals); errs.append((sum((v-mean)**2 for v in vals)/(len(vals)-1))**0.5*100)
-                else:
-                    errs.append(0.0)
-            ax.errorbar(depths, means, yerr=errs, marker="o", markersize=4.8, linewidth=1.8,
-                        capsize=2.5, color=color, linestyle=ls, label=name)
-            plotted[name] = (depths, means, errs, color, ls)
-        plotted_by_model[model] = plotted
-        ax.set_title(model, loc="left", color=INK, pad=10)
-        ax.set_xlabel("Intervention depth")
-        ax.set_xticks([5, 6, 7, 8, 9, 10])
-        ax.set_xlim(4.6, 10.7); ax.set_ylim(0, 86)
+    depths = list(range(5, 11))
+
+    def deit_series(summary_file: str, seed_file: str, model_id: str) -> dict:
+        summary_rows = [r for r in read_csv(root / summary_file)
+                        if r["model"] == model_id and r["fraction"] == "25%"]
+        if len(summary_rows) != len(depths) or {int(r["depth"]) for r in summary_rows} != set(depths):
+            raise ValueError(f"Expected one 25% summary row at each depth for {model_id}")
+        summary = {int(r["depth"]): r for r in summary_rows}
+        seed_rows = [r for r in read_csv(root / seed_file)
+                     if r["model"] == model_id and r["fraction"] == "25%" and r["condition"] == "gaussian"]
+        clean_values = {float(r["clean_acc"]) for r in summary_rows}
+        if len(clean_values) != 1:
+            raise ValueError(f"Clean accuracy varies across {model_id} depth summary rows")
+
+        data = {"depths": depths, "clean": clean_values.pop() * 100,
+                "zero": [], "centroid": [], "gaussian": [], "gaussian_sd": []}
+        for depth in depths:
+            row = summary[depth]
+            seeds = [r for r in seed_rows if int(r["depth"]) == depth]
+            if len(seeds) != 5 or len({r["seed"] for r in seeds}) != 5:
+                raise ValueError(f"Expected five distinct Gaussian seeds for {model_id} depth {depth}")
+            # In the V0.6 summary, acc_diff is Gaussian accuracy minus zero accuracy.
+            seed_accuracy = [float(row["zero_acc"]) + float(r["acc_diff"]) for r in seeds]
+            gaussian_mean = statistics.mean(seed_accuracy)
+            if abs(gaussian_mean - float(row["gaussian_acc"])) > 1e-9:
+                raise ValueError(f"Seed-level Gaussian mean does not reconcile for {model_id} depth {depth}")
+            data["zero"].append(float(row["zero_acc"]) * 100)
+            # The paper's centroid is the disjoint-calibration global mean, not same_mean_acc.
+            data["centroid"].append(float(row["global_mean_acc"]) * 100)
+            data["gaussian"].append(float(row["gaussian_acc"]) * 100)
+            data["gaussian_sd"].append(statistics.stdev(seed_accuracy) * 100)
+        return data
+
+    def vit_series(depth_file: str, followup_file: str) -> dict:
+        original = read_csv(root / depth_file)
+        followup = read_csv(root / followup_file)
+        original_sweep_depths = {int(r["depth"]) for r in original if r["condition"] != "CLEAN"}
+        followup_depths = {int(r["depth"]) for r in followup if r["condition"] != "CLEAN"}
+        if original_sweep_depths != {5, 7, 8, 9, 10} or followup_depths != {6}:
+            raise ValueError(f"Depth sweep/follow-up coverage is unexpected: {original_sweep_depths}, {followup_depths}")
+        clean_original = [r for r in original if r["condition"] == "CLEAN"]
+        clean_followup = [r for r in followup if r["condition"] == "CLEAN"]
+        if len(clean_original) != 1 or len(clean_followup) != 1:
+            raise ValueError("Expected one clean baseline in each ViT/DINO source cohort")
+        clean = float(clean_original[0]["top1_accuracy"])
+        if int(clean_followup[0]["depth"]) != 6 or abs(float(clean_followup[0]["top1_accuracy"]) - clean) > 1e-12:
+            raise ValueError("Depth-6 follow-up clean baseline does not match the original cohort")
+
+        data = {"depths": depths, "clean": clean * 100,
+                "zero": [], "centroid": [], "gaussian": [], "gaussian_sd": []}
+        conditions = {depth: [r for r in (followup if depth == 6 else original)
+                              if int(r["depth"]) == depth] for depth in depths}
+        for depth in depths:
+            rows = conditions[depth]
+            for condition in ("ZERO", "CENTROID"):
+                selected = [r for r in rows if r["condition"] == condition]
+                if len(selected) != 1:
+                    raise ValueError(f"Expected one {condition} value at depth {depth}")
+                data["zero" if condition == "ZERO" else "centroid"].append(
+                    float(selected[0]["top1_accuracy"]) * 100)
+            gaussian = [r for r in rows if r["condition"] == "DIAGONAL_GAUSSIAN"]
+            if len(gaussian) != 3 or len({r["seed"] for r in gaussian}) != 3:
+                raise ValueError(f"Expected three distinct Gaussian seeds at depth {depth}")
+            values = [float(r["top1_accuracy"]) for r in gaussian]
+            data["gaussian"].append(statistics.mean(values) * 100)
+            data["gaussian_sd"].append(statistics.stdev(values) * 100)
+        return data
+
+    panels = [
+        ("a", "DeiT-Tiny", deit_series(
+            "outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv",
+            "outputs/fungibility_v0_6/tiny_seed_results.csv", "deit_tiny_patch16_224")),
+        ("b", "DeiT-Small", deit_series(
+            "outputs/fungibility_v0_6/small_depth_fraction_summary.csv",
+            "outputs/fungibility_v0_6/small_seed_results.csv", "deit_small_patch16_224")),
+        ("c", "ViT-B/16 AugReg", vit_series(
+            "outputs/fungibility_v1/vitb_depth_results.csv",
+            "outputs/fungibility_v1_depth6_followup/vitb_depth6_results.csv")),
+        ("d", "DINOv2 ViT-S/14", vit_series(
+            "outputs/fungibility_v1/dinov2_depth_results.csv",
+            "outputs/fungibility_v1_depth6_followup/dinov2_depth6_results.csv")),
+    ]
+
+    fig, axs = plt.subplots(2, 2, figsize=(10.6, 6.55), sharex=True, sharey=True)
+    for ax, (panel, model, data) in zip(axs.flat, panels):
+        ax.axhline(data["clean"], color=GRAY, linewidth=1.1,
+                   linestyle=(0, (3, 2)), zorder=1)
+        ax.plot(depths, data["zero"], color=RED, marker="o", markersize=4.5,
+                linewidth=1.55, linestyle="--", label="Zero", zorder=3)
+        ax.plot(depths, data["centroid"], color=BLUE, marker="s", markersize=4.5,
+                markerfacecolor=PAPER, markeredgecolor=BLUE, markeredgewidth=1.0,
+                linewidth=1.65, linestyle="-", label="Centroid", zorder=4.5)
+        ax.errorbar(depths, data["gaussian"], yerr=data["gaussian_sd"], color=TEAL,
+                    marker="^", markersize=4.6, linewidth=1.65, linestyle="-",
+                    elinewidth=.9, capsize=2.1, label="Gaussian", zorder=4)
+        ax.set_title(f"({panel})  {model}", loc="left", color=INK, pad=9)
+        ax.set_xticks(depths)
+        ax.set_xlim(4.65, 10.35)
+        ax.set_ylim(0, 85)
+        ax.set_yticks([0, 20, 40, 60, 80])
+        ax.set_xlabel("Intervention depth" if panel in ("c", "d") else "")
         polish_axis(ax, grid="y")
-    # Zoom a central region that contains every replacement curve and the clean reference.
-    zoom_x = (4.8, 8.3)
-    zoom_y = (69.0, 77.5)
-    inset = axs[0].inset_axes([.35, .23, .50, .42])
-    inset.set_facecolor(PAPER)
-    inset.patch.set_alpha(1.0)
-    inset.set_zorder(10)
-    inset.axhline(clean_by_model["ViT-B/16 AugReg"], color=GRAY, linewidth=1.0,
-                  linestyle=(0, (3, 2)), zorder=1)
-    for name, (depths, means, errs, color, ls) in plotted_by_model["ViT-B/16 AugReg"].items():
-        inset.errorbar(depths, means, yerr=errs, marker="o", markersize=3.2, linewidth=1.35,
-                       capsize=1.8, color=color, linestyle=ls, zorder=3)
-    inset.set_xlim(*zoom_x); inset.set_ylim(*zoom_y)
-    inset.set_xticks([5, 6, 7, 8]); inset.set_yticks([70, 72, 74, 76])
-    inset.yaxis.tick_right()
-    inset.tick_params(labelsize=6.8, length=2, pad=1.5)
-    inset.grid(axis="y", color=GRID, linewidth=.55)
-    for spine in inset.spines.values():
-        spine.set_edgecolor(BLUE); spine.set_linewidth(1.1)
-    axs[0].add_patch(Rectangle((zoom_x[0], zoom_y[0]), zoom_x[1]-zoom_x[0], zoom_y[1]-zoom_y[0],
-                               fill=False, edgecolor=BLUE, linewidth=1.2, zorder=5))
-    for source_x, target_x in ((zoom_x[0], 0), (zoom_x[1], 1)):
-        fig.add_artist(ConnectionPatch((source_x, zoom_y[0]), (target_x, 1),
-                                       coordsA="data", axesA=axs[0],
-                                       coordsB="axes fraction", axesB=inset,
-                                       color=BLUE, linestyle=(0, (3, 2)),
-                                       linewidth=.85, alpha=.8, zorder=8))
-    axs[0].set_ylabel("Top-1 accuracy (%)")
-    handles, labels = axs[0].get_legend_handles_labels()
-    fig.legend(handles, labels, frameon=False, ncol=4, loc="lower center",
-               bbox_to_anchor=(.5, .012), fontsize=8.5)
-    panel_label(axs[0], "a"); panel_label(axs[1], "b")
-    fig.tight_layout(rect=(0, .06, 1, .98), w_pad=2.2)
+    axs[0, 0].set_ylabel("Top-1 accuracy (%)")
+    axs[1, 0].set_ylabel("Top-1 accuracy (%)")
+
+    legend_handles = [
+        Line2D([0], [0], color=RED, marker="o", linestyle="--", linewidth=1.55,
+               markersize=4.5, label="Zero"),
+        Line2D([0], [0], color=BLUE, marker="s", linestyle="-", linewidth=1.65,
+               markerfacecolor=PAPER, markeredgecolor=BLUE, markersize=4.5, label="Centroid"),
+        Line2D([0], [0], color=TEAL, marker="^", linestyle="-", linewidth=1.65,
+               markersize=4.6, label="Gaussian"),
+        Line2D([0], [0], color=GRAY, linestyle=(0, (3, 2)), linewidth=1.1,
+               label="Clean accuracy"),
+    ]
+    fig.legend(handles=legend_handles, frameon=False, ncol=4, loc="lower center",
+               bbox_to_anchor=(.5, .012), fontsize=8.5, handlelength=2.0)
+    fig.tight_layout(rect=(0, .075, 1, .995), w_pad=2.0, h_pad=1.8)
     save_figure(fig, out, "figure2_depthwise")
 
 
 def fig3(root: Path, out: Path) -> None:
-    fig, axs = plt.subplots(1, 2, figsize=(11.8, 5.0), gridspec_kw={"width_ratios": [1.0, 1.12]})
-    model_specs = [
-        ("ViT-B/16", "ViT-B/16 AugReg", BLUE, "o"),
-        ("DINOv2 ViT-S/14", "DINOv2", TEAL, "s"),
+    fig = plt.figure(figsize=(14.6, 7.1))
+    grid = fig.add_gridspec(2, 3, width_ratios=[1.55, .95, .95], hspace=.40, wspace=.42)
+    ax = fig.add_subplot(grid[:, 0])
+    diversity_axes = [
+        fig.add_subplot(grid[0, 1]), fig.add_subplot(grid[0, 2]),
+        fig.add_subplot(grid[1, 1]), fig.add_subplot(grid[1, 2]),
     ]
-    legend_handles = [
-        Line2D([0], [0], marker="o", linestyle="none", markerfacecolor=BLUE,
-               markeredgecolor="white", label="ViT-B/16 AugReg"),
-        Line2D([0], [0], marker="s", linestyle="none", markerfacecolor=TEAL,
-               markeredgecolor="white", label="DINOv2"),
-        Line2D([0], [0], color=GRAY, linestyle="--", linewidth=1.2, label="Clean reference"),
+    all_arch_specs = [
+        ("deit_tiny_patch16_224", "DeiT-Tiny", BLUE, "o"),
+        ("deit_small_patch16_224", "DeiT-Small", TEAL, "s"),
+        ("vitb", "ViT-B/16 AugReg", ORANGE, "^"),
+        ("dinov2", "DINOv2 ViT-S/14", PURPLE, "D"),
     ]
 
-    def draw_seed_bar(ax, x: float, values: list[float], color: str, marker: str, width: float = .32):
-        mean = sum(values) / len(values)
-        sd = (sum((v - mean) ** 2 for v in values) / (len(values) - 1)) ** .5 if len(values) > 1 else 0.0
-        ax.bar(x, mean, width=width, color=color, alpha=.24, edgecolor=color, linewidth=.8, zorder=2)
-        if sd:
-            ax.errorbar(x, mean, yerr=sd, color=color, linewidth=.9, capsize=2.2, zorder=3)
-        jitter = [0.0] if len(values) == 1 else [((j / (len(values) - 1)) - .5) * width * .58 for j in range(len(values))]
-        ax.scatter([x + dx for dx in jitter], values, s=25, marker=marker, color=color,
-                   edgecolor=PAPER, linewidth=.55, zorder=4)
+    # (a) Fixed 50% replacement geometry controls across all four architectures.
+    deiT_sources = {
+        "deit_tiny_patch16_224": {
+            "summary": root / "outputs/fungibility_v0_7/tiny_fraction_summary.csv",
+            "permutation": root / "outputs/fungibility_v0_7/tiny_prototype_comparison.csv",
+            "sign": root / "outputs/fungibility_v0_7/tiny_sign_flip_sweep.csv",
+        },
+        "deit_small_patch16_224": {
+            "summary": root / "outputs/fungibility_v0_7/small_fraction_summary.csv",
+            "permutation": root / "outputs/fungibility_v0_7/small_prototype_comparison.csv",
+            "sign": root / "outputs/fungibility_v0_7/small_sign_flip_sweep.csv",
+        },
+    }
+    v1_geometry = {
+        "vitb": read_csv(root / "outputs/fungibility_v1/vitb_geometry_results.csv"),
+        "dinov2": read_csv(root / "outputs/fungibility_v1/dinov2_geometry_results.csv"),
+    }
+    v1_depth = {
+        "vitb": read_csv(root / "outputs/fungibility_v1/vitb_depth_results.csv"),
+        "dinov2": read_csv(root / "outputs/fungibility_v1/dinov2_depth_results.csv"),
+    }
+    geometry = {}
+    for model, _, _, _ in all_arch_specs:
+        if model in deiT_sources:
+            files = deiT_sources[model]
+            summary = next(r for r in read_csv(files["summary"]) if r["fraction"] == "50%")
+            permutation_rows = [
+                r for r in read_csv(files["permutation"])
+                if r["fraction"] == "50%" and r["family"] == "coord_perm"
+                and r["control"].startswith("coord_perm_seed_")
+            ]
+            sign = next(
+                r for r in read_csv(files["sign"])
+                if r["fraction"] == "50%" and r["flip_condition"] == "sign_flip_100%"
+            )
+            geometry[model] = {
+                "clean": 100 * float(summary["clean_acc"]),
+                "centroid": [100 * float(summary["mu8_acc"])],
+                "coordinate_shuffle": [100 * float(r["acc_control"]) for r in permutation_rows],
+                "sign_inversion": [100 * float(sign["accuracy"])],
+            }
+        else:
+            rows = [r for r in v1_geometry[model] if abs(float(r["fraction"]) - .5) < 1e-9]
+            clean = next(float(r["top1_accuracy"]) * 100 for r in v1_depth[model] if r["condition"] == "CLEAN")
+            by_condition = {
+                "CENTROID": [r for r in rows if r["condition"] == "CENTROID"],
+                "COORDINATE_PERMUTED_CENTROID": [r for r in rows if r["condition"] == "COORDINATE_PERMUTED_CENTROID"],
+                "SIGN_FLIPPED_CENTROID": [r for r in rows if r["condition"] == "SIGN_FLIPPED_CENTROID"],
+            }
+            geometry[model] = {
+                "clean": clean,
+                "centroid": [100 * float(r["top1_accuracy"]) for r in by_condition["CENTROID"]],
+                "coordinate_shuffle": [100 * float(r["top1_accuracy"]) for r in by_condition["COORDINATE_PERMUTED_CENTROID"]],
+                "sign_inversion": [100 * float(r["top1_accuracy"]) for r in by_condition["SIGN_FLIPPED_CENTROID"]],
+            }
 
-    # (a) Change the geometry of the replacement while keeping a 50% replacement rate.
-    ax = axs[0]
-    geometry_files = {
-        "ViT-B/16": root / "outputs/fungibility_v1/vitb_geometry_results.csv",
-        "DINOv2 ViT-S/14": root / "outputs/fungibility_v1/dinov2_geometry_results.csv",
-    }
-    geometry_conditions = [
-        ("CENTROID", "Centroid\n(mean)"),
-        ("COORDINATE_PERMUTED_CENTROID", "Shuffled\ncoordinates"),
-        ("SIGN_FLIPPED_CENTROID", "Sign-flipped\nvector"),
-    ]
-    clean_sources = {
-        "ViT-B/16": root / "outputs/fungibility_v1/vitb_depth_results.csv",
-        "DINOv2 ViT-S/14": root / "outputs/fungibility_v1/dinov2_depth_results.csv",
-    }
-    for model, path in clean_sources.items():
-        clean = next(float(row["top1_accuracy"]) * 100 for row in read_csv(path) if row["condition"] == "CLEAN")
-        ax.axhline(clean, color=GRAY, linewidth=.9, linestyle=(0, (3, 2)), alpha=.75, zorder=1)
-    for i, (condition, _) in enumerate(geometry_conditions):
-        for mi, (model, _, color, marker) in enumerate(model_specs):
-            path = geometry_files[model]
-            rows = [r for r in read_csv(path) if abs(float(r["fraction"]) - .5) < 1e-9 and r["condition"] == condition]
-            values = [float(row["top1_accuracy"]) * 100 for row in rows]
-            draw_seed_bar(ax, i + (-.19 if mi == 0 else .19), values, color, marker, width=.32)
-    ax.set_xticks(range(3), [title for _, title in geometry_conditions])
-    ax.set_xlim(-.58, 2.58); ax.set_ylim(0, 84)
+    for model, _, _, _ in all_arch_specs:
+        ax.axhline(geometry[model]["clean"], color=GRAY, linewidth=.8,
+                   linestyle=(0, (3, 2)), alpha=.62, zorder=1)
+
+    condition_keys = ("centroid", "coordinate_shuffle", "sign_inversion")
+    condition_labels = ("Centroid", "Coordinate\nshuffle", "Sign\ninversion")
+    model_offsets = (-.33, -.11, .11, .33)
+    for condition_index, condition in enumerate(condition_keys):
+        for model_index, (model, _, color, marker) in enumerate(all_arch_specs):
+            values = geometry[model][condition]
+            x = condition_index + model_offsets[model_index]
+            mean = statistics.mean(values)
+            sd = statistics.stdev(values) if len(values) > 1 else 0.0
+            ax.bar(x, mean, width=.17, color=color, alpha=.24, edgecolor=color,
+                   linewidth=.75, zorder=2)
+            if sd:
+                ax.errorbar(x, mean, yerr=sd, fmt=marker, markersize=5.2,
+                            markerfacecolor=color, markeredgecolor=PAPER, markeredgewidth=.6,
+                            ecolor=color, elinewidth=.95, capsize=2.4, zorder=4)
+                jitter = [((j / (len(values) - 1)) - .5) * .055 for j in range(len(values))]
+                ax.scatter([x + dx for dx in jitter], values, s=15, marker=marker,
+                           color=color, alpha=.72, edgecolor=PAPER, linewidth=.45, zorder=5)
+            else:
+                ax.scatter([x], [mean], s=31, marker=marker, color=color,
+                           edgecolor=PAPER, linewidth=.55, zorder=4)
+
+    ax.set_xticks(range(3), condition_labels)
+    ax.set_xlim(-.60, 2.60); ax.set_ylim(0, 84)
     ax.set_ylabel("Top-1 accuracy (%)")
     ax.set_title("Geometry at 50% replacement", loc="left", color=INK, pad=10)
     polish_axis(ax)
 
-    # (b) Show accuracy as the number K of unique replacement vectors increases.
-    ax = axs[1]
+    # (b) Architecture-specific accuracy facets for the grouped-diversity sweep.
     rows = read_csv(root / "outputs/fungibility_v0_8/grouped_diversity_results.csv")
     v08_clean = read_csv(root / "outputs/fungibility_v0_8/statistical_comparisons.csv")
-    model_order = ["deit_tiny_patch16_224", "deit_small_patch16_224"]
-    model_style = {
-        "deit_tiny_patch16_224": (BLUE, "o", "Tiny"),
-        "deit_small_patch16_224": (TEAL, "s", "Small"),
-    }
-    for model in model_order:
-        clean = next(100 * float(r["accuracy"]) for r in v08_clean
-                     if r["model"] == model and r["condition"] == "clean")
-        ax.axhline(clean, color=GRAY, linewidth=.9, linestyle=(0, (3, 2)), alpha=.75, zorder=1)
-    for model in model_order:
-        color, marker, short_name = model_style[model]
-        by_k = grouped([r for r in rows if r["model"] == model], ("k",), "accuracy")
-        ks, means, errs = [], [], []
-        for k in sorted({int(key[0]) for key in by_k}):
-            vals = by_k[(str(k),)]
-            mean = sum(vals) / len(vals)
-            ks.append(k); means.append(mean * 100)
-            errs.append(((sum((v - mean) ** 2 for v in vals) / (len(vals) - 1)) ** .5 * 100)
-                        if len(vals) > 1 else 0.0)
-        ax.errorbar(ks, means, yerr=errs, marker=marker, markersize=4.8, linewidth=1.7,
-                    capsize=2.2, color=color, label=f"DeiT-{short_name}", zorder=3)
-    ax.set_xscale("log", base=2)
-    ax.set_xticks([1, 2, 4, 8, 16, 32, 64, 196],
-                  ["1\nall same", "2", "4", "8", "16", "32", "64", "196\nall distinct"])
-    ax.set_ylim(0, 84); ax.set_xlabel("Unique replacement vectors (K)"); ax.set_ylabel("Top-1 accuracy (%)")
-    ax.set_title("Accuracy vs. K", loc="left", color=INK, pad=10)
-    ax.legend(handles=[
-        Line2D([0], [0], color=BLUE, marker="o", linewidth=1.7, label="DeiT-Tiny"),
-        Line2D([0], [0], color=TEAL, marker="s", linewidth=1.7, label="DeiT-Small"),
-        Line2D([0], [0], color=GRAY, linestyle="--", linewidth=1.2, label="Clean reference"),
-    ], frameon=False, fontsize=7.0, loc="lower left", bbox_to_anchor=(.02, .52), handlelength=1.6)
-    polish_axis(ax)
-    for ax, p in zip(axs, "ab"):
-        panel_label(ax, p)
-    fig.tight_layout(rect=(0, .10, 1, .97), w_pad=2.0)
-    # Keep the panel-(a) model key out of the plotted data region.
-    fig.legend(handles=legend_handles, frameon=False, fontsize=7.0, ncol=3,
-               loc="lower center", bbox_to_anchor=(.25, .015), handlelength=1.5,
-               columnspacing=1.15, handletextpad=.4)
+    extension = read_csv(root / "outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv")
+    for index, (model, model_label, color, marker) in enumerate(all_arch_specs):
+        ax_b = diversity_axes[index]
+        if model.startswith("deit_"):
+            model_rows = [r for r in rows if r["model"] == model]
+            by_k = grouped(model_rows, ("k",), "accuracy")
+            ks = sorted({int(key[0]) for key in by_k})
+            means = [100 * sum(by_k[(str(k),)]) / len(by_k[(str(k),)]) for k in ks]
+            errs = [100 * ((sum((v - sum(by_k[(str(k),)]) / len(by_k[(str(k),)])) ** 2
+                                 for v in by_k[(str(k),)]) / (len(by_k[(str(k),)]) - 1)) ** .5)
+                    for k in ks]
+            clean = 100 * next(float(r["accuracy"]) for r in v08_clean
+                               if r["model"] == model and r["condition"] == "clean")
+        else:
+            model_rows = [r for r in extension if r["model"] == model]
+            ks = [int(r["k"]) for r in model_rows]
+            means = [100 * float(r["top1_accuracy_mean"]) for r in model_rows]
+            errs = [100 * float(r["top1_accuracy_sd_across_seeds"]) for r in model_rows]
+            clean = 100 * next(float(r["top1_accuracy"]) for r in v1_depth[model]
+                               if r["condition"] == "CLEAN")
+        ax_b.axhline(clean, color=GRAY, linewidth=.9, linestyle=(0, (3, 2)), alpha=.8, zorder=1)
+        ax_b.errorbar(ks, means, yerr=errs, marker=marker, markersize=4.4, linewidth=1.55,
+                      capsize=2.0, color=color, zorder=3)
+        ax_b.set_xscale("log", base=2)
+        ax_b.set_xticks(ks, [str(k) for k in ks])
+        ax_b.set_ylim(0, 84)
+        ax_b.set_title(model_label, loc="left", color=INK, fontsize=9.0, pad=5)
+        ax_b.set_xlabel(f"Distinct vectors, K (N={196 if model != 'dinov2' else 256})", fontsize=7.7)
+        if index % 2 == 0:
+            ax_b.set_ylabel("Top-1 accuracy (%)")
+        polish_axis(ax_b)
+
+    # Keep panel labels on the same figure-level baseline despite the unequal panel heights.
+    fig.text(.012, .988, "(a)", ha="left", va="top", fontsize=10, weight="bold", color=INK)
+    fig.text(.405, .988, "(b)", ha="left", va="top", fontsize=10, weight="bold", color=INK)
+    legend_handles = [
+        Line2D([0], [0], color=color, marker=marker, linewidth=1.5, label=model_label)
+        for _, model_label, color, marker in all_arch_specs
+    ] + [Line2D([0], [0], color=GRAY, linestyle="--", linewidth=1.0, label="Clean accuracy")]
+    fig.legend(handles=legend_handles, frameon=False, fontsize=7.5, ncol=5,
+               loc="lower center", bbox_to_anchor=(.60, .005), handlelength=1.45,
+               columnspacing=1.0, handletextpad=.35)
+    fig.subplots_adjust(left=.055, right=.99, top=.95, bottom=.14, wspace=.42, hspace=.42)
     save_figure(fig, out, "figure3_geometry_diversity")
+
+def figS10(root: Path, out: Path) -> None:
+    rows = [r for r in read_csv(
+        root / "outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv"
+    ) if r["model"] == "dinov2"]
+    rows.sort(key=lambda r: int(r["k"]))
+    ks = [int(r["k"]) for r in rows]
+    margins = [float(r["mean_true_class_margin"]) for r in rows]
+    errors = [float(r["mean_margin_sd_across_seeds"]) for r in rows]
+    fig, ax = plt.subplots(figsize=(5.2, 3.5))
+    ax.errorbar(ks, margins, yerr=errors, marker="D", markersize=4.6, linewidth=1.7,
+                capsize=2.5, color=PURPLE, zorder=3)
+    ax.axhline(0, color=GRAY, linewidth=.8, linestyle=(0, (3, 2)), zorder=1)
+    ax.set_xscale("log", base=2)
+    ax.set_xticks(ks, [str(k) for k in ks])
+    ax.set_xlabel("Distinct surrogate vectors (K; N=256 patches)")
+    ax.set_ylabel("Mean true-class logit margin")
+    ax.set_title("DINOv2: margin under complete replacement", loc="left", color=INK, pad=8)
+    ax.set_ylim(min(m - e for m, e in zip(margins, errors)) - .12,
+                max(m + e for m, e in zip(margins, errors)) + .12)
+    polish_axis(ax)
+    fig.tight_layout()
+    save_figure(fig, out / "supp", "figureS10_dinov2_margin_diversity")
 
 
 def fig4(root: Path, out: Path) -> None:
-    rows = read_csv(root/"outputs/fungibility_functional_geometry/covariance_function_alignment.csv")
-    pca_rows = read_csv(out/"source/figure4_pca_scores.csv")
+    alignment = read_csv(root/"outputs/fungibility_functional_geometry/covariance_function_alignment.csv")
+    dimensions = read_csv(root/"outputs/fungibility_functional_geometry/fungible_dimension.csv")
     depths = [5, 7, 8, 10]
-    models = ["deit_small", "vit_base"]
-    values = [[next(float(r["ratio_PC1_to_PCbot"]) for r in rows if r["model_key"] == model and int(r["depth"]) == d)
-               for d in depths] for model in models]
-    fig = plt.figure(figsize=(12.0, 4.35))
-    grid = fig.add_gridspec(1, 2, width_ratios=[1.38, 2.10], wspace=.16)
-    axh = fig.add_subplot(grid[0, 0])
-    density_grid = grid[0, 1].subgridspec(1, 2, wspace=.03)
-    ax_deit = fig.add_subplot(density_grid[0, 0])
-    ax_vit = fig.add_subplot(density_grid[0, 1], sharex=ax_deit, sharey=ax_deit)
-    im = axh.imshow(values, cmap="Blues", norm=LogNorm(vmin=0.01, vmax=max(max(row) for row in values)*1.05), aspect="auto")
-    axh.set_box_aspect(.56)
-    axh.set_xticks(range(len(depths)), [str(d) for d in depths]); axh.set_yticks(range(2), ["DeiT-Small", "ViT-B/16 AugReg"])
-    axh.set_xlabel("Intervention depth")
-    axh.set_title("Sensitivity: PC1 / lowest-variance PC", loc="left", color=INK, fontsize=8.5, pad=8)
-    for i in range(2):
-        for j in range(len(depths)):
-            value = values[i][j]
-            axh.text(j, i, f"{value:.2f}×" if value < 1 else f"{value:.1f}×", ha="center", va="center",
-                     color="white" if value > 17 else INK, fontsize=8.5, weight="semibold")
-    axh.tick_params(length=0, labelsize=7.5)
-    for side in axh.spines.values(): side.set_visible(False)
-    cb = fig.colorbar(im, ax=axh, fraction=.045, pad=.025); cb.set_label("Sensitivity ratio", fontsize=7.5); cb.ax.tick_params(labelsize=7)
-    pca_models = [
-        (ax_deit, "deit_small", "DeiT-Small · depth 8", "Blues"),
-        (ax_vit, "vit_base", "ViT-B/16 AugReg · depth 8", "GnBu"),
+    models = [
+        ("deit_small", "DeiT-Small", BLUE, "o"),
+        ("vit_base", "ViT-B/16 AugReg", ORANGE, "s"),
     ]
-    for index, (ax, model, title, cmap) in enumerate(pca_models):
-        model_rows = [r for r in pca_rows if r["model_key"] == model and int(r["depth"]) == 8]
-        if len(model_rows) != 100 * 196:
-            raise ValueError(f"Expected 100×196 PCA patch scores for {model}; found {len(model_rows)}.")
-        pc1 = [float(r["pc1_score"]) for r in model_rows]
-        pc_bottom = [float(r["pc_bottom_score"]) for r in model_rows]
-        mean_pc1, sd_pc1 = statistics.fmean(pc1), statistics.stdev(pc1)
-        mean_bottom, sd_bottom = statistics.fmean(pc_bottom), statistics.stdev(pc_bottom)
-        if sd_pc1 <= 0 or sd_bottom <= 0:
-            raise ValueError(f"Nonpositive PCA score spread for {model}.")
-        z_pc1 = [(value - mean_pc1) / sd_pc1 for value in pc1]
-        z_bottom = [(value - mean_bottom) / sd_bottom for value in pc_bottom]
-        ax.hexbin(z_pc1, z_bottom, gridsize=36, mincnt=1, bins="log", cmap=cmap, linewidths=0)
-        ax.axhline(0, color="#AAB3BA", linestyle="--", linewidth=.6, zorder=3)
-        ax.axvline(0, color="#AAB3BA", linestyle="--", linewidth=.6, zorder=3)
-        ax.set_xlim(-9, 9); ax.set_ylim(-9, 9); ax.set_aspect("equal", adjustable="box")
-        ax.set_box_aspect(1)
-        ax.set_xticks([-6, 0, 6]); ax.set_yticks([-6, 0, 6])
-        ax.set_title(title, loc="center", color=INK, fontsize=8.5, pad=8)
-        ax.set_xlabel("PC1 score (z)", fontsize=7.5)
-        if index == 0:
-            ax.set_ylabel("Lowest-variance PC score (z)", fontsize=7.5)
-        else:
-            ax.tick_params(labelleft=False)
-        ax.tick_params(length=2, labelsize=7, color="#87929A", labelcolor=INK)
-        ax.grid(color=GRID, linewidth=.5)
-        ax.set_axisbelow(True)
-    fig.text(.70, .055, "Patch-token density · PCA scores standardized per model and component",
-             ha="center", va="center", color=MUTED, fontsize=6.8)
-    fig.subplots_adjust(left=.055, right=.99, bottom=.20, top=.80)
-    fig.canvas.draw()
-    renderer = fig.canvas.get_renderer()
-    pos_a = axh.get_position(); pos_a_cbar = cb.ax.get_position()
-    pos_b_left = ax_deit.get_position(); pos_b_right = ax_vit.get_position()
-    title_a_top = axh.title.get_window_extent(renderer).y1 / fig.bbox.height
-    title_b_top = max(ax_deit.title.get_window_extent(renderer).y1,
-                      ax_vit.title.get_window_extent(renderer).y1) / fig.bbox.height
-    panel_y = max(title_a_top, title_b_top) + .018
-    fig.text((pos_a.x0 + pos_a_cbar.x1) / 2, panel_y, "(a)", ha="center", va="bottom",
-             fontsize=10, weight="bold", color=INK)
-    fig.text((pos_b_left.x0 + pos_b_right.x1) / 2, panel_y, "(b)", ha="center", va="bottom",
-             fontsize=10, weight="bold", color=INK)
+
+    def value_for(rows, model, depth, key):
+        matches = [row for row in rows if row["model_key"] == model and int(row["depth"]) == depth]
+        if len(matches) != 1:
+            raise ValueError(f"Expected one {model} depth-{depth} row for {key}; found {len(matches)}.")
+        return float(matches[0][key])
+
+    ratios = [[value_for(alignment, model, depth, "ratio_PC1_to_PCbot") for depth in depths]
+              for model, _, _, _ in models]
+    fig = plt.figure(figsize=(11.7, 4.2))
+    grid = fig.add_gridspec(1, 2, width_ratios=[1.05, 1.35], wspace=.34)
+    axh = fig.add_subplot(grid[0, 0])
+    axn = fig.add_subplot(grid[0, 1])
+
+    im = axh.imshow(ratios, cmap="Blues", norm=LogNorm(vmin=.01, vmax=max(max(row) for row in ratios)*1.05), aspect="auto")
+    axh.set_box_aspect(.57)
+    axh.set_xticks(range(len(depths)), [str(depth) for depth in depths])
+    axh.set_yticks(range(len(models)), [model[1] for model in models])
+    axh.set_xlabel("Intervention depth")
+    axh.set_title("PC1 / lowest-variance PC sensitivity", loc="left", color=INK, fontsize=8.5, pad=8)
+    for i, row in enumerate(ratios):
+        for j, value in enumerate(row):
+            axh.text(j, i, f"{value:.4g}×", ha="center", va="center",
+                     color="white" if value > 17 else INK, fontsize=8.1, weight="semibold")
+    axh.tick_params(length=0, labelsize=7.5)
+    for side in axh.spines.values():
+        side.set_visible(False)
+    cb = fig.colorbar(im, ax=axh, fraction=.045, pad=.025)
+    cb.set_label("Ratio of directional sensitivities", fontsize=7.3)
+    cb.ax.tick_params(labelsize=7)
+
+    for (model, name, color, marker) in models:
+        y = [100.0*value_for(dimensions, model, depth, "null_subspace_fraction") for depth in depths]
+        axn.plot(depths, y, color=color, marker=marker, linewidth=1.9, markersize=4.5,
+                 label=name, zorder=3)
+    axn.set_xticks(depths)
+    axn.set_xlim(4.7, 10.8)
+    axn.set_ylim(0, 65)
+    axn.set_yticks(range(0, 61, 10))
+    axn.set_xlabel("Intervention depth")
+    axn.set_ylabel("Threshold-defined near-null fraction (%)")
+    axn.set_title("Near-null fraction across depth", loc="left", color=INK, fontsize=8.5, pad=8)
+    axn.legend(frameon=False, loc="upper left", fontsize=7.3, handlelength=1.6)
+    axn.annotate("57.03%", (10, 57.03125), xytext=(7, 0), textcoords="offset points",
+                 ha="left", va="center", fontsize=7.2, color=BLUE)
+    axn.annotate("49.61%", (10, 49.609375), xytext=(7, -1), textcoords="offset points",
+                 ha="left", va="center", fontsize=7.2, color=ORANGE)
+    polish_axis(axn)
+    axh.spines["top"].set_visible(False)
+    axh.spines["right"].set_visible(False)
+    axh.spines["left"].set_visible(False)
+    axh.spines["bottom"].set_visible(False)
+
+    fig.subplots_adjust(left=.12, right=.98, bottom=.18, top=.76)
+    for ax, label_text in ((axh, "(a)"), (axn, "(b)")):
+        ax.text(.5, 1.18, label_text, transform=ax.transAxes, ha="center", va="bottom",
+                fontsize=10, weight="bold", color=INK)
     save_figure(fig, out, "figure4_anisotropic_geometry")
+
+
 def fig5(root: Path, out: Path) -> None:
     rows = read_csv(root/"outputs/fungibility_attention_causal_audit/qkv_decomposition.csv")
     models = [("deit_small", 8, "DeiT-Small · Block 8"), ("vit_base", 7, "ViT-B/16 AugReg · Block 7")]
@@ -550,45 +665,49 @@ def fig_s1(root: Path, out: Path) -> None:
 
 FIGURE_SOURCES = {
     "figure1_overview": ("figures/paper_final_v4/source/figure1_overview_user.png (user-supplied image); no empirical data.", "The supplied overview is reproduced pixel-for-pixel; no numeric result is encoded."),
-    "figure2_depthwise": ("outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v1_depth6_followup/vitb_depth6_results.csv; outputs/fungibility_v1_depth6_followup/dinov2_depth6_results.csv", "Original V1 depths 5, 7, 8, 9, 10 plus isolated depth-6 follow-up; CLEAN/ZERO/CENTROID/DIAGONAL_GAUSSIAN; Top-1 accuracy; Gaussian seed-level SD; all under 25% replacement."),
-    "figure3_geometry_diversity": ("outputs/fungibility_v1/vitb_geometry_results.csv; outputs/fungibility_v1/dinov2_geometry_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v0_8/grouped_diversity_results.csv; outputs/fungibility_v0_8/statistical_comparisons.csv", "Panel (a): V1 rows fraction=0.50 and conditions CENTROID/COORDINATE_PERMUTED_CENTROID/SIGN_FLIPPED_CENTROID for ViT-B/16 AugReg and DINOv2 ViT-S/14, with CLEAN references; panel (b): V0.8 grouped-diversity results across all K values for DeiT-Tiny/Small with model-specific CLEAN references. These are separate study cohorts."),
-    "figure4_anisotropic_geometry": ("outputs/fungibility_functional_geometry/covariance_function_alignment.csv; figures/paper_final_v4/source/figure4_pca_scores.csv", "Panel (a): all 8 audited model/depth rows, displaying the PC1-to-lowest-variance-PC sensitivity ratio. Panel (b): depth-8 PCA score density for 100 images × 196 patch tokens per model; scores are standardized per model and component for display."),
+    "figure2_depthwise": ("outputs/fungibility_v0_6/tiny_depth_fraction_summary.csv; outputs/fungibility_v0_6/tiny_seed_results.csv; outputs/fungibility_v0_6/small_depth_fraction_summary.csv; outputs/fungibility_v0_6/small_seed_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v1_depth6_followup/vitb_depth6_results.csv; outputs/fungibility_v1_depth6_followup/dinov2_depth6_results.csv", "Depths 5-10 at 25% replacement. DeiT rows filter fraction=25% and use clean_acc, zero_acc, global_mean_acc (calibration-derived centroid), and gaussian_acc; Gaussian seed accuracies are reconstructed from zero_acc plus paired acc_diff and reconciled to the summary means. ViT-B/DINOv2 combine original depths 5, 7-10 with the separate depth-6 follow-up. All cohorts use 1,000 calibration and 1,000 evaluation images per architecture; Gaussian SD is across five DeiT seeds or three ViT-B/DINOv2 seeds."),
+    "figure3_geometry_diversity": ("outputs/fungibility_v0_7/tiny_fraction_summary.csv; outputs/fungibility_v0_7/small_fraction_summary.csv; outputs/fungibility_v0_7/tiny_prototype_comparison.csv; outputs/fungibility_v0_7/small_prototype_comparison.csv; outputs/fungibility_v0_7/tiny_sign_flip_sweep.csv; outputs/fungibility_v0_7/small_sign_flip_sweep.csv; outputs/fungibility_v1/vitb_geometry_results.csv; outputs/fungibility_v1/dinov2_geometry_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v0_8/grouped_diversity_results.csv; outputs/fungibility_v0_8/statistical_comparisons.csv; outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv", "Panel (a): 50% replacement geometry controls and clean baselines for all four architectures. DeiT centroid and clean values come from the V0.7 fraction summaries; DeiT coordinate-shuffle error bars summarize three saved seed outcomes; DeiT sign inversion comes from the 100%-flip V0.7 control. ViT-B/DINOv2 use V1 geometry and clean-depth CSVs, with three coordinate-shuffle seeds. Each model uses N=1,000 evaluation and N=1,000 calibration images. Panel (b): grouped-diversity Top-1 curves for DeiT-Tiny/Small (three seeds) and ViT-B/16 AugReg/DINOv2 (five seeds), each with a clean-accuracy reference. The extension reuses the V1 calibration/evaluation splits and statistics."),
+    "figure4_anisotropic_geometry": ("outputs/fungibility_functional_geometry/covariance_function_alignment.csv; outputs/fungibility_functional_geometry/fungible_dimension.csv", "Panel (a): PC1-to-lowest-variance-PC directional margin-sensitivity ratios at depths 5, 7, 8, and 10. Panel (b): threshold-defined near-null eigenvalue fraction (λ_k≤10⁻³λ_max) across the same depths. Both panels use the N=100-image functional-geometry pilot for DeiT-Small and ViT-B/16 AugReg."),
     "figure5_value_path_cancellation": ("outputs/fungibility_attention_causal_audit/qkv_decomposition.csv", "model/depth pairs (deit_small,8) and (vit_base,7); token patterns global_coherent/random_sign/checkerboard; feature_dir=jac_top; scale_s=1.0; pathways V_only and K_plus_V; dz_readout_l1."),
     "figure6_end_to_end_operator": ("outputs/fungibility_multiblock_operator/validation_manifest.json", "prediction_correlations single_block/multi_block Pearson and Spearman; primary_findings mean_principal_angle_deg_b8_to_b9."),
     "figure7_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures. Rank-16 and rank-32 outcomes are available in low_rank_ablation.csv and Table II; the figure itself contains only the rank-32 curve."),
     "figureS1_real_carrier_boundary": ("outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv", "batch_size=64; all four architectures and available Clean/Group Mean/q16/q32/Selective q16 rows; fields top1_accuracy and img_per_sec. Output files reside in supp/."),
+    "figureS10_dinov2_margin_diversity": ("outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv", "DINOv2 ViT-S/14 true-class logit margin versus K under 100% patch replacement at Block 8; points are five-seed means and error bars are sample SD across seeds. N=1,000 held-out evaluation images per seed. Top-1 remains near its floor and is not represented as recovered accuracy."),
 }
 
 
 def write_manifest(out: Path) -> None:
     titles = {
           "figure1_overview": ("PCF intervention, replacement constraints, and selective transmission", "User-supplied composite overview of (a) fixed-slot late-layer patch-content intervention, (b) geometric and diversity constraints, and (c) anisotropic sensitivity with Value-path cancellation."),
-        "figure2_depthwise": ("Depth-wise replacement controls", "Replots original V1 results and an isolated depth-6 follow-up, exposes Gaussian seed variation, and zooms the boxed panel-(a) region with Clean, Zero, Centroid, and Gaussian curves."),
-        "figure3_geometry_diversity": ("Geometry and diversity constraints", "Two-panel figure: V1 geometry controls at 50% replacement for ViT-B/16 AugReg and DINOv2, and V0.8 accuracy versus K for DeiT-Tiny/Small. The cohorts are distinct; interpret contrasts within panels."),
-        "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Combines the audited depth-wise functional-sensitivity ratio with data-derived PCA patch-score density maps."),
+        "figure2_depthwise": ("Depth-dependent replacement tolerance across four architectures", "Four-panel 2×2 depth sweep for DeiT-Tiny, DeiT-Small, ViT-B/16 AugReg, and DINOv2 ViT-S/14, comparing Zero, Centroid, Gaussian, and clean accuracy across depths 5-10."),
+        "figure3_geometry_diversity": ("Geometry and diversity constraints", "Panel (a) compares 50% replacement geometry controls across all four architectures. Panel (b) uses four architecture-specific, common-scale Top-1 facets for grouped diversity; DINOv2 margin is reported separately in Figure S10."),
+        "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Combines architecture-dependent PC-to-margin-sensitivity alignment with the depth-wise threshold-defined near-null fraction of M_l."),
         "figure5_value_path_cancellation": ("Value-path transmission and cancellation", "Compares coherent and sign-varying token patterns through V-only and K+V pathways."),
         "figure6_end_to_end_operator": ("Local and end-to-end damage prediction", "Single-panel paired-dot comparison of local and end-to-end operator prediction correlations with measured final-logit damage."),
         "figure7_operator_compression": ("Confirmatory operator-aware compression", "Plots N=1,000 accuracy-token curves across four architectures, including the measured rank-32 curve; no recovery percentage is encoded."),
         "figureS1_real_carrier_boundary": ("Real-model carrier boundary", "Shows the measured accuracy-throughput tradeoff as a bounded supplementary result."),
+        "figureS10_dinov2_margin_diversity": ("DINOv2 margin across token diversity", "Shows the five-seed mean true-class logit margin across K; DINOv2 Top-1 remains near floor, so this margin change is not accuracy recovery."),
     }
     lines = ["# Figure Manifest v4", "", "Generated by `scripts/build_paper_figures_v4.py`. White background, DejaVu Sans, consistent typography; SVG and 300 dpi PNG saved for every panel. No models were executed.", ""]
     for i, (stem, (purpose, design)) in enumerate(titles.items(), 1):
         filename = f"{stem}.svg / {stem}.png"
-        if stem == "figureS1_real_carrier_boundary":
+        if stem in ("figureS1_real_carrier_boundary", "figureS10_dinov2_margin_diversity"):
             filename = f"supp/{filename}"
         sources, filters = FIGURE_SOURCES[stem]
         design_notes = "user-supplied source image preserved pixel-for-pixel in PNG and embedded in an SVG wrapper; no empirical data."
         if stem != "figure1_overview":
             design_notes = "restrained mechanism blue and compression teal; gray references; explicit units and sample units; concise panel titles only, no figure-level headline or embedded bottom caption; vector SVG plus 300 dpi PNG."
         if stem == "figure4_anisotropic_geometry":
-            design_notes = "Panel (a) gives audited sensitivity ratios between PC1 (highest activation variance) and the lowest-variance PC; panel (b) gives code-generated depth-8 PCA patch-score density maps for DeiT-Small and ViT-B/16 AugReg. Axes are standardized per model and component; patch tokens are not independent image samples."
+            design_notes = "Panel (a) displays all 8 audited PC1-to-lowest-variance-PC directional margin-sensitivity ratios on a logarithmic color scale, with four significant digits. Panel (b) plots the threshold-defined near-null eigenvalue fraction across depths, with endpoint values labeled. Both panels use N=100 image samples per architecture; standardized PCA score-density maps were removed because they added no independent functional evidence."
         if stem == "figure3_geometry_diversity":
-            design_notes = "Two panels only: (a) geometry controls at 50% replacement and (b) the grouped-diversity sweep across K; the former shared-versus-independent panel is omitted; clean accuracy is shown as gray dashed references."
+            design_notes = "Panel (a) is widened and uses color-coded bars for the four models; coordinate-shuffle bars show seed means with overlaid individual outcomes and sample-SD error bars, while centroid and sign-inversion bars show single-run estimates. Gray dashed lines mark model-specific clean baselines; model colors/markers match panel (b). Panel (b) uses four common-scale accuracy small multiples with model-specific K endpoints and seed-level SD error bars. DINOv2 margin is separated into Supplementary Figure S10 because its accuracy remains at floor. The figure-level (a)/(b) labels share one horizontal baseline."
+        if stem == "figureS10_dinov2_margin_diversity":
+            design_notes = "Code-generated line plot of mean true-class logit margin across K; error bars show SD across five seeds. The margin axis is separate from the Top-1 accuracy display and does not imply accuracy recovery."
+        if stem == "figure2_depthwise":
+            design_notes = "Clean 2×2 architecture layout with common Top-1 scale, consistent Zero/Centroid/Gaussian colors and markers, and gray dashed clean baselines. Error bars show Gaussian seed-level sample SD; DeiT panels use five seeds, while ViT-B/16 AugReg and DINOv2 panels use three seeds. DeiT centroids use the calibration-derived global mean."
         if stem == "figure6_end_to_end_operator":
             design_notes = "A single full-width panel uses paired dots for Pearson r and Spearman rho, with no connecting lines between distinct metrics. Correlations are evaluated on N=100 held-out perturbations; the caption defines the single-block A8 and end-to-end J8→12 operators."
         generator = "`scripts/build_paper_figures_v4.py`"
-        if stem == "figure4_anisotropic_geometry":
-            generator += "; PCA score extraction: `scripts/export_figure4_pca_scores.py`"
         lines += [f"## {i}. {purpose}", "", f"- **Final filename:** `{filename}`", f"- **Purpose:** {design}", f"- **Source data:** {sources}", f"- **Generating script:** {generator}", f"- **Rows / filters:** {filters}", f"- **Design notes:** {design_notes}", ""]
     (out/"FIGURE_MANIFEST.md").write_text("\n".join(lines), encoding="utf-8")
 
@@ -624,10 +743,10 @@ def main() -> None:
     setup_style()
     fig1(root,out); fig2(root,out); fig3(root,out); fig4(root,out); fig5(root,out); fig6(root,out); fig7(root,out)
     fig_s1(root,out/"supp")
+    figS10(root,out)
     write_manifest(out); contact_sheet(out)
-    print(f"Rendered 7 main figures + 1 supplement; contact sheet: {out/'contact_sheet.png'}")
+    print(f"Rendered 7 main figures + 2 supplements; contact sheet: {out/'contact_sheet.png'}")
 
 
 if __name__ == "__main__":
     main()
-

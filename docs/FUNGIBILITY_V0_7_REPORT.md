@@ -46,11 +46,11 @@ Using $N_{\text{calib}} = 1,000$ and $N_{\text{eval}} = 1,000$ strictly disjoint
    - Coordinate Permutation: Shuffling channel dimensions (preserving norm, mean, variance)
      causes catastrophic collapse across both architectures:
      * Tiny (50% replacement): Acc collapses from 66.3% to 52.2% (dz = +0.561, p = 1.80e-61).
-     * Small (50% replacement): Acc collapses from 75.6% to 62.6% (dz = +0.689, p = 1.25e-86).
+     * Small (50% replacement): Acc falls from 75.6% to 58.2% (dz = +0.755, p = 5.20e-100).
      Downstream blocks strictly require exact coordinate-channel correspondence.
    - Sign Inversion: Reversing prototype direction (-mu_8) completely destroys classification:
      * Tiny (50% replacement): Acc drops to 0.7% (dz = +1.084, p = 6.07e-171).
-     * Small (50% replacement): Acc drops to 1.1% (dz = +1.282, p = 5.23e-213).
+     * Small (50% replacement): Acc drops to 10.5% (dz = +0.903, p = 1.16e-131).
      Partial sign flips (25%, 50%, 75%) show a monotonic dose-response collapse.
 
 3. MONOTONIC COSINE ALIGNMENT TRAJECTORY:
@@ -143,8 +143,8 @@ All hypothesis tests use $N=1,000$ independent evaluation images. 95% Bootstrap 
 | | Wrong Depth 7 ($\mu_7$) | **-0.001** | [-0.005, +0.002] | **-0.019** | $0.539$ | $0.567$ | 75.6% | 75.5% | $1.000$ |
 | | Norm-Matched $\mu'_7$ | **-0.001** | [-0.004, +0.003] | **-0.010** | $0.743$ | $0.750$ | 75.6% | 75.5% | $1.000$ |
 | | Wrong Depth 9 ($\mu_9$) | **+0.001** | [+0.000, +0.002] | **+0.094** | $3.04 \times 10^{-3}$ | $4.68 \times 10^{-3}$ | 75.6% | 75.7% | $1.000$ |
-| | Coordinate Permuted | **+1.688** | [+1.547, +1.829] | **+0.689** | $1.25 \times 10^{-86}$ | $2.49 \times 10^{-86}$ | 75.6% | 62.6% | $1.72 \times 10^{-30}$ |
-| | Full Inversion ($-\mu_8$) | **+4.004** | [+3.818, +4.190] | **+1.282** | $5.23 \times 10^{-213}$ | $4.18 \times 10^{-212}$ | 75.6% | 1.1% | $1.86 \times 10^{-218}$ |
+| | Coordinate Permuted | **+1.868** | [+1.717, +2.022] | **+0.755** | $5.20 \times 10^{-100}$ | $1.39 \times 10^{-99}$ | 75.6% | 58.2% | $7.75 \times 10^{-35}$ |
+| | Full Inversion ($-\mu_8$) | **+2.913** | [+2.714, +3.114] | **+0.903** | $1.16 \times 10^{-131}$ | $9.25 \times 10^{-131}$ | 75.6% | 10.5% | $6.55 \times 10^{-189}$ |
 | | Cosine $\alpha = 0.0$ | **+1.728** | [+1.590, +1.866] | **+0.697** | $1.81 \times 10^{-88}$ | $3.62 \times 10^{-88}$ | 75.6% | 60.1% | $1.97 \times 10^{-32}$ |
 
 ---
@@ -276,3 +276,8 @@ The results reject both extremes of prior interpretation:
 ### Permitted Phrasing & Scientific Guardrails
 - **Permitted Statement:** *"Downstream Blocks 9–11 show limited dependence on exact patch-token content after Block 8, operating with near-zero performance loss using a static regional centroid up to 75% replacement, but require feature-coordinate alignment, positive orientation, and non-collapsed spatial rank."*
 - **Prohibited Statements:** We do NOT claim that "the model ignores image content," nor that "semantic information moved into CLS." The original image influenced CLS and spatial patches through Blocks 0–8 before intervention.
+
+
+### Saved-output correction for the 50% DeiT-Small geometry rows
+
+The previously summarized DeiT-Small coordinate-permutation and full sign-inversion accuracies did not match the archived V0.7 outputs. The report now records 58.2% and 10.5%, respectively, and its paired statistics use the corresponding rows in small_prototype_comparison.csv. Raw experiment outputs were not modified.
