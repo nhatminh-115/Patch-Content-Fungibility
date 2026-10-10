@@ -127,7 +127,7 @@
     },
     "editable_main_docx_contains_three_native_tables_eight_figures_ten_equations_and_53_ieee_refs": {
       "status": "PASS",
-      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=124, references=53."
+      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=123, references=53."
     }
   },
   "passed_count": 32,
