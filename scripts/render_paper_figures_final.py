@@ -98,9 +98,9 @@ def style_axis(ax, grid: str = "y") -> None:
         ax.grid(False)
 
 
-def panel_label(ax, label: str) -> None:
+def panel_label(ax, label: str, x: float = -0.12) -> None:
     ax.text(
-        -0.12,
+        x,
         1.055,
         label,
         transform=ax.transAxes,
@@ -918,6 +918,8 @@ def plot_supp_s4_pc1_amplitude() -> None:
     fig, axes = plt.subplots(1, 2, figsize=(7.25, 3.0), sharey=False)
 
     for i, (ax, (m, title)) in enumerate(zip(axes, models)):
+        # The multiplier sweep is geometric; log spacing separates the two low-end ticks.
+        ax.set_xscale("log", base=2)
         d = df[df["model"] == m].copy()
         # Standard numeric sweep.
         numeric = d[d["scale_label"].astype(str) != "E_MATCH"].groupby("scale_multiplier")["accuracy"].agg(["mean", "std"]).reset_index().sort_values("scale_multiplier")
@@ -931,12 +933,13 @@ def plot_supp_s4_pc1_amplitude() -> None:
             ym = float(em["accuracy"].mean()) * 100
             ax.scatter([xm], [ym], marker="D", s=34, color=C["permute"], zorder=5, label="Energy-matched scale")
         ax.axvline(1.0, color=C["clean"], linestyle="--", linewidth=1.0, alpha=0.8)
-        ax.set_xticks([0.25,0.5,1,2,4])
+        ax.set_xticks([0.25, 0.5, 1, 2, 4])
+        ax.set_xticklabels(["0.25", "0.50", "1.00", "2.00", "4.00"])
         ax.set_xlabel("PC1 amplitude multiplier")
         ax.set_ylabel("Top-1 accuracy (%)")
         ax.set_title(title)
         style_axis(ax, "both")
-        panel_label(ax, f"({chr(97+i)})")
+        panel_label(ax, f"({chr(97+i)})", x=-0.12 if i == 0 else 0.01)
     axes[0].legend(frameon=False, loc="best")
     fig.subplots_adjust(wspace=0.28, bottom=0.20)
     save_figure(fig, SUPP_DIR / "figS04_pc1_amplitude")
