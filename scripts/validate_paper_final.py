@@ -201,7 +201,8 @@ def main() -> int:
                          "figure6_joint_stream_geometry.svg", "figure7_end_to_end_operator.svg", "figure8_operator_compression.svg"]
     supplementary_figure_names = ["supp/figureS11_value_path_replication.svg",
                                   "supp/figureS12_primary_qkv_decomposition.svg",
-                                  "supp/figureS13_real_carrier_boundary.svg", "supp/figureS14_joint_stream_geometry.svg"]
+                                  "supp/figureS13_real_carrier_boundary.svg", "supp/figureS14_joint_stream_geometry.svg",
+                                  "supp/figureS15_regularization_sensitivity.svg"]
     figure_names = main_figure_names + supplementary_figure_names
     absent = [n for n in figure_names if not (FIGS/n).is_file()]
     absent_png = [n[:-4]+".png" for n in figure_names if not (FIGS/(n[:-4]+".png")).is_file()]
@@ -215,6 +216,9 @@ def main() -> int:
                  and "figure7_end_to_end_operator" in script_text
                  and "figure8_operator_compression" in script_text
                  and "figureS14_joint_stream_geometry" in script_text)
+    sensitivity_figure_script = ROOT / "scripts/plot_regularization_sensitivity_manuscript.py"
+    sensitivity_script_text = sensitivity_figure_script.read_text(encoding="utf-8") if sensitivity_figure_script.exists() else ""
+    script_ok = script_ok and "aggregated_by_architecture_budget_factor.csv" in sensitivity_script_text and "figureS15_regularization_sensitivity.svg" in sensitivity_script_text
     sidecars = [FIGS/"FIGURE_MANIFEST.md", FIGS/"contact_sheet.png", DOCS/"PAPER_FIGURE_REVIEW_V4.md"]
     record("publication_figures_present_source_scoped_and_reviewed",
            not absent and not absent_png and not stale_carrier_assets and script_ok and all(p.is_file() for p in sidecars),
@@ -236,6 +240,7 @@ def main() -> int:
 
     supplementary_docx_ok = False
     supp_drawings = supp_media = supp_tables = 0
+    s4_present = s5_present = False
     if SUPPLEMENTARY_DOCX.is_file():
         try:
             with zipfile.ZipFile(SUPPLEMENTARY_DOCX) as archive:
@@ -246,11 +251,64 @@ def main() -> int:
             supp_doc_text = "".join(node.text or "" for node in supp_xml.iter() if node.tag.endswith("}t"))
             required_s4_values = ["Table S4.", "+0.006282993", "+0.004448350", "−0.247199488", "−0.252697120", "102.2%"]
             s4_present = all(value in supp_doc_text for value in required_s4_values)
-            supplementary_docx_ok = supp_media == 14 and supp_drawings == 14 and supp_tables == 5 and s4_present
+            s5_present = all(value in supp_doc_text for value in ["Table S5.", "71.5", "61327", "within 0.5"])
+            supplementary_docx_ok = supp_media == 15 and supp_drawings == 15 and supp_tables == 7 and s4_present and s5_present
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             supplementary_docx_ok = False
     record("supplementary_docx_embeds_all_figures_and_tables", supplementary_docx_ok,
-           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} tables; required 14 figures and five tables (evidence map plus Tables S1–S4), including verified S4 values={s4_present}.")
+           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} table elements; required 15 figures and seven tables (evidence map, Tables S1–S5, and one display-equation layout), including verified S4/S5 values={s4_present}/{s5_present}.")
+
+    # Confirm that the delivered Word files carry the post-hoc wording and table.
+    main_doc_text = supp_doc_text = ""
+    try:
+        with zipfile.ZipFile(DOCX_PATH) as archive:
+            main_xml = ET.fromstring(archive.read("word/document.xml"))
+        with zipfile.ZipFile(SUPPLEMENTARY_DOCX) as archive:
+            supplementary_xml = ET.fromstring(archive.read("word/document.xml"))
+        main_w = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t"
+        main_doc_text = "".join(node.text or "" for node in main_xml.iter(main_w))
+        supp_doc_text = "".join(node.text or "" for node in supplementary_xml.iter(main_w))
+    except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
+        pass
+    docx_sensitivity_ok = ("post-hoc sensitivity analysis" in main_doc_text.lower()
+                           and "not as a demonstrated global optimum" in main_doc_text.lower()
+                           and "fixed after a pilot sweep" not in main_doc_text.lower()
+                           and "Regularization Sensitivity of Operator-Aware Carriers" in supp_doc_text
+                           and all(value in supp_doc_text for value in ["Table S5.", "71.5", "61327"]))
+    record("sensitivity_word_exports_match_scientific_wording", docx_sensitivity_ok,
+           f"Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains S15/Table S5 and corrected cohort seed={docx_sensitivity_ok}.")
+
+    # Reconcile the new post-hoc sensitivity claims to the corrected archived CSVs.
+    sensitivity_root = ROOT / "outputs/fungibility_regularization_sensitivity_v2_class_randomized"
+    aggregate_path = sensitivity_root / "aggregated_by_architecture_budget_factor.csv"
+    sensitivity_rows = rows(aggregate_path) if aggregate_path.is_file() else []
+    factor_rows = [r for r in sensitivity_rows if r.get("method") == "operator_aware"]
+    gm_rows = {(r.get("model"), r.get("budget")): r for r in sensitivity_rows if r.get("method") == "group_mean"}
+    cells: dict[tuple[str, str], dict[float, dict[str, str]]] = {}
+    for row in factor_rows:
+        cells.setdefault((row["model"], row["budget"]), {})[float(row["lambda_factor"])] = row
+    within_half_pp = logit_better_than_gm = True
+    for key, factors in cells.items():
+        rates = {factor: float(row["top1_rate"]) for factor, row in factors.items()}
+        maximum = max(rates.values())
+        within_half_pp &= maximum - rates[10.0] <= 0.005 + 1e-12
+        logit_better_than_gm &= float(factors[10.0]["mean_logit_l2_damage"]) < float(gm_rows[key]["mean_logit_l2_damage"])
+    paired_path = sensitivity_root / "paired_factor10_vs_3_30.csv"
+    paired_rows = rows(paired_path) if paired_path.is_file() else []
+    top1_paired = [r for r in paired_rows if r.get("metric") == "compressed_correct"]
+    no_significant_mcnemar = len(top1_paired) == 16 and all(float(r["top1_mcnemar_exact_p_unadjusted"]) >= 0.05 for r in top1_paired)
+    sensitivity_texts = "\n".join(p.read_text(encoding="utf-8-sig") for p in
+                                  (DRAFT, SUPPLEMENTARY_DRAFT, CLAIMS, TRACE) if p.is_file())
+    max_count = sum(abs(float(values[10.0]["top1_rate"]) - max(float(r["top1_rate"]) for r in values.values())) < 1e-12
+                    for values in cells.values())
+    sensitivity_claims_ok = (len(cells) == 8 and len(factor_rows) == 56
+                             and max_count == 5 and within_half_pp
+                             and logit_better_than_gm and no_significant_mcnemar
+                             and "post-hoc" in sensitivity_texts.lower()
+                             and "not a demonstrated global optimum" in sensitivity_texts.lower()
+                             and "Table S5" in sensitivity_texts and "Figure S15" in sensitivity_texts)
+    record("corrected_sensitivity_manuscript_claims_match_v2_csvs", sensitivity_claims_ok,
+           f"Corrected cells={len(cells)}; factor rows={len(factor_rows)}; factor 10 at/tied max={max_count}/8; within 0.5 pp all cells={within_half_pp}; logit damage below Group Mean all cells={logit_better_than_gm}; 16 paired McNemar contrasts p>=.05={no_significant_mcnemar}.")
 
     # Traceability matrix covers every numeric claim family carried into the draft.
     tr = TRACE.read_text(encoding="utf-8-sig") if TRACE.exists() else ""
@@ -427,17 +485,18 @@ def main() -> int:
         if not target.is_file():
             supplementary_refs_ok = False
     supplementary_labels = sorted(supplementary_objects, key=lambda value: int(value.lstrip("S")))
-    expected_supplementary_labels = [f"S{i}" for i in range(1, 15)]
+    expected_supplementary_labels = [f"S{i}" for i in range(1, 16)]
     supplementary_numbering_ok = (supplementary_labels == expected_supplementary_labels
                                   and all(len(supplementary_objects[label]) == 1
                                           and len(supplementary_captions.get(label, [])) == 1
                                           for label in expected_supplementary_labels)
                                   and "figureS1_real_carrier_boundary" not in supplementary_text
                                   and "figureS13_real_carrier_boundary.svg" in supplementary_text
-                                  and "figureS14_joint_stream_geometry.svg" in supplementary_text)
+                                  and "figureS14_joint_stream_geometry.svg" in supplementary_text
+                                  and "figureS15_regularization_sensitivity.svg" in supplementary_text)
     resolved_figures_ok = resolved_figs == set(fig_labels) | supplementary_refs and supplementary_refs_ok
     record("figure_cross_references_resolve_and_precede_objects", fig_order_ok and fig_placement_ok and resolved_figures_ok and supplementary_numbering_ok,
-           f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement labels={supplementary_labels}; object/caption/path resolution={supplementary_refs_ok}; placement={fig_placement_ok}; unique S1–S14 numbering={supplementary_numbering_ok}.")
+           f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement labels={supplementary_labels}; object/caption/path resolution={supplementary_refs_ok}; placement={fig_placement_ok}; unique S1–S15 numbering={supplementary_numbering_ok}.")
     record("table_cross_references_resolve_and_precede_objects", table_order_ok and table_placement_ok and resolved_tables == set(table_labels),
            f"Table headings={table_labels}; captions={table_cap_labels}; callouts={sorted(resolved_tables)}; placement={table_placement_ok}.")
     equation_blocks = text.count("$$") // 2

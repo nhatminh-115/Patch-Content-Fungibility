@@ -67,7 +67,15 @@
     },
     "supplementary_docx_embeds_all_figures_and_tables": {
       "status": "PASS",
-      "detail": "Supplementary DOCX contains 14 figure drawings/14 image assets and 5 tables; required 14 figures and five tables (evidence map plus Tables S1\u2013S4), including verified S4 values=True."
+      "detail": "Supplementary DOCX contains 15 figure drawings/15 image assets and 7 table elements; required 15 figures and seven tables (evidence map, Tables S1\u2013S5, and one display-equation layout), including verified S4/S5 values=True/True."
+    },
+    "sensitivity_word_exports_match_scientific_wording": {
+      "status": "PASS",
+      "detail": "Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains S15/Table S5 and corrected cohort seed=True."
+    },
+    "corrected_sensitivity_manuscript_claims_match_v2_csvs": {
+      "status": "PASS",
+      "detail": "Corrected cells=8; factor rows=56; factor 10 at/tied max=5/8; within 0.5 pp all cells=True; logit damage below Group Mean all cells=True; 16 paired McNemar contrasts p>=.05=True."
     },
     "quantitative_claims_traceable": {
       "status": "PASS",
@@ -99,7 +107,7 @@
     },
     "figure_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
-      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7', '8']; captions=['1', '2', '3', '4', '5', '6', '7', '8']; callouts=['1', '2', '3', '4', '5', '6', '7', '8', 'S10', 'S11', 'S12', 'S13', 'S14']; supplementary callouts=['S10', 'S11', 'S12', 'S13', 'S14']; supplement labels=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14']; object/caption/path resolution=True; placement=True; unique S1\u2013S14 numbering=True."
+      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7', '8']; captions=['1', '2', '3', '4', '5', '6', '7', '8']; callouts=['1', '2', '3', '4', '5', '6', '7', '8', 'S10', 'S11', 'S12', 'S13', 'S14']; supplementary callouts=['S10', 'S11', 'S12', 'S13', 'S14']; supplement labels=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15']; object/caption/path resolution=True; placement=True; unique S1\u2013S15 numbering=True."
     },
     "table_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
@@ -119,9 +127,9 @@
     },
     "editable_main_docx_contains_three_native_tables_eight_figures_ten_equations_and_53_ieee_refs": {
       "status": "PASS",
-      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=125, references=53."
+      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=124, references=53."
     }
   },
-  "passed_count": 30,
-  "assertion_count": 30
+  "passed_count": 32,
+  "assertion_count": 32
 }

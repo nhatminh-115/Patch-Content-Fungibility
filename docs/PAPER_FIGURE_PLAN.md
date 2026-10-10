@@ -46,7 +46,12 @@ The main paper uses **8 figures + 3 data tables**. Submission-facing figures are
 
 ## 2. Supplementary figures
 
-Supplementary Figures S1–S13 retain their existing content and numbering. Current generated SVGs under `figures/paper_final_v4/supp/` include S10–S14. This update adds:
+Supplementary Figures S1–S14 retain their existing content and numbering. Current generated SVGs under `figures/paper_final_v4/supp/` include S10–S14. This update adds:
+
+### Supplementary Figure S15 — Regularization sensitivity
+**Path:** `figures/paper_final_v4/supp/figureS15_regularization_sensitivity.svg`
+
+**Role:** Show the calibration-cohort tradeoff across seven trace-normalized regularization factors for four metrics, using the same 200 class-randomized calibration images for all factors and the two budgets per architecture. The analysis is post-hoc and does not tune on confirmatory evaluation data.
 
 14. **S14 — Joint token–feature response across depth:** `figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg`
 

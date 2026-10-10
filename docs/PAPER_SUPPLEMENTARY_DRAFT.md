@@ -242,3 +242,38 @@ The held-out classifier-carrier study reports accuracy and measured full-model t
 ## S14. Code and data availability
 
 The repository provides the experiment protocols, frozen split manifests, per-image results, seed-level summaries, validation manifests, and figure-generation sources. Publication-facing results are traceable through the main-text claims and number maps; experiment-specific seed IDs and statistical procedures are listed in Supplementary Section S10.
+
+## S15. Regularization Sensitivity of Operator-Aware Carriers
+
+This post-hoc sensitivity analysis evaluates the trace-normalized regularization in Equation (8) without changing the confirmatory solver or its archived results. For a dimensionless candidate factor \(f\), the effective regularization is
+$$
+\lambda_{\mathrm{abs}}=f\,\mathrm{tr}(H_J)/d_s,
+$$
+with \(f\in\{0.01,0.1,1,3,10,30,100\}\). The calibration cohort was constructed from the canonical 1,000-image, 1,000-class calibration split with seed 9101. We sampled 200 distinct class labels uniformly without replacement using independent fixed seed 61327 and used the corresponding image IDs for every model, budget, and factor. All IDs are in the canonical calibration split and disjoint from the seed-9201 confirmatory evaluation IDs; evaluation images and outcomes were not used. The cohort hash and selected labels and global image indices are recorded in the v2 manifest and selected cohort CSV.
+
+We evaluated frozen DeiT-Tiny, DeiT-Small, and ViT-B/16 AugReg at retained-token budgets \(B\in\{32,98\}\), and DINOv2 ViT-S/14 at \(B\in\{42,128\}\). Feature-similarity grouping and the existing exact per-image Jacobian solver were used. Each image's Jacobian and grouping were reused across all factors and both budgets, and the multiplicity-aware downstream forward was unchanged. Each model–budget cell therefore contains the same \(N=200\) calibration images for every factor and for the common Group Mean baseline. The per-image CSV records nonlinear Top-1 correctness, clean-to-compressed final-logit \(L_2\) damage, true-class margin change, linearized residual \(\left\|JE\right\|\), carrier displacement \(\left\|C_{opt}-C_{mean}\right\|_F\), \(\mathrm{tr}(H_J)/d_s\), and effective absolute regularization.
+
+**Table S5. Calibration-cohort Top-1 sensitivity across regularization factors.**
+
+| Architecture | Budget (B) | Factor 10 Top-1 (%) | Cell maximum (%) | Factor(s) at maximum | Group Mean Top-1 (%) |
+|---|---:|---:|---:|---|---:|
+| DeiT-Tiny | 32 | 71.0 | 71.5 | 1, 30 | 70.5 |
+| DeiT-Tiny | 98 | 72.0 | 72.5 | 1, 3 | 72.0 |
+| DeiT-Small | 32 | 80.5 | 81.0 | 3 | 77.5 |
+| DeiT-Small | 98 | 81.0 | 81.0 | all seven factors | 80.5 |
+| ViT-B/16 AugReg | 32 | 79.5 | 79.5 | 10 | 78.0 |
+| ViT-B/16 AugReg | 98 | 79.0 | 79.0 | 10, 30 | 78.5 |
+| DINOv2 ViT-S/14 | 42 | 76.5 | 76.5 | 10 | 72.0 |
+| DINOv2 ViT-S/14 | 128 | 78.5 | 78.5 | 10, 30, 100 | 79.0 |
+
+Factor 10 was at the cell maximum or tied in five of eight configurations and within 0.5 percentage points of the cell maximum in the other three. It attained the maximum uniquely in two cells, tied in three, and the maximum factor was not universal. Mean nonlinear logit \(L_2\) damage at factor 10 was lower than Group Mean in all eight cells. At factor 10, the cell-mean \(\mathrm{tr}(H_J)/d_s\) ranged from 0.00914 to 34.6746 and the effective absolute lambda ranged from 0.0914 to 346.746; absolute values are model- and budget-dependent because of the trace scaling.
+
+Across all eight cells, decreasing \(f\) reduced mean \(\left\|JE\right\|\) and increased mean carrier displacement; increasing \(f\) moved the solution toward Group Mean. The lowest linearized residual therefore did not consistently correspond to the highest nonlinear Top-1. Figure S15 shows all seven factors for Top-1, logit damage, operator residual, and carrier displacement; the exact means and standard deviations for every endpoint and factor are retained in the aggregated CSV, with per-image values in the raw CSV.
+
+Paired comparisons use images as the unit and compare factor 10 with 3 and 30 within each model–budget cell. Across cells, mean paired Top-1 differences were −0.5 to +2.5 percentage points for 10 versus 3 and −0.5 to +1.5 points for 10 versus 30; paired-difference SDs ranged from 0 to 27.3 and 0 to 15.8 percentage points, respectively, and every 95% interval included zero. No exact McNemar test had an unadjusted \(p<0.05\) among the 16 contrasts. These results do not establish equivalence. Images are reused across factors and budgets, so the cellwise comparisons are dependent and are not treated as independent replications.
+
+The original exploratory cohort selected the first 200 sorted class labels. The cohorts share only 32 image IDs, so this is a descriptive cohort comparison, not a paired comparison. Factor-10 Top-1 was 1.0–7.5 points higher and Group Mean Top-1 was 5.0–9.0 points higher on the original subset; the factor attaining the Top-1 maximum also changed across most cells. The monotone residual–displacement tradeoff replicated, but absolute accuracy and factor ranking showed class-composition sensitivity. The corrected study supports factor 10 as a reasonable empirical middle setting for these measurements, not as a global optimum or proof of preregistered historical selection. This analysis is post-hoc and does not revise the held-out confirmatory benchmark.
+
+![Supplementary Figure S15. Post-hoc regularization sensitivity on the class-randomized calibration cohort.](../figures/paper_final_v4/supp/figureS15_regularization_sensitivity.svg)
+
+**Supplementary Figure S15.** Calibration-cohort means across the seven dimensionless regularization factors. Panels show (a) nonlinear Top-1 accuracy, (b) clean-to-compressed final-logit \(L_2\) damage, (c) linearized operator residual \(\left\|JE\right\|\), and (d) carrier displacement \(\left\|C_{opt}-C_{mean}\right\|_F\). Colors identify architecture and solid/dashed lines identify the two model-specific token budgets. Each point uses the same 200 calibration images within its model–budget cell; the figure is descriptive and does not treat factors or budgets as independent samples. Data are from the corrected v2 class-randomized cohort; Group Mean is tabulated in Table S5 but is not a regularization-factor curve.
