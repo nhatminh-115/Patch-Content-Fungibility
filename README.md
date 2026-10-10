@@ -1,53 +1,55 @@
-# Patch Content Fungibility in Vision Transformers
+# Patch-Content Fungibility: Geometry, Functional Transmission, and Operator-Aware Token Compression
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23050375.svg)](https://doi.org/10.5281/zenodo.23050375)
+This repository contains the current journal-submission draft and the complete research record for Patch-Content Fungibility (PCF). The paper tests whether ordinary late-layer spatial patch activations in vision transformers can be replaced with class-agnostic calibration surrogates while the patch slots, sequence length, model weights, and downstream computation remain fixed. The evidence identifies constraints from feature geometry and token diversity; the compression study is a bounded oracle-level application and does not establish a general deployment advantage.
 
-**Canonical Repository:** https://github.com/nhatminh-115/Patch-Content-Fungibility
+## Current journal manuscript
 
-This repository contains the code, experiment records, analysis artifacts, and paper-development material for:
+**Current title:** *Patch-Content Fungibility: Geometry, Functional Transmission, and Operator-Aware Token Compression*.
 
-**Patch Content Fungibility in Vision Transformers: Geometric and Diversity Constraints in Late-Layer Representations**
+- [Manuscript source (Markdown)](docs/PAPER_DRAFT.md)
+- [Editable manuscript (Word)](docs/PAPER_DRAFT_v5.docx)
+- [Supplementary source (Markdown)](docs/PAPER_SUPPLEMENTARY_DRAFT.md)
+- [Supplementary material (Word)](docs/PAPER_SUPPLEMENTARY.docx)
 
-The central finding is that late Vision Transformer patch representations can become **content-fungible**: after substantial upstream computation, many ordinary spatial patch activations can be replaced by coarse calibration-derived surrogates while downstream classification remains substantially more intact than under destructive zero replacement. This tolerance is structured rather than arbitrary. Valid substitutes must respect learned feature geometry, and complete patch-stream replacement additionally depends on token-to-token diversity.
+The experiments cover four pretrained architectures: DeiT-Tiny, DeiT-Small, supervised ViT-B/16 AugReg, and DINOv2 ViT-S/14.
 
-## Preprint
+## Publication figures and numerical evidence
 
-Canonical public record:
+The current manuscript references main Figure 1–8 SVGs under `figures/paper_final_v4/`; the editable manuscript embeds the corresponding PNGs. The Supplementary Markdown references Figures S1–S9 under `figures/paper_final/supp/` and Figures S10–S15 under `figures/paper_final_v4/supp/`.
 
-**Nhat Minh Nghiem. _Patch Content Fungibility in Vision Transformers: Geometric and Diversity Constraints in Late-Layer Representations_. Zenodo, 2026.**
+- [Main-figure manifest, data sources, filters, and generator](figures/paper_final_v4/FIGURE_MANIFEST.md)
+- [Supplementary Figures S1–S9](figures/paper_final/supp/)
+- [Supplementary Figures S10–S15](figures/paper_final_v4/supp/)
+- [Final claims table](docs/PAPER_FINAL_CLAIMS_TABLE.md)
+- [Evidence table](docs/PAPER_EVIDENCE_TABLE.md)
+- [Number traceability](docs/PAPER_NUMBER_TRACEABILITY.md)
+- [Sample-size map](docs/PAPER_SAMPLE_SIZE_MAP.md)
+- [Confirmatory compression report](docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md)
+- [Corrected regularization-sensitivity report](docs/REGULARIZATION_SENSITIVITY_REPORT_CORRECTED.md)
 
-DOI: **[10.5281/zenodo.23050375](https://doi.org/10.5281/zenodo.23050375)**
+`figures/paper_final/main/` is a separate generated figure set; it is not a substitute for the assets named by the current manuscript. See the [repository structure](docs/REPOSITORY_STRUCTURE.md) for the distinctions among current, historical, and alternate figure files.
 
-The Zenodo record is the canonical timestamped preprint. The manuscript distributed there is licensed separately from the source code in this repository.
+## Reproduce and inspect
 
-## Repository layout
+Start with the [reproducibility guide](docs/REPRODUCIBILITY_GUIDE.md). It maps each manuscript figure and table to its archived results and generating or validating code. The archived CSVs, manifests, and reports support data-level review without rerunning the model experiments. Full experiment reruns require ImageNet validation data and pretrained checkpoints; there is no single command that reproduces the entire paper.
 
-- `patch_fungibility/` — intervention, model, validation, geometry, diversity, low-rank, dense-sweep, and compression experiment code.
-- `scripts/` — experiment entry points and plotting/rendering scripts.
-- `docs/` — protocols, reports, evidence tables, paper audits, and manuscript-development notes.
-- `outputs/` — machine-readable experiment outputs and manifests.
-- `figures/` — experimental figures and paper figure assets.
-- `arxiv/` — arXiv export tooling and metadata.
-- `paper/` — licensing/citation notes for the manuscript.
+The two checked publication validators are:
 
-## Main empirical stages
+    python scripts/validate_paper_final.py
+    python scripts/validate_real_final_benchmark.py
 
-The research record includes the initial fungibility screen, held-out calibration experiments, geometry controls, diversity interventions, low-dimensional direction tests, cross-architecture validation, dense replacement-fraction sweeps, and negative compression controls. The paper-level claims should be read together with `docs/PAPER_EVIDENCE_TABLE.md` and `docs/PAPER_CLAIMS_AUDIT.md`.
+## Data and code availability
 
-## Models
+Experiment implementations are in `patch_fungibility/` and entry-point scripts are in `scripts/`. Machine-readable outcomes, per-image evidence, calibration/evaluation manifests, and validation records are preserved in `outputs/`. ImageNet-1k validation images and pretrained model weights are not redistributed here. The dataset loader expects ImageNet validation Parquet shards in the local Hugging Face cache; model loaders use the named `timm` checkpoints or the official DINOv2 Torch Hub model. See the reproducibility guide for prerequisites and experiment-specific cohort manifests.
 
-Experiments cover pretrained DeiT-Tiny, DeiT-Small, supervised ViT-B/16 AugReg, and self-supervised DINOv2 ViT-S/14 variants. Exact checkpoints, depths, masks, seeds, calibration/evaluation splits, and intervention definitions are recorded in the experiment manifests and protocol documents.
+## Archived preprint and citation
 
-## Reproducibility
+The public Zenodo record remains the timestamped **preprint**, with its original title and DOI:
 
-Start from the protocol associated with the experiment you want to reproduce, then use the matching `scripts/run_fungibility_*.py` entry point. The repository intentionally retains intermediate reports and validation manifests so that the chain from exploratory experiment to paper claim remains auditable.
+*Nhat Minh Nghiem. “Patch Content Fungibility in Vision Transformers: Geometric and Diversity Constraints in Late-Layer Representations.” Zenodo, 2026.* [https://doi.org/10.5281/zenodo.23050375](https://doi.org/10.5281/zenodo.23050375)
 
-## Licenses
+This historical preprint record is distinct from the current journal-submission draft above. Use [CITATION.cff](CITATION.cff) for machine-readable citation metadata. Source code is licensed under [Apache-2.0](LICENSE); the public preprint is separately licensed under [CC BY-NC-ND 4.0](paper/LICENSE.md), subject to the version-specific Zenodo metadata.
 
-Source code is released under the **Apache License 2.0**; see `LICENSE`.
+## Repository map
 
-The preprint/manuscript is a separate scholarly work. Its public Zenodo version is distributed under **CC BY-NC-ND 4.0**; see `paper/LICENSE.md` and the Zenodo record for the authoritative metadata.
-
-## Citation
-
-If you use this work, please cite the Zenodo preprint using DOI **10.5281/zenodo.23050375**. A machine-readable citation is provided in `CITATION.cff`.
+See [REPOSITORY_STRUCTURE.md](docs/REPOSITORY_STRUCTURE.md) for a concise map and [REPO_CLEANUP_INVENTORY.md](docs/REPO_CLEANUP_INVENTORY.md) for the complete tracked-file inventory and preservation decisions.
