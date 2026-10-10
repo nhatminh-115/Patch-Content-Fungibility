@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import re
 import sys
 import zipfile
@@ -67,6 +68,38 @@ def supplementary_markdown_table(text: str, label: str) -> list[list[str]]:
 
 def source_value(rows_: list[dict[str, str]], **filters) -> dict[str, str] | None:
     return next((r for r in rows_ if all(r.get(k) == str(v) for k, v in filters.items())), None)
+
+
+def average_ranks(values: list[float]) -> list[float]:
+    ordered = sorted(enumerate(values), key=lambda item: item[1])
+    ranks = [0.0] * len(values)
+    start = 0
+    while start < len(ordered):
+        end = start + 1
+        while end < len(ordered) and ordered[end][1] == ordered[start][1]:
+            end += 1
+        rank = ((start + 1) + end) / 2.0
+        for index, _ in ordered[start:end]:
+            ranks[index] = rank
+        start = end
+    return ranks
+
+
+def pearson(x: list[float], y: list[float]) -> float:
+    if len(x) != len(y) or len(x) < 2:
+        raise ValueError("Pearson inputs must have equal lengths >= 2")
+    mx, my = sum(x) / len(x), sum(y) / len(y)
+    dx, dy = [v - mx for v in x], [v - my for v in y]
+    denom = math.sqrt(sum(v * v for v in dx) * sum(v * v for v in dy))
+    return sum(a * b for a, b in zip(dx, dy)) / denom
+
+
+def percentile(values: list[float], probability: float) -> float:
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * probability
+    lower = math.floor(position)
+    upper = math.ceil(position)
+    return ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
 
 
 def main() -> int:
@@ -298,11 +331,11 @@ def main() -> int:
                              and "8. Conclusion" in main_doc_text
                              and "7. From Operator-Aware Optimization to Practical Compression" not in main_doc_text
                              and "9. Conclusion" not in main_doc_text
-                             and "TABLE III" not in main_doc_text
+                             and all(f"TABLE {label}" in main_doc_text for label in ("I", "II", "III", "IV"))
                              and "Practical carrier evaluation" not in main_doc_text)
     record("main_docx_has_separate_correct_limitations_and_conclusion_headings",
            main_docx_headings_ok,
-           "Main Word export contains Section 7 Limitations and Section 8 Conclusion, without the former practical-carrier section or Table III.")
+           "Main Word export contains Sections 7 and 8 and all four current main-table labels, without the former practical-carrier section.")
     docx_sensitivity_ok = ("post-hoc sensitivity analysis" in main_doc_text.lower()
                            and "not as a demonstrated global optimum" in main_doc_text.lower()
                            and "fixed after a pilot sweep" not in main_doc_text.lower()
@@ -378,20 +411,38 @@ def main() -> int:
         external_bib_path = DOCS / "PAPER_REFERENCES.bib"
         external_bib = external_bib_path.read_text(encoding="utf-8-sig") if external_bib_path.exists() else ""
         complete = all(v.get("author") and v.get("title") and v.get("year") and
-                       (v.get("booktitle") or v.get("journal")) and (v.get("doi") or v.get("url"))
+                       (v.get("booktitle") or v.get("journal") or
+                        (v.get("archiveprefix", "").lower() == "arxiv" and v.get("eprint")))
+                       and (v.get("doi") or v.get("url"))
                        for _, v in bib_entries)
         norm_titles = [re.sub(r"[^a-z0-9]+", "", exporter.clean_tex(v.get("title", "")).lower())
                        for _, v in bib_entries]
         dois = [v.get("doi", "").strip().lower() for _, v in bib_entries if v.get("doi", "").strip()]
-        record("bibliography_has_53_complete_unique_records",
-               len(bib_entries) == 53 and complete and len(set(norm_titles)) == len(norm_titles) and len(set(dois)) == len(dois),
+        record("bibliography_has_55_complete_unique_records",
+               len(bib_entries) == 55 and complete and len(set(norm_titles)) == len(norm_titles) and len(set(dois)) == len(dois),
                f"Entries={len(bib_entries)}; complete fields={complete}; duplicate normalized titles={len(norm_titles)-len(set(norm_titles))}; duplicate DOIs={len(dois)-len(set(dois))}.")
+        related_work = text.split("## 2. Related Work", 1)[1].split("## 3. Experimental Setup", 1)[0] if "## 2. Related Work" in text and "## 3. Experimental Setup" in text else ""
+        new_prior_art_ok = (
+            "\\citep{bond2026taskinduced}" in related_work
+            and "\\citep{liu2025approxnullspace}" in related_work
+            and "preprint" not in " ".join((bib_fields.get("bond2026taskinduced", {}).get("booktitle", ""), bib_fields.get("bond2026taskinduced", {}).get("journal", ""))).lower()
+            and bib_fields.get("bond2026taskinduced", {}).get("eprint") == "2609.27988"
+            and bib_fields.get("bond2026taskinduced", {}).get("archiveprefix", "").lower() == "arxiv"
+            and bib_fields.get("liu2025approxnullspace", {}).get("booktitle") == "Conference on Parsimony and Learning"
+            and bib_fields.get("liu2025approxnullspace", {}).get("volume") == "280"
+            and bib_fields.get("liu2025approxnullspace", {}).get("pages") == "1--23"
+            and all(key in related_work for key in ("fixed-slot interventions", "task-aware token compression", "approximate-nullspace analysis")))
+        record("bond_and_liu_prior_art_are_cited_with_verified_types_and_distinctions",
+               new_prior_art_ok,
+               f"Related Work citations, Bond arXiv metadata and Liu PMLR 280:1–23 metadata/distinctions valid={new_prior_art_ok}.")
         record("bibliography_numbering_matches_first_citation_and_sidecar",
                bib_order == first_cite_order and bib_block.group(1).strip() == external_bib.strip(),
                f"First-citation ordering={bib_order == first_cite_order}; external BibTeX synchronized={bib_block.group(1).strip() == external_bib.strip()}.")
     except (ValueError, OSError, IndexError) as exc:
         bib_entries, bib_fields, first_cite_order = [], {}, []
-        record("bibliography_has_53_complete_unique_records", False, f"Could not parse or validate bibliography: {exc}")
+        record("bibliography_has_55_complete_unique_records", False, f"Could not parse or validate bibliography: {exc}")
+        record("bond_and_liu_prior_art_are_cited_with_verified_types_and_distinctions", False,
+               "Could not parse or validate the Bond/Liu bibliography records and Related Work citations.")
         record("bibliography_numbering_matches_first_citation_and_sidecar", False, "Bibliography parser or sidecar check failed.")
 
 
@@ -496,7 +547,7 @@ def main() -> int:
     fig_placement_ok = all(label in figure_callouts and figure_callouts[label] < pos for pos, label in fig_objects)
     table_labels = [label for _, label in table_headings]
     table_cap_labels = [label for _, label in table_captions]
-    table_order_ok = table_labels == table_cap_labels == ["I", "II"] and not markdown_table(text, "III")
+    table_order_ok = table_labels == table_cap_labels == ["I", "II", "III", "IV"]
     table_placement_ok = all(label in table_callouts and table_callouts[label] < pos for pos, label in table_headings)
     resolved_figs = set(re.findall(r"\bFigure\s+(S?\d+)\b", text))
     resolved_tables = set(m.group(1).upper() for m in re.finditer(r"\bTable\s+([IVX]+)\b", text, re.I))
@@ -580,6 +631,237 @@ def main() -> int:
     record("main_table_I_excludes_relocated_practical_carrier_row",
            table_i_ok,
            f"Table I rows including header={len(table_i)}; expected six rows and no practical-carrier row.")
+
+    # Recompute the controlled-replacement effect sizes in Table II from the archived runs.
+    table2_effects = markdown_table(text, "II")
+    expected_table2_headers = ["Architecture", "Centroid − coordinate-permuted (50%)", "Centroid − sign-inverted (50%)",
+                               "Grouped Kmax − K1", "PC1 − random 1D (100%)"]
+    geometry_effects: dict[str, tuple[float, float]] = {}
+    grouped_effects: dict[str, float] = {}
+    direction_effects: dict[str, float] = {}
+    seed_design_ok = True
+
+    for model_key, arch in (("deit_tiny_patch16_224", "DeiT-Tiny"),
+                            ("deit_small_patch16_224", "DeiT-Small")):
+        stem = "tiny" if arch == "DeiT-Tiny" else "small"
+        summary_rows = rows(ROOT / f"outputs/fungibility_v0_7/{stem}_fraction_summary.csv")
+        prototype_rows = rows(ROOT / f"outputs/fungibility_v0_7/{stem}_prototype_comparison.csv")
+        sign_rows = rows(ROOT / f"outputs/fungibility_v0_7/{stem}_sign_flip_sweep.csv")
+        summary_row = source_value(summary_rows, model=model_key, fraction="50%")
+        perm_rows = [r for r in prototype_rows if r.get("model") == model_key and r.get("fraction") == "50%"
+                     and r.get("family") == "coord_perm" and r.get("control", "").startswith("coord_perm_seed_")]
+        sign_row = source_value(sign_rows, model=model_key, fraction="50%", flip_condition="sign_flip_100%")
+        if summary_row and len(perm_rows) == 3 and sign_row and len({r["control"] for r in perm_rows}) == 3:
+            centroid = float(summary_row["mu8_acc"])
+            permuted = sum(float(r["acc_control"]) for r in perm_rows) / len(perm_rows)
+            inverted = float(sign_row["accuracy"])
+            geometry_effects[arch] = (100 * (centroid - permuted), 100 * (centroid - inverted))
+        else:
+            seed_design_ok = False
+
+        grouped_rows = rows(ROOT / "outputs/fungibility_v0_8/grouped_diversity_results.csv")
+        low = [r for r in grouped_rows if r.get("model") == model_key and r.get("k") == "1"]
+        high = [r for r in grouped_rows if r.get("model") == model_key and r.get("k") == "196"]
+        if len(low) == len(high) == 3 and len({r["seed"] for r in low}) == len({r["seed"] for r in high}) == 3:
+            grouped_effects[arch] = 100 * (sum(float(r["accuracy"]) for r in high) / 3
+                                           - sum(float(r["accuracy"]) for r in low) / 3)
+        else:
+            seed_design_ok = False
+
+        pc_rows = rows(ROOT / "outputs/fungibility_v0_9/pc_identity_results.csv")
+        random_rows = rows(ROOT / "outputs/fungibility_v0_9/random_direction_results.csv")
+        natural = [r for r in pc_rows if r.get("model") == model_key and r.get("condition_type") == "natural" and r.get("pc_index") == "1"]
+        random = [r for r in random_rows if r.get("model") == model_key and r.get("condition", "").startswith("random_1d_seed_")]
+        if len(natural) == len(random) == 5 and len({r["seed"] for r in natural}) == len({r["seed"] for r in random}) == 5:
+            direction_effects[arch] = 100 * (sum(float(r["accuracy"]) for r in natural) / 5
+                                              - sum(float(r["accuracy"]) for r in random) / 5)
+        else:
+            seed_design_ok = False
+
+    v1_geometry: dict[str, list[dict[str, str]]] = {}
+    for arch, stem in (("ViT-B/16 AugReg", "vitb"), ("DINOv2 ViT-S/14", "dinov2")):
+        source_rows = rows(ROOT / f"outputs/fungibility_v1/{stem}_geometry_results.csv")
+        selected = [r for r in source_rows if abs(float(r.get("fraction", "-1")) - 0.5) < 1e-12]
+        centroid_rows = [r for r in selected if r.get("condition") == "CENTROID"]
+        perm_rows = [r for r in selected if r.get("condition") == "COORDINATE_PERMUTED_CENTROID"]
+        sign_rows = [r for r in selected if r.get("condition") == "SIGN_FLIPPED_CENTROID"]
+        if len(centroid_rows) == len(sign_rows) == 1 and len(perm_rows) == 3 and len({r["seed"] for r in perm_rows}) == 3:
+            centroid = float(centroid_rows[0]["top1_accuracy"])
+            permuted = sum(float(r["top1_accuracy"]) for r in perm_rows) / 3
+            inverted = float(sign_rows[0]["top1_accuracy"])
+            geometry_effects[arch] = (100 * (centroid - permuted), 100 * (centroid - inverted))
+        else:
+            seed_design_ok = False
+        grouped_source = rows(ROOT / "outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv")
+        model = "vitb" if stem == "vitb" else "dinov2"
+        kmax = "196" if stem == "vitb" else "256"
+        low = source_value(grouped_source, model=model, k="1")
+        high = source_value(grouped_source, model=model, k=kmax)
+        if low and high and low.get("n_seeds") == high.get("n_seeds") == "5" and low.get("n_eval_images_per_seed") == high.get("n_eval_images_per_seed") == "1000":
+            grouped_effects[arch] = 100 * (float(high["top1_accuracy_mean"]) - float(low["top1_accuracy_mean"]))
+        else:
+            seed_design_ok = False
+        direction_source = rows(ROOT / f"outputs/fungibility_v1/{stem}_1d_results.csv")
+        natural = [r for r in direction_source if r.get("condition") == "NATURAL_PC1"]
+        random = [r for r in direction_source if r.get("condition") == "RANDOM_1D"]
+        if len(natural) == len(random) == 3 and len({r["seed"] for r in natural}) == len({r["seed"] for r in random}) == 3:
+            direction_effects[arch] = 100 * (sum(float(r["top1_accuracy"]) for r in natural) / 3
+                                              - sum(float(r["top1_accuracy"]) for r in random) / 3)
+        else:
+            seed_design_ok = False
+
+    effect_values = {}
+    effect_tolerances = {}
+    parsed_table2 = (len(table2_effects) == 5 and table2_effects[0] == expected_table2_headers
+                     and [r[0] for r in table2_effects[1:]] == ["DeiT-Tiny", "DeiT-Small", "ViT-B/16 AugReg", "DINOv2 ViT-S/14"])
+    if parsed_table2:
+        for row in table2_effects[1:]:
+            try:
+                raw_values = [re.search(r"[+−-]?\d+(?:\.\d+)?", cell).group(0) for cell in row[1:]]
+                values = [float(value.replace("−", "-")) for value in raw_values]
+                tolerances = [0.5 * 10 ** (-len(value.partition(".")[2])) + 1e-6
+                              for value in raw_values]
+            except (AttributeError, ValueError):
+                parsed_table2 = False
+                break
+            effect_values[row[0]] = values
+            effect_tolerances[row[0]] = tolerances
+    table2_match = parsed_table2 and seed_design_ok and set(geometry_effects) == set(grouped_effects) == set(direction_effects) == {
+        "DeiT-Tiny", "DeiT-Small", "ViT-B/16 AugReg", "DINOv2 ViT-S/14"}
+    if table2_match:
+        for arch, values in effect_values.items():
+            sourced = [*geometry_effects[arch], grouped_effects[arch], direction_effects[arch]]
+            signs_match = all(reported == 0 or source == 0 or math.copysign(1, reported) == math.copysign(1, source)
+                              for reported, source in zip(values, sourced))
+            rounding_matches = all(abs(reported - source) <= tolerance
+                                   for reported, source, tolerance in zip(values, sourced, effect_tolerances[arch]))
+            table2_match = table2_match and signs_match and rounding_matches
+    table2_note = text.split("**CONTROLLED PATCH-CONTENT REPLACEMENT EFFECTS ACROSS ARCHITECTURES**", 1)[1].split("**TABLE III**", 1)[0] if "**CONTROLLED PATCH-CONTENT REPLACEMENT EFFECTS ACROSS ARCHITECTURES**" in text and "**TABLE III**" in text else ""
+    table2_note_ok = all(token in table2_note for token in ("percentage points", "Note (Table II)", "50%", "all spatial patches", "N=1,000 held-out images",
+                                                             "disjoint", "three-seed means", "five seeds", "not meaningful accuracy recovery"))
+    record("table_II_controlled_replacement_effects_recompute_from_archived_runs",
+           bool(table2_match and table2_note_ok),
+           f"Table II source effects in pp={effect_values}; geometry/grouped-K/PC-direction seed designs valid={seed_design_ok}; protocol/cohort/floor notes valid={table2_note_ok}.")
+
+    # Recompute depth-5/depth-10 functional spectra and depth-8 directional ratios for Table III.
+    table3 = markdown_table(text, "III")
+    spectrum_rows = rows(ROOT / "outputs/fungibility_section5_cross_arch_extension/functional_geometry/functional_spectrum_robustness.csv")
+    direction_rows = rows(ROOT / "outputs/fungibility_section5_cross_arch_extension/functional_geometry/pc_directional_sensitivity.csv")
+    expected_architectures = ["DeiT-Tiny", "DeiT-Small", "ViT-B/16 AugReg", "DINOv2 ViT-S/14"]
+    table3_headers = ["Architecture", "Normalized effective rank, d5 → d10", "Near-null fraction, d5 → d10", "PC1 / PCbottom sensitivity ratio, d8"]
+    table3_ok = (len(table3) == 5 and table3[0] == table3_headers
+                 and [r[0] for r in table3[1:]] == expected_architectures)
+    spectrum_summary = {}
+    for arch in expected_architectures:
+        selected = [r for r in spectrum_rows if r.get("architecture") == arch
+                    and abs(float(r.get("relative_cutoff", "-1")) - 1e-3) < 1e-12
+                    and int(r.get("depth", -1)) in (5, 10)]
+        d5 = [r for r in selected if int(r["depth"]) == 5]
+        d10 = [r for r in selected if int(r["depth"]) == 10]
+        ratio_rows = [r for r in direction_rows if r.get("architecture") == arch and int(r.get("depth", -1)) == 8]
+        if len(d5) == len(d10) == len(ratio_rows) == 1:
+            spectrum_summary[arch] = (float(d5[0]["effective_rank_over_D"]), float(d10[0]["effective_rank_over_D"]),
+                                      100 * float(d5[0]["near_null_fraction"]), 100 * float(d10[0]["near_null_fraction"]),
+                                      float(ratio_rows[0]["ratio_PC1_to_PC_bottom_raw"]))
+            table3_ok = table3_ok and d5[0]["N_img"] == d10[0]["N_img"] == "100"
+            table3_ok = table3_ok and ratio_rows[0]["ratio_numerically_stable"].lower() == "true"
+        else:
+            table3_ok = False
+    if table3_ok:
+        for row in table3[1:]:
+            values = [float(x) for x in re.findall(r"\d+(?:\.\d+)?", row[1])]
+            near = [float(x) for x in re.findall(r"\d+(?:\.\d+)?", row[2])]
+            ratio_text = row[3].replace("†", "").strip()
+            actual = spectrum_summary[row[0]]
+            table3_ok = table3_ok and len(values) == len(near) == 2
+            if len(values) == len(near) == 2:
+                table3_ok = table3_ok and abs(values[0] - actual[0]) <= 0.00051 and abs(values[1] - actual[1]) <= 0.00051
+                table3_ok = table3_ok and abs(near[0] - actual[2]) <= 0.0051 and abs(near[1] - actual[3]) <= 0.0051
+            table3_ok = table3_ok and abs(float(ratio_text) - actual[4]) <= (0.051 if row[0] == "ViT-B/16 AugReg" else 0.00051)
+    table3_note = text.split("**DEPTH EVOLUTION OF FUNCTIONAL SENSITIVITY ACROSS ARCHITECTURES**", 1)[1].split("### 5.2", 1)[0] if "**DEPTH EVOLUTION OF FUNCTIONAL SENSITIVITY ACROSS ARCHITECTURES**" in text and "### 5.2" in text else ""
+    table3_note_ok = all(token.lower() in table3_note.lower() for token in (
+        "uncentered second moment", "N=100 calibration images/model", "aggregated within images",
+        "distinct from the full token-by-feature", "operational cutoff", "small at the primary threshold",
+        "feature dimension D", "sensitive to a small depth-8 activation-covariance eigengap",
+        "not a universal ranking", "Supplementary Table S2"))
+    record("table_III_functional_geometry_recompute_from_corrected_outputs",
+           bool(table3_ok and table3_note_ok),
+           f"Table III source metrics={spectrum_summary}; corrected rows use N=100 and stable directional diagnostics; scope note valid={table3_note_ok}.")
+
+    # Independently recompute Figure 7 correlations and bootstrap intervals from the fixed perturbation cohort.
+    multi_root = ROOT / "outputs/fungibility_section5_cross_arch_extension/multiblock_prediction"
+    perturbation_rows = rows(multi_root / "per_perturbation_results.csv")
+    correlation_rows = rows(multi_root / "model_specific_correlations.csv")
+    bootstrap_rows = rows(multi_root / "stratified_bootstrap_correlations.csv")
+    within_rows = rows(multi_root / "within_family_correlations.csv")
+    manifest_path = multi_root / "validation_manifest.json"
+    multi_manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig")) if manifest_path.exists() else {}
+    family_names = {"top_end_to_end_modes", "middle_end_to_end_modes", "end_to_end_null_modes", "isotropic_gaussian_controls"}
+    figure7_ok = len(correlation_rows) == 8 and len(within_rows) == 32 and len(bootstrap_rows) == 16000
+    figure7_details = []
+    for model in ("deit_tiny", "deit_small", "vit_base", "dinov2"):
+        model_rows = [r for r in perturbation_rows if r.get("model_key") == model]
+        families = {name: sum(r.get("perturbation_family") == name for r in model_rows) for name in family_names}
+        ids = {r.get("pert_id") for r in model_rows}
+        figure7_ok = figure7_ok and len(model_rows) == 100 and len(ids) == 100 and set(families.values()) == {25}
+        figure7_ok = figure7_ok and all(r.get("depth") == "8" and r.get("n_reference_images") == "20"
+                                        and abs(float(r.get("scale_factor", "nan")) - 0.4) < 1e-12
+                                        and r.get("linearization_image_global_index") == "29" for r in model_rows)
+        for predictor, xfield in (("single_block", "predicted_tau_single"), ("end_to_end", "predicted_tau_multi")):
+            xs = [float(r[xfield]) for r in model_rows]
+            ys = [float(r["logit_l2"]) for r in model_rows]
+            recalc_r = pearson(xs, ys)
+            recalc_rho = pearson(average_ranks(xs), average_ranks(ys))
+            saved = source_value(correlation_rows, model_key=model, predictor=predictor)
+            boots = [r for r in bootstrap_rows if r.get("model_key") == model and r.get("predictor") == predictor]
+            if not saved or len(boots) != 2000:
+                figure7_ok = False
+                continue
+            pearson_ci = (percentile([float(r["pearson_r"]) for r in boots], 0.025),
+                          percentile([float(r["pearson_r"]) for r in boots], 0.975))
+            spearman_ci = (percentile([float(r["spearman_rho"]) for r in boots], 0.025),
+                           percentile([float(r["spearman_rho"]) for r in boots], 0.975))
+            figure7_ok = figure7_ok and abs(recalc_r - float(saved["pearson_r"])) < 1e-10
+            figure7_ok = figure7_ok and abs(recalc_rho - float(saved["spearman_rho"])) < 1e-10
+            figure7_ok = figure7_ok and max(abs(a - float(b)) for a, b in zip(pearson_ci, (saved["pearson_ci95_low"], saved["pearson_ci95_high"]))) < 1e-10
+            figure7_ok = figure7_ok and max(abs(a - float(b)) for a, b in zip(spearman_ci, (saved["spearman_ci95_low"], saved["spearman_ci95_high"]))) < 1e-10
+            figure7_details.append((model, predictor, recalc_r, recalc_rho, pearson_ci, spearman_ci))
+    s3_rows = supplementary_markdown_table(supplementary_text, "S3")
+    s3_ok = len(s3_rows) == 9
+    model_labels = {"DeiT-Tiny":"deit_tiny", "DeiT-Small":"deit_small",
+                    "ViT-B/16 AugReg":"vit_base", "DINOv2 ViT-S/14":"dinov2"}
+    for row in s3_rows[1:]:
+        if len(row) != 4:
+            s3_ok = False
+            continue
+        model = model_labels.get(row[0])
+        predictor = "single_block" if row[1].startswith("Single-block") else "end_to_end" if row[1].startswith("End-to-end") else None
+        saved = source_value(correlation_rows, model_key=model, predictor=predictor) if model and predictor else None
+        values = [float(x) for x in re.findall(r"\d+(?:\.\d+)?", row[2])]
+        ranks = [float(x) for x in re.findall(r"\d+(?:\.\d+)?", row[3])]
+        if not saved or len(values) != 3 or len(ranks) != 3:
+            s3_ok = False
+            continue
+        expected = [float(saved["pearson_r"]), float(saved["pearson_ci95_low"]), float(saved["pearson_ci95_high"])]
+        expected_ranks = [float(saved["spearman_rho"]), float(saved["spearman_ci95_low"]), float(saved["spearman_ci95_high"])]
+        s3_ok = s3_ok and all(abs(a - b) <= 0.00051 for a, b in zip(values, expected))
+        s3_ok = s3_ok and all(abs(a - b) <= 0.00051 for a, b in zip(ranks, expected_ranks))
+    scope_text = text.split("**Predictive validation.**", 1)[1].split("**Directional transmission contrast.**", 1)[0] if "**Predictive validation.**" in text and "**Directional transmission contrast.**" in text else ""
+    scope_ok = all(phrase.lower() in scope_text.lower() for phrase in (
+        "100 designed perturbation vectors per architecture", "25 vectors from each of four families",
+        "fixed 20-image reference batch", "perturbation vector—not an image or token",
+        "averages over the 20-image reference batch", "is linearized at its first image",
+        "not general superiority over arbitrary perturbations or independent image batches"))
+    manifest_ok = (multi_manifest.get("status") == "PASS"
+                   and all(info.get("N_perturbations") == 100 and info.get("N_reference_images") == 20
+                           and info.get("scale_s") == 0.4 and info.get("linearization_image_global_index") == 29
+                           for info in multi_manifest.get("models", {}).values())
+                   and multi_manifest.get("bootstrap", {}).get("replicates") == 2000
+                   and multi_manifest.get("bootstrap", {}).get("seed") == 52026)
+    record("figure_7_correlations_bootstrap_and_scope_match_prescribed_mixture",
+           bool(figure7_ok and s3_ok and scope_ok and manifest_ok),
+           f"Recomputed 8 model/operator correlations and 2,000-stratified-bootstrap intervals match source; Table S3 rounded values={s3_ok}; 4×25 perturbation families, 20-image reference, first-image J linearization, and bounded wording valid={scope_ok and manifest_ok}; within-family rows={len(within_rows)}; results={figure7_details}.")
+
     equation_blocks = text.count("$$") // 2
     equation_tags = re.findall(r"\\tag\{(\d+)\}", text)
     equation_explanation_text = re.sub(r"<sub>(.*?)</sub>", r"_\1", text, flags=re.IGNORECASE)
@@ -593,46 +875,46 @@ def main() -> int:
            equation_blocks == 10 and equation_tags == [str(i) for i in range(1, 11)] and equation_explanations,
            f"Display equations={equation_blocks}; tags={equation_tags}; key implementation/notation explanations present={equation_explanations}.")
 
-    # Recompute the exact Table II entries from the strict confirmatory summary.
-    table2 = markdown_table(text, "II")
+    # Recompute the unchanged compression entries now published as Table IV.
+    table4 = markdown_table(text, "IV")
     budget_path = ROOT / "outputs/fungibility_operator_compression_confirmatory/budget_summary.csv"
     budget_rows = rows(budget_path) if budget_path.exists() else []
     model_map = {"DeiT-Tiny":"DeiT-Tiny", "DeiT-Small":"DeiT-Small", "ViT-B/16":"ViT-B/16", "ViT-B/16 AugReg":"ViT-B/16", "DINOv2 ViT-S/14":"DINOv2 ViT-S/14"}
     method_map = ["Group-Mean Merging", "ToMe (BSM)", "Operator-Aware (Oracle)", "Operator-Aware (Rank-16)", "Operator-Aware (Rank-32)"]
-    table2_ok = bool(budget_rows) and len(table2) == 5 and len(table2[0]) == 8
+    table4_ok = bool(budget_rows) and len(table4) == 5 and len(table4[0]) == 8
     gain_values = []
-    if table2_ok:
-        for row in table2[1:]:
+    if table4_ok:
+        for row in table4[1:]:
             if len(row) != 8:
-                table2_ok = False
+                table4_ok = False
                 break
             architecture, budget_s, baseline_cell = row[0], row[1], row[2]
             model = model_map.get(architecture)
             budget = int(budget_s) if budget_s.isdigit() else -1
             baselines = [r for r in budget_rows if r.get("model") == model and int(float(r.get("budget", -1))) == budget and r.get("method") in ("Random Pruning", "Norm Pruning", "Attention Pruning")]
             if not model or not baselines:
-                table2_ok = False
+                table4_ok = False
                 break
             best = max(baselines, key=lambda r: float(r["top1_acc"]))
             match = re.match(r"(Random|Norm|Attention),\s*([0-9.]+)%", baseline_cell)
             expected_name = {"Random Pruning":"Random", "Norm Pruning":"Norm", "Attention Pruning":"Attention"}[best["method"]]
             if not match or match.group(1) != expected_name or abs(float(match.group(2))/100-float(best["top1_acc"])) > 0.0005:
-                table2_ok = False
+                table4_ok = False
                 break
             for index, method in enumerate(method_map, start=3):
                 source_row = source_value(budget_rows, model=model, budget=budget, method=method)
                 accuracy_match = re.search(r"([0-9.]+)%", row[index])
                 if not source_row or not accuracy_match or abs(float(accuracy_match.group(1))/100-float(source_row["top1_acc"])) > 0.0005:
-                    table2_ok = False
+                    table4_ok = False
                     break
                 if index >= 5:
                     gain_values.append(100*(float(source_row["top1_acc"])-float(best["top1_acc"])))
-            if not table2_ok:
+            if not table4_ok:
                 break
     range_in_abstract = bool(re.search(r"4\.2\s*[–-]\s*12\.0", abstract))
-    table2_ok = table2_ok and gain_values and abs(min(gain_values)-4.2) < 0.051 and abs(max(gain_values)-12.0) < 0.051 and range_in_abstract
-    record("table_II_and_abstract_match_confirmatory_csv", bool(table2_ok),
-           f"Parsed rows={max(0,len(table2)-1)}; best-pruning row and all five compression columns checked; oracle/low-rank gain range={min(gain_values) if gain_values else 'n/a'}–{max(gain_values) if gain_values else 'n/a'} pp.")
+    table4_ok = table4_ok and gain_values and abs(min(gain_values)-4.2) < 0.051 and abs(max(gain_values)-12.0) < 0.051 and range_in_abstract
+    record("table_IV_and_abstract_match_confirmatory_csv", bool(table4_ok),
+           f"Parsed rows={max(0,len(table4)-1)}; best-pruning row and all five compression columns checked; oracle/low-rank gain range={min(gain_values) if gain_values else 'n/a'}–{max(gain_values) if gain_values else 'n/a'} pp.")
 
     # Recompute the relocated Table S5 counts and percentage-point differences
     # from the real classifier output, and Table S6 from the corrected v2 CSVs.
@@ -746,22 +1028,23 @@ def main() -> int:
                     para_text.append("".join(n.text or "" for n in para.iter(W+"t")))
                 ref_nums = [int(m.group(1)) for value in para_text if (m := re.match(r"\[(\d+)\]\s", value))]
                 docx_valid = [n for n in names if n.startswith("word/media/")]
+                docx_table_labels = [value for value in para_text if value in {"TABLE I", "TABLE II", "TABLE III", "TABLE IV"}]
                 main_docx_headings_ok = ("7. Limitations" in para_text
                                          and "8. Conclusion" in para_text
                                          and not any("7. From Operator-Aware Optimization to Practical Compression" in value
                                                      or "9. Conclusion" in value
-                                                     or "TABLE III" in value
                                                      or "Practical carrier evaluation" in value
-                                                     for value in para_text))
-                docx_structure_ok = (manuscript_tables == 2 and equation_layout_tables == 10
+                                                     for value in para_text)
+                                         and docx_table_labels == ["TABLE I", "TABLE II", "TABLE III", "TABLE IV"])
+                docx_structure_ok = (manuscript_tables == 4 and equation_layout_tables == 10
                                      and drawings_in_docx == 8 and len(docx_valid) == 8
-                                     and display_math_lines >= 10 and ref_nums == list(range(1,54))
+                                     and display_math_lines >= 10 and ref_nums == list(range(1,56))
                                      and main_docx_headings_ok)
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_structure_ok = False
-    record("editable_main_docx_contains_two_native_tables_eight_figures_ten_equations_and_53_ieee_refs",
+    record("editable_main_docx_contains_four_native_tables_eight_figures_ten_equations_and_55_ieee_refs",
            docx_structure_ok,
-           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}; headings/removed Table III valid={main_docx_headings_ok if docx_path.is_file() else False}.")
+           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}; table labels={docx_table_labels if docx_path.is_file() else []}.")
 
     passed = all(v["status"] == "PASS" for v in checks.values())
     manifest = {"status":"PASS" if passed else "FAIL", "checks":checks,

@@ -162,6 +162,17 @@ def ieee_reference(fields: dict[str, str]) -> str:
     doi = clean_tex(fields.get("doi", ""))
     url = clean_tex(fields.get("url", ""))
     result = f'{authors}, “{title},”'
+    eprint = clean_tex(fields.get("eprint", ""))
+    archive = clean_tex(fields.get("archiveprefix", ""))
+    primary_class = clean_tex(fields.get("primaryclass", ""))
+    if eprint and archive.lower() == "arxiv":
+        result += f" arXiv preprint arXiv:{eprint}"
+        if primary_class:
+            result += f" [{primary_class}]"
+        result += f", {year}."
+        if url:
+            result += f" Available: {url}."
+        return result
     if venue:
         result += f" in {venue},"
     if volume:
@@ -634,11 +645,28 @@ def add_markdown_table(doc, lines):
     count = max(len(row) for row in data)
     table = doc.add_table(rows=len(data), cols=count)
     table.style = "Table Grid"
-    table.autofit = True
+    table.autofit = False
+    table.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    headers = [cell.lower() for cell in data[0]]
+    widths = None
+    if count == 5 and any("centroid" in cell for cell in headers) and any("kmax" in cell for cell in headers):
+        widths = (1.22, 1.34, 1.34, 1.54, 1.31)
+    elif count == 4 and any("effective rank" in cell for cell in headers) and any("pc1 / pcbottom" in cell for cell in headers):
+        widths = (1.25, 1.72, 1.70, 2.08)
+    if widths:
+        layout = OxmlElement("w:tblLayout")
+        layout.set(qn("w:type"), "fixed")
+        table._tbl.tblPr.append(layout)
+        for col_index, width in enumerate(widths):
+            table.columns[col_index].width = Inches(width)
     for row_index, row in enumerate(data):
+        row_properties = table.rows[row_index]._tr.get_or_add_trPr()
+        row_properties.append(OxmlElement("w:cantSplit"))
         for col_index in range(count):
             cell = table.cell(row_index, col_index)
             cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+            if widths:
+                cell.width = Inches(widths[col_index])
             set_cell_margins(cell)
             value = row[col_index] if col_index < len(row) else ""
             cell.text = ""
@@ -651,12 +679,12 @@ def add_markdown_table(doc, lines):
             elif col_index > 0:
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             run = p.add_run(value)
-            set_font(run, size=7.7 if count >= 6 else 8.1, bold=(row_index == 0), color="17232D" if row_index == 0 else "202A32")
+            body_size = 7.4 if widths and count == 5 else 7.8 if widths and count == 4 else 7.7 if count >= 6 else 8.1
+            set_font(run, size=body_size, bold=(row_index == 0), color="17232D" if row_index == 0 else "202A32")
         if row_index == 0:
-            tr_pr = table.rows[0]._tr.get_or_add_trPr()
             header = OxmlElement("w:tblHeader")
             header.set(qn("w:val"), "true")
-            tr_pr.append(header)
+            row_properties.append(header)
     doc.add_paragraph().paragraph_format.space_after = Pt(1)
     return table
 
@@ -794,7 +822,9 @@ def build(source: Path, output: Path, *, allow_no_bibliography: bool = False):
         if line.startswith("*") and line.endswith("*") and line.count("*") >= 2:
             caption_text = line.strip("*")
             is_caption = caption_text.startswith(("Fig.", "Figure", "Table"))
-            add_inline_paragraph(doc, caption_text, key_to_num, caption=is_caption, center=is_caption)
+            table_caption = caption_text.startswith(("Top-1 differences", "The empirical margin-gradient metric"))
+            add_inline_paragraph(doc, caption_text, key_to_num, caption=is_caption, center=is_caption,
+                                 keep_with_next=table_caption)
             i += 1
             continue
         if line.startswith("**") and line.endswith("**"):
@@ -842,6 +872,7 @@ def build(source: Path, output: Path, *, allow_no_bibliography: bool = False):
     output.parent.mkdir(parents=True, exist_ok=True)
     doc.save(output)
     print(f"Created {output}; references={len(order)}; figures={image_count}; tables={table_count}; equations={equation_count}")
+
 
 
 if __name__ == "__main__":

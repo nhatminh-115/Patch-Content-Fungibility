@@ -4,7 +4,9 @@
 
 **Source:** current `main` worktree; no experiment or raw-output modification was performed.
 
-## Post-restructure addendum (2026-10-10)
+## Post-restructure interim addendum (2026-10-10)
+
+This is a historical interim snapshot. Its layout, reference, validation, and page-count statements are superseded by the final reconciliation at the end of this file.
 
 The audit body below is retained as a record of the manuscript before the practical-carrier section was moved. Its references to three main tables, Table III, sensitivity Table S5, Supplementary Figures S1–S14, 30/30 paper checks, and the earlier Word page counts describe that prior state and are not current layout expectations.
 
@@ -78,3 +80,38 @@ Long et al. (CVPR 2023) is included as prior diversity-aware token-reduction wor
 - The editable DOCX has 3 native manuscript tables, 8 embedded figures, 10 numbered equation layout blocks containing editable Word math lines, and 53 ordered references. The title rule was removed, and figure-caption pairs are kept together.
 - The main Word document was exported from the current Markdown source and visually inspected as a 16-page PDF rendered by Microsoft Word; the supplementary Word document was rendered and inspected as a 14-page PDF. The built-in `render_docx.py` route could not run because LibreOffice `soffice.exe` is unavailable, so Word PDF export was used for page-level review. The updated main page containing the Section 6 residual contrast was re-rendered and checked after the formula typography change.
 - No experiments or raw outputs were changed.
+
+## Final reconciliation and main-table upgrade (2026-10-10)
+
+This is the controlling audit for the final revision. The historical audit and interim addendum above are retained unchanged as records of earlier manuscript states.
+
+### Scope and six-claim audit
+
+- **C1:** Late-layer replacement remains a conditional fixed-slot claim for tested settings. Token positions, CLS, weights, and subsequent computation stay fixed; the paper does not infer token deletion, universal dispensability, or CLS-independent replaceability.
+- **C2:** Geometry, token-position diversity, and feature-space direction remain distinct controls. DINOv2's complete-replacement Top-1 endpoints stay near floor; its `−0.02 pp` diversity and `+0.17 pp` PC1 contrasts are not described as accuracy recovery.
+- **C3:** The corrected `M_l` spectrum uses the margin-gradient second moment, separate from the full downstream Jacobian Gram. Near-null growth at the primary cutoff is architecture-dependent and small for DINOv2; the table identifies the cutoff as operational and does not claim a causal explanation or exact nonlinear nullspace.
+- **C4:** The Value-path evidence retains coherent accumulation and sign-dependent cancellation, while identifying the limited projection-path coverage and keeping the reported ratios separate from additive causal attribution.
+- **C5 / Figure 7:** The comparison is bounded to 100 designed perturbation vectors per architecture (four fixed families of 25), scored on a 20-image reference batch. Correlations use perturbation vectors as the unit; within-family associations can be weak or negative. The single-block operator averages over the reference batch, while the end-to-end Jacobian is linearized at its first image. The existing Figure 7 wording already stated these limits and was retained without textual change; no arbitrary-perturbation generalization is claimed.
+- **C6:** Compression remains an offline per-image Full-J oracle application. The strict confirmatory Top-1 advantage is `4.2–12.0 pp` over the strongest pruning baseline at the most aggressive tested budgets; comparisons do not establish universal dominance over Group Mean or ToMe, or an efficient deployment method.
+
+Abstract and Introduction wording was adjusted only where needed: PCF is described as a mechanistic account of the tested interventions, replacement tolerance is said to be shaped by the measured factors, and the compression distinction now specifies grouped carrier content under fixed assignment `S`.
+
+### Prior art and main tables
+
+Bond et al. is cited as the 2026 arXiv preprint on downstream pullback geometry, spectral/low-rank metric structure, and geometry-aware token pruning/merging. Liu et al. is cited as the 2025 PMLR Conference on Parsimony and Learning paper on approximate-nullspace noise for ViT fine-tuning robustness. The Related Work explicitly distinguishes those precedents from PCF's ordinary spatial-patch fixed-slot intervention and grouped carrier-content optimization. The bibliography has 55 unique records; Bond has no asserted acceptance venue or DOI, and Liu is recorded at PMLR 280, pages 1–23.
+
+| Main table | Reconciled content |
+|---|---|
+| II | Top-1 percentage-point contrasts, in architecture order DeiT-Tiny / DeiT-Small / ViT-B/16 AugReg / DINOv2: centroid minus coordinate-permuted centroid `+16.2 / +18.0 / +6.5 / +47.8`; centroid minus sign-inverted centroid `+65.6 / +65.1 / +5.7 / +55.4`; grouped `Kmax−K1` `+25.2 / +36.1 / +11.34 / −0.02`; PC1 minus random 1D `+7.84 / +7.30 / +33.40 / +0.17`. The archived sources and seed, cohort, budget, and floor notes are checked directly by `validate_paper_final.py`. |
+| III | Corrected functional-geometry endpoints: effective rank `0.541→0.125 / 0.467→0.114 / 0.383→0.140 / 0.453→0.323`; near-null fraction `0.52→31.77% / 0.26→57.03% / 0.26→49.61% / 0.26→1.56%`; depth-8 PC1/PCbottom ratios `0.089 / 0.041 / 65.2 / 0.199`. Source rows use `N=100` images per model, with patch positions aggregated within images. |
+| IV | The former compression Table II is now Table IV. Its strict confirmatory values remain unchanged: Tiny `58.6 / 66.5 / 65.8 / 67.1 / 67.1 / 67.9%`; Small `71.6 / 76.4 / 76.4 / 75.8 / 76.5 / 76.5%`; ViT-B `69.2 / 73.2 / 73.0 / 74.4 / 73.7 / 74.2%`; DINOv2 `61.5 / 72.2 / 69.4 / 73.5 / 73.2 / 73.0%` for best pruning / Group Mean / ToMe / Full-J / rank-16 / rank-32. |
+
+The four main tables are I–IV; the eight original main figures and ten numbered equations remain. Supplementary Sections S1–S15, Tables S1–S6, and Figures S1–S15 are unchanged. The citation order and contiguous numeric ranges reconcile between Markdown and Word.
+
+### Word preservation, rendering, and validation
+
+- `docs/PAPER_DRAFT_v5.docx` was updated surgically from its existing package. All 23 package parts remain present; only `word/document.xml` differs. The ten existing numbered equation-layout tables are byte-canonical identical, the original inline math content remains present, and the revised document has four editable main tables, eight figures, and 55 numbered references.
+- Microsoft Word exported the staged DOCX read-only to PDF; the packaged `render_docx.py` rasterization route generated 17 page images. Every page was visually inspected. The new tables fit the existing page width and remain readable; the Table II continuation note is explicitly labeled on the next page. No supplementary DOCX or manuscript-wide regeneration was performed.
+- `python scripts/validate_real_final_benchmark.py`: **PASS, 12/12 checks**.
+- `python scripts/validate_paper_final.py`: **PASS, 42/42 checks**, including independent Table II and Table III source recomputations, Figure 7 correlations/bootstrap intervals and scope, four-table numbering, IEEE citations, and editable DOCX structure.
+- No new experiment was run and no experimental CSV, checkpoint, or scientific result was changed. The numerical validators and audit manifests are the only validation outputs written during this revision.
