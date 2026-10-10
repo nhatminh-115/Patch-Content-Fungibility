@@ -2,13 +2,12 @@
 
 The script reuses the primary confirmatory feature-similarity grouping,
 per-image exact downstream Jacobian, carrier solver, and multiplicity-aware
-compressed forward. It constructs the canonical split to verify global-index
-disjointness, but never transforms evaluation images or computes their outcomes.
+compressed forward. It never constructs or reads the held-out evaluation split.
 
 Run an 8-image runtime/memory benchmark first:
     python scripts/run_regularization_sensitivity.py --benchmark-only
 
-After reviewing the generated cost estimate, run the full 200-class-randomized cohort:
+After reviewing the generated cost estimate, run the full 200-image cohort:
     python scripts/run_regularization_sensitivity.py
 """
 from __future__ import annotations
@@ -37,7 +36,7 @@ import torch.nn.functional as F
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from patch_fungibility.v0_6_dataset import get_disjoint_imagenet_splits, ParquetImageSubset
+from patch_fungibility.v0_6_dataset import ParquetImageSubset
 from patch_fungibility.dense_fraction_models import load_model_and_transform, forward_block_by_block
 from patch_fungibility.compression_models import forward_downstream_compressed
 from patch_fungibility.operator_compression_confirmatory import (
@@ -47,14 +46,9 @@ from patch_fungibility.operator_compression_confirmatory import (
 )
 
 
-OUT = ROOT / "outputs" / "fungibility_regularization_sensitivity_v2_class_randomized"
+OUT = ROOT / "outputs" / "fungibility_regularization_sensitivity"
 FIG = OUT / "figures"
 FACTORS = [0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0]
-CALIBRATION_SPLIT_SEED = 9101
-EVALUATION_SPLIT_SEED = 9201
-CLASS_SELECTION_SEED = 61327
-N_CANONICAL_CLASSES = 1000
-N_SELECTED_CLASSES = 200
 MODEL_SPECS = [
     {"key": "deit_tiny", "name": "DeiT-Tiny", "depth": 8, "patches": 196, "budgets": [32, 98]},
     {"key": "deit_small", "name": "DeiT-Small", "depth": 8, "patches": 196, "budgets": [32, 98]},
@@ -64,35 +58,25 @@ MODEL_SPECS = [
 
 
 def load_calibration_only(n_images: int):
-    """Select a seeded uniform 200-class subset from the canonical seed-9101 split."""
-    if n_images not in (8, N_SELECTED_CLASSES):
-        raise ValueError("This version supports the 8-image benchmark or fixed 200-class full cohort.")
-    calib_dataset, _eval_ds, calib_manifest, eval_manifest = get_disjoint_imagenet_splits(
-        calib_seed=CALIBRATION_SPLIT_SEED,
-        eval_seed=EVALUATION_SPLIT_SEED,
-        n_per_split=N_CANONICAL_CLASSES,
-    )
-    calib_ids = set(calib_manifest["global_index"].astype(int))
-    eval_ids = set(eval_manifest["global_index"].astype(int))
-    if len(calib_manifest) != N_CANONICAL_CLASSES or len(eval_manifest) != N_CANONICAL_CLASSES:
-        raise RuntimeError("Canonical calibration/evaluation split is not exactly 1,000 images each.")
-    if calib_ids.intersection(eval_ids):
-        raise RuntimeError("Canonical calibration and evaluation split IDs overlap.")
-    class_labels = sorted(calib_manifest["label"].astype(int).unique().tolist())
-    if len(class_labels) != N_CANONICAL_CLASSES:
-        raise RuntimeError("Canonical calibration split does not contain 1,000 distinct classes.")
-
-    class_rng = np.random.RandomState(CLASS_SELECTION_SEED)
-    selected_labels = class_rng.choice(class_labels, size=N_SELECTED_CLASSES, replace=False).astype(int).tolist()
-    class_rows = calib_manifest.assign(label=calib_manifest["label"].astype(int)).set_index("label")
-    selected_df = class_rows.loc[selected_labels].reset_index()
-    if len(selected_df) != N_SELECTED_CLASSES or selected_df["label"].nunique() != N_SELECTED_CLASSES:
-        raise RuntimeError("Class-randomized selection did not return 200 distinct calibration classes.")
-    selected_ids = selected_df["global_index"].astype(int).tolist()
-    if not set(selected_ids).issubset(calib_ids) or set(selected_ids).intersection(eval_ids):
-        raise RuntimeError("Selected images are not a subset of calibration or overlap evaluation.")
-    df = selected_df.iloc[:n_images].copy().reset_index(drop=True)
-    df["image"] = [calib_dataset._samples[int(sample_id)][0] for sample_id in df["sample_id"]]
+    """Match get_disjoint_imagenet_splits(seed=9101) without touching eval IDs."""
+    cache_glob = os.path.expanduser("~/.cache/huggingface/hub/**/val-*.parquet")
+    files = sorted(__import__("glob").glob(cache_glob, recursive=True))
+    if not files:
+        raise FileNotFoundError("ImageNet validation parquet files are absent from the local cache.")
+    frames = [pd.read_parquet(p, columns=["image", "label"]) for p in files]
+    all_df = pd.concat(frames, ignore_index=True)
+    all_df["global_index"] = np.arange(len(all_df))
+    grouped = all_df.groupby("label")
+    classes = sorted(grouped.groups.keys())[:1000]
+    if len(classes) < n_images:
+        raise RuntimeError(f"Only {len(classes)} calibration classes are available; requested {n_images} images.")
+    rng = np.random.RandomState(9101)
+    selected = []
+    for cls in classes:
+        indices = list(grouped.groups[cls])
+        selected.append(int(rng.choice(indices)))
+    selected = selected[:n_images]
+    df = all_df.loc[selected].reset_index(drop=True)
     samples = []
     for _, row in df.iterrows():
         image = row["image"]
@@ -105,26 +89,7 @@ def load_calibration_only(n_images: int):
         samples.append((image_bytes, int(row["label"])))
     ids = df["global_index"].astype(int).tolist()
     cohort_hash = hashlib.sha256(",".join(map(str, ids)).encode()).hexdigest()
-    sampling = {
-        "calibration_split_seed": CALIBRATION_SPLIT_SEED,
-        "evaluation_split_seed_for_disjointness_check": EVALUATION_SPLIT_SEED,
-        "class_selection_seed": CLASS_SELECTION_SEED,
-        "selection_method": "uniform without replacement from all 1,000 class labels in canonical calibration split",
-        "canonical_calibration_n": len(calib_manifest),
-        "canonical_calibration_unique_classes": len(class_labels),
-        "canonical_evaluation_n_used_only_for_disjointness_verification": len(eval_manifest),
-        "canonical_calibration_eval_global_index_intersection": len(calib_ids.intersection(eval_ids)),
-        "selected_class_labels": selected_labels[:n_images],
-        "selected_global_indices": ids,
-        "selected_class_labels_all_200": selected_labels,
-        "selected_global_indices_all_200": selected_ids,
-        "selected_class_labels_sha256_all_200": hashlib.sha256(",".join(map(str, selected_labels)).encode()).hexdigest(),
-        "selected_global_indices_sha256_all_200": hashlib.sha256(",".join(map(str, selected_ids)).encode()).hexdigest(),
-        "selected_global_indices_sha256_used_rows": cohort_hash,
-        "selected_ids_subset_of_canonical_calibration": True,
-        "selected_ids_disjoint_from_canonical_evaluation": True,
-    }
-    return samples, df, ids, cohort_hash, sampling
+    return samples, df, ids, cohort_hash
 
 
 def true_class_margin(logits: torch.Tensor, target: int) -> float:
@@ -276,14 +241,10 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     all_rows, runtime_rows, model_meta = [], [], []
-    cohort_ids, cohort_hash, sampling = None, None, None
+    cohort_ids, cohort_hash = None, None
     dataset_setup_start = time.perf_counter()
-    calibration_samples, calib_df, cohort_ids, cohort_hash, sampling = load_calibration_only(n_images)
+    calibration_samples, calib_df, cohort_ids, cohort_hash = load_calibration_only(n_images)
     data_setup_sec = time.perf_counter() - dataset_setup_start
-    cohort_filename = "selected_cohort_benchmark8.csv" if args.benchmark_only else "selected_cohort.csv"
-    calib_df[["sample_id", "label", "global_index"]].rename(columns={"label": "class_label"}).to_csv(
-        OUT / cohort_filename, index=False
-    )
 
     for spec in MODEL_SPECS:
         key, model_name = spec["key"], spec["name"]
@@ -407,19 +368,15 @@ def main():
 
     total_hr = float(runtimes["estimated_200_image_compute_hours"].sum())
     manifest = {
-        "study": "corrected post-hoc exact-Jacobian regularization sensitivity; class-randomized cohort; not the missing historical pilot",
+        "study": "post-hoc exact-Jacobian regularization sensitivity; not the missing historical pilot",
         "status": "benchmark_only_cost_estimate" if args.benchmark_only else "completed",
         "timestamp_local": time.strftime("%Y-%m-%d %H:%M:%S %z"),
         "git_commit": __import__("subprocess").check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
         "device": str(device), "gpu_name": torch.cuda.get_device_name(0) if device.type == "cuda" else None,
         "gpu_total_memory_gib": torch.cuda.get_device_properties(0).total_memory / (1024**3) if device.type == "cuda" else None,
-        "calibration_split_seed": CALIBRATION_SPLIT_SEED,
-        "evaluation_split_seed_used_for_model_selection": None,
-        "evaluation_split_seed": EVALUATION_SPLIT_SEED,
-        "evaluation_split_use": "construct canonical split only to obtain the evaluation global-index manifest for a disjointness assertion; no evaluation image is transformed or passed through a model and no evaluation outcomes are used",
+        "calibration_split_seed": 9101, "evaluation_split_seed_used": None,
         "calibration_images_per_architecture": n_images, "calibration_global_index_sha256": cohort_hash,
         "calibration_global_indices": cohort_ids, "factor_grid": FACTORS,
-        "sampling": sampling,
         "models": model_meta, "runtime_benchmark": runtime_rows,
         "estimated_full_200_image_compute_hours_excluding_model_and_dataset_load": total_hr,
         "dataset_setup_sec": data_setup_sec,

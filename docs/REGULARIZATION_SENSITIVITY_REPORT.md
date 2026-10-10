@@ -2,6 +2,8 @@
 
 **Status:** Completed calibration-only sensitivity analysis. This is a post-hoc analysis, not the missing historical pilot and not evidence that factor 10 was selected before confirmatory evaluation.
 
+> **Sampling limitation added 2026-10-10:** This original exploratory version selected one image per class and then took the first 200 rows in sorted class-label order. It therefore covered only the first 200 classes, not a class-randomized sample of ImageNet-1k. Keep its results as historical evidence for that subset only; they do not establish representative ImageNet-1k sensitivity. The corrected class-randomized analysis is in [the v2 report](REGULARIZATION_SENSITIVITY_REPORT_CORRECTED.md), with new outputs under [`outputs/fungibility_regularization_sensitivity_v2_class_randomized/`](../outputs/fungibility_regularization_sensitivity_v2_class_randomized/).
+
 ## Verdict
 
 The regularization factor materially changes the carrier solution and the linearized residual, but nonlinear Top-1 changes are smaller and model/budget dependent. No single factor is best across all eight architecture-budget cells. Factor 10 is a defensible middle setting in the residual-versus-displacement tradeoff: relative to 3 it consistently reduces carrier displacement while increasing \(\|JE\|\); relative to 30 it consistently lowers \(\|JE\|\) while increasing displacement. Its nonlinear outcomes do not establish a universal advantage. Factor 10 beats 3 in Top-1 in only small fractions of images (and ties nearly all images), while factor 30 is better in some cells, worse in others, and tied in the rest.
@@ -111,14 +113,14 @@ The paper DOCX was not regenerated or edited, the manuscript's scientific claims
 Run from the repository root after the local ImageNet validation parquet cache and model weights are available:
 
 ```powershell
-python scripts/run_regularization_sensitivity.py --benchmark-only
-python scripts/run_regularization_sensitivity.py
-python scripts/run_regularization_sensitivity.py --postprocess-only
+python scripts/run_regularization_sensitivity_v1_first200_classes.py --benchmark-only
+python scripts/run_regularization_sensitivity_v1_first200_classes.py
+python scripts/run_regularization_sensitivity_v1_first200_classes.py --postprocess-only
 ```
 
 The full manifest includes the 200 global indices and cohort hash, model IDs/depths/budgets, factor grid, timing/memory, software versions, and the SHA-256 of the runner. The fixed full-run inputs were seed 9101 and the local cached validation parquet; no seed-9201 evaluation IDs are read by this runner.
 
-- Runner: [`scripts/run_regularization_sensitivity.py`](../scripts/run_regularization_sensitivity.py)
+- Historical runner: [`scripts/run_regularization_sensitivity_v1_first200_classes.py`](../scripts/run_regularization_sensitivity_v1_first200_classes.py)
 - Full per-image CSV, 12,800 rows: [`per_image_results.csv`](../outputs/fungibility_regularization_sensitivity/per_image_results.csv)
 - Architecture/budget/factor means, SDs, and SEs: [`aggregated_by_architecture_budget_factor.csv`](../outputs/fungibility_regularization_sensitivity/aggregated_by_architecture_budget_factor.csv)
 - Paired factor-10 comparisons: [`paired_factor10_vs_3_30.csv`](../outputs/fungibility_regularization_sensitivity/paired_factor10_vs_3_30.csv)
