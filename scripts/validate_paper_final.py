@@ -175,16 +175,33 @@ def main() -> int:
            and all("paper_final_v4" in p for p in paths),
            f"Referenced figures={len(paths)}; missing={missing}; invalid={invalid}.")
 
+    # The plotted joint-stream cells must map one-to-one to the existing audited CSV rows.
+    joint_rows = rows(ROOT / "outputs/fungibility_joint_stream_geometry/directional_curves.csv")
+    joint_pairs = {("deit_small", 5), ("deit_small", 8), ("deit_small", 10),
+                   ("vit_base", 5), ("vit_base", 7), ("vit_base", 10)}
+    joint_patterns = {"single_central", "single_corner", "global_coherent", "random_sign",
+                      "random_gaussian", "spatial_cluster_25%", "checkerboard", "smooth_spatial"}
+    joint_directions = {"jac_top", "jac_null", "pc1", "centroid_dir", "rand_dir"}
+    joint_filtered = [r for r in joint_rows if abs(float(r["scale_s"]) - 1.0) <= 1e-12
+                      and (r["model_key"], int(r["depth"])) in joint_pairs]
+    joint_keys = [(r["model_key"], int(r["depth"]), r["token_pattern"], r["feature_dir"])
+                  for r in joint_filtered]
+    joint_expected = {(model, depth, pattern, direction)
+                      for model, depth in joint_pairs
+                      for pattern in joint_patterns for direction in joint_directions}
+    joint_grid_ok = (len(joint_filtered) == 240 and len(set(joint_keys)) == 240
+                     and set(joint_keys) == joint_expected
+                     and all(float(r["logit_l2"]) > 0 for r in joint_filtered))
+    record("joint_stream_figures_match_all_240_audited_cells", joint_grid_ok,
+           f"At scale_s=1.0: rows={len(joint_filtered)}, unique={len(set(joint_keys))}, expected=240; model-depth pairs={sorted(joint_pairs)}; all logit_l2 values positive for shared LogNorm={all(float(r['logit_l2']) > 0 for r in joint_filtered)}.")
+
     # Figure generation must be reproducible from the declared audited sources.
     main_figure_names = ["figure1_overview.svg", "figure2_depthwise.svg", "figure3_geometry_diversity.svg",
                          "figure4_anisotropic_geometry.svg", "figure5_value_path_cancellation.svg",
-                         "figure6_joint_stream_geometry.svg", "figure7_end_to_end_operator.svg",
-                         "figure8_operator_compression.svg"]
-    supplementary_figure_names = ["supp/figureS10_dinov2_margin_diversity.svg",
-                                  "supp/figureS11_value_path_replication.svg",
+                         "figure6_joint_stream_geometry.svg", "figure7_end_to_end_operator.svg", "figure8_operator_compression.svg"]
+    supplementary_figure_names = ["supp/figureS11_value_path_replication.svg",
                                   "supp/figureS12_primary_qkv_decomposition.svg",
-                                  "supp/figureS13_real_carrier_boundary.svg",
-                                  "supp/figureS14_joint_stream_geometry.svg"]
+                                  "supp/figureS13_real_carrier_boundary.svg", "supp/figureS14_joint_stream_geometry.svg"]
     figure_names = main_figure_names + supplementary_figure_names
     absent = [n for n in figure_names if not (FIGS/n).is_file()]
     absent_png = [n[:-4]+".png" for n in figure_names if not (FIGS/(n[:-4]+".png")).is_file()]
@@ -195,29 +212,10 @@ def main() -> int:
                  and "figureS13_real_carrier_boundary" in script_text
                  and "figureS12_primary_qkv_decomposition" in script_text
                  and "figure6_joint_stream_geometry" in script_text
+                 and "figure7_end_to_end_operator" in script_text
+                 and "figure8_operator_compression" in script_text
                  and "figureS14_joint_stream_geometry" in script_text)
     sidecars = [FIGS/"FIGURE_MANIFEST.md", FIGS/"contact_sheet.png", DOCS/"PAPER_FIGURE_REVIEW_V4.md"]
-    joint_grid_ok = False
-    joint_path = ROOT / "outputs/fungibility_joint_stream_geometry/directional_curves.csv"
-    if joint_path.is_file():
-        try:
-            joint_rows = [r for r in rows(joint_path) if float(r["scale_s"]) == 1.0]
-            joint_keys = {(r["model_key"], int(r["depth"]), r["token_pattern"], r["feature_dir"]) for r in joint_rows}
-            expected_pairs = {("deit_small", 5), ("deit_small", 8), ("deit_small", 10),
-                              ("vit_base", 5), ("vit_base", 7), ("vit_base", 10)}
-            expected_patterns = {"single_central", "single_corner", "global_coherent", "random_sign",
-                                 "random_gaussian", "spatial_cluster_25%", "checkerboard", "smooth_spatial"}
-            expected_directions = {"jac_top", "jac_null", "pc1", "rand_dir", "centroid_dir"}
-            pairs = {(r["model_key"], int(r["depth"])) for r in joint_rows}
-            joint_grid_ok = (len(joint_rows) == len(joint_keys) == 240 and pairs == expected_pairs
-                             and {r["token_pattern"] for r in joint_rows} == expected_patterns
-                             and {r["feature_dir"] for r in joint_rows} == expected_directions
-                             and all(float(r["logit_l2"]) > 0 for r in joint_rows))
-        except (KeyError, ValueError, OSError):
-            joint_grid_ok = False
-    record("joint_stream_figure_uses_all_240_audited_scale1_cells", joint_grid_ok,
-           f"Expected 240 unique positive logit-L2 cells across the six audited model-depth pairs; source={joint_path}.")
-
     record("publication_figures_present_source_scoped_and_reviewed",
            not absent and not absent_png and not stale_carrier_assets and script_ok and all(p.is_file() for p in sidecars),
            f"Missing SVGs={absent}; missing PNGs={absent_png}; stale S1 carrier assets={stale_carrier_assets}; generator source checks={script_ok}; manifest/contact/review={[p.is_file() for p in sidecars]}.")
@@ -234,7 +232,7 @@ def main() -> int:
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_ok = False
     record("main_docx_embeds_eight_reviewed_figures", docx_ok,
-           "Main DOCX package contains exactly eight main-text figure drawings and eight embedded PNG assets; supplementary figures remain in the separate supplement DOCX.")
+           "Main DOCX package contains exactly eight main-text figure drawings and eight embedded PNG assets; supplementary figures are kept in the separate supplement DOCX.")
 
     supplementary_docx_ok = False
     supp_drawings = supp_media = supp_tables = 0
@@ -245,18 +243,38 @@ def main() -> int:
                 supp_xml = ET.fromstring(archive.read("word/document.xml"))
             supp_drawings = sum(1 for node in supp_xml.iter() if node.tag.endswith("}drawing"))
             supp_tables = sum(1 for node in supp_xml.iter() if node.tag.endswith("}tbl"))
-            supplementary_docx_ok = supp_media == 14 and supp_drawings == 14 and supp_tables == 5
+            supp_doc_text = "".join(node.text or "" for node in supp_xml.iter() if node.tag.endswith("}t"))
+            required_s4_values = ["Table S4.", "+0.006282993", "+0.004448350", "−0.247199488", "−0.252697120", "102.2%"]
+            s4_present = all(value in supp_doc_text for value in required_s4_values)
+            supplementary_docx_ok = supp_media == 14 and supp_drawings == 14 and supp_tables == 5 and s4_present
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             supplementary_docx_ok = False
     record("supplementary_docx_embeds_all_figures_and_tables", supplementary_docx_ok,
-           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} tables; required 14 figures and five tables (evidence map plus Tables S1–S4).")
+           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} tables; required 14 figures and five tables (evidence map plus Tables S1–S4), including verified S4 values={s4_present}.")
 
     # Traceability matrix covers every numeric claim family carried into the draft.
     tr = TRACE.read_text(encoding="utf-8-sig") if TRACE.exists() else ""
-    claim_families = ["+4.2 to +12.0", "+4.2 to +17.4", "4 exceed 98% and 18 do not", "54.91%", "0.7079985", ".974717", "1.473962", "76.4/76.3/76.0", "0.784", "70.8%", "102.2%"]
+    claim_families = ["+4.2 to +12.0", "+4.2 to +17.4", "4 exceed 98% and 18 do not", "54.91%", "0.7079985", ".974717", "1.473962", "76.4/76.3/76.0", "0.784"]
     absent_families = [v for v in claim_families if v not in tr]
     record("quantitative_claims_traceable", not absent_families,
            f"Numeric evidence families absent from traceability map: {absent_families}.")
+
+    # Reconcile the added same-group operator-space claim against image-level source rows.
+    same_group_rows = rows(ROOT / "outputs/fungibility_operator_compression_confirmatory/same_group_ablation.csv")
+    expected_delta = {"DeiT-Tiny": 1.2734326491, "DeiT-Small": 1.4813734684,
+                      "ViT-B/16": 2.5278027144, "DINOv2 ViT-S/14": 7.2039423407}
+    same_group_primary = [r for r in same_group_rows if r["grouping"] == "feature_similarity"]
+    same_group_ok = len(same_group_primary) == 20000 and all(float(r["delta_op_residual"]) > 0 for r in same_group_primary)
+    same_group_details = {}
+    for model, expected in expected_delta.items():
+        model_rows = [r for r in same_group_primary if r["model"] == model]
+        budgets = sorted({int(r["budget"]) for r in model_rows})
+        budget_counts = [sum(int(r["budget"]) == b for r in model_rows) for b in budgets]
+        mean_delta = sum(float(r["delta_op_residual"]) for r in model_rows) / len(model_rows) if model_rows else float("nan")
+        same_group_details[model] = {"rows": len(model_rows), "budgets": budgets, "n_per_budget": budget_counts, "mean_delta": mean_delta}
+        same_group_ok = same_group_ok and len(model_rows) == 5000 and len(budgets) == 5 and budget_counts == [1000] * 5 and abs(mean_delta - expected) < 1e-8
+    record("same_group_operator_residual_claim_matches_csv", same_group_ok,
+           f"Primary feature-similarity rows={len(same_group_primary)}; per-architecture counts and five-budget means={same_group_details}; all deltas positive={all(float(r['delta_op_residual']) > 0 for r in same_group_primary)}.")
 
 
     # Complete bibliography, acronym, callout, equation, and numeric consistency gates.
@@ -273,15 +291,15 @@ def main() -> int:
         norm_titles = [re.sub(r"[^a-z0-9]+", "", exporter.clean_tex(v.get("title", "")).lower())
                        for _, v in bib_entries]
         dois = [v.get("doi", "").strip().lower() for _, v in bib_entries if v.get("doi", "").strip()]
-        record("bibliography_has_51_complete_unique_published_records",
-               len(bib_entries) == 51 and complete and len(set(norm_titles)) == len(norm_titles) and len(set(dois)) == len(dois),
+        record("bibliography_has_53_complete_unique_records",
+               len(bib_entries) == 53 and complete and len(set(norm_titles)) == len(norm_titles) and len(set(dois)) == len(dois),
                f"Entries={len(bib_entries)}; complete fields={complete}; duplicate normalized titles={len(norm_titles)-len(set(norm_titles))}; duplicate DOIs={len(dois)-len(set(dois))}.")
         record("bibliography_numbering_matches_first_citation_and_sidecar",
                bib_order == first_cite_order and bib_block.group(1).strip() == external_bib.strip(),
                f"First-citation ordering={bib_order == first_cite_order}; external BibTeX synchronized={bib_block.group(1).strip() == external_bib.strip()}.")
     except (ValueError, OSError, IndexError) as exc:
         bib_entries, bib_fields, first_cite_order = [], {}, []
-        record("bibliography_has_51_complete_unique_published_records", False, f"Could not parse or validate bibliography: {exc}")
+        record("bibliography_has_53_complete_unique_records", False, f"Could not parse or validate bibliography: {exc}")
         record("bibliography_numbering_matches_first_citation_and_sidecar", False, "Bibliography parser or sidecar check failed.")
 
 
@@ -354,7 +372,15 @@ def main() -> int:
     fig_objects = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"!\[Figure\s+(S?\d+)", line.strip()))]
     fig_captions = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*Figure\s*(S?\d+)\.", line.strip()))]
     table_headings = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*\*TABLE\s+([IVX]+)\*\*", line.strip()))]
-    table_captions = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*Table\s+([IVX]+)\.", line.strip()))]
+    # This manuscript uses IEEE-style uppercase table labels followed by a bold uppercase title.
+    table_captions = []
+    for i, line in enumerate(lines):
+        heading = re.match(r"\*\*TABLE\s+([IVX]+)\*\*", line.strip())
+        if not heading:
+            continue
+        title_i = next((j for j in range(i + 1, len(lines)) if lines[j].strip()), None)
+        if title_i is not None and re.fullmatch(r"\*\*[^*].*[^*]\*\*", lines[title_i].strip()):
+            table_captions.append((title_i, heading.group(1)))
     figure_callouts = {}
     table_callouts = {}
     for i, line in enumerate(lines):
@@ -407,7 +433,8 @@ def main() -> int:
                                           and len(supplementary_captions.get(label, [])) == 1
                                           for label in expected_supplementary_labels)
                                   and "figureS1_real_carrier_boundary" not in supplementary_text
-                                  and "figureS13_real_carrier_boundary.svg" in supplementary_text)
+                                  and "figureS13_real_carrier_boundary.svg" in supplementary_text
+                                  and "figureS14_joint_stream_geometry.svg" in supplementary_text)
     resolved_figures_ok = resolved_figs == set(fig_labels) | supplementary_refs and supplementary_refs_ok
     record("figure_cross_references_resolve_and_precede_objects", fig_order_ok and fig_placement_ok and resolved_figures_ok and supplementary_numbering_ok,
            f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement labels={supplementary_labels}; object/caption/path resolution={supplementary_refs_ok}; placement={fig_placement_ok}; unique S1–S14 numbering={supplementary_numbering_ok}.")
@@ -533,10 +560,10 @@ def main() -> int:
                     para_text.append("".join(n.text or "" for n in para.iter(W+"t")))
                 ref_nums = [int(m.group(1)) for value in para_text if (m := re.match(r"\[(\d+)\]\s", value))]
                 docx_valid = [n for n in names if n.startswith("word/media/")]
-                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and display_math_lines >= 10 and ref_nums == list(range(1,52))
+                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and display_math_lines >= 10 and ref_nums == list(range(1,54))
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_structure_ok = False
-    record("editable_main_docx_contains_three_tables_eight_figures_ten_equations_and_51_ieee_refs", docx_structure_ok,
+    record("editable_main_docx_contains_three_native_tables_eight_figures_ten_equations_and_53_ieee_refs", docx_structure_ok,
            f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}.")
 
     passed = all(v["status"] == "PASS" for v in checks.values())

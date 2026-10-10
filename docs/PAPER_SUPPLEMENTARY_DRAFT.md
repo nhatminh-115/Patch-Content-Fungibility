@@ -7,6 +7,8 @@ This Supplement provides study-family descriptions, additional results, and repr
 
 The analyses are grouped by the scientific question they address. Table I in the main text identifies each evidence family’s sample unit; cohorts and endpoints are not pooled across studies.
 
+**Supplementary evidence map.** Summary of evidence families, scientific questions, model coverage, core conditions, and contributions covered by the supplementary analyses.
+
 | Evidence family | Scientific question | Models | Core conditions | Contribution |
 |---|---|---|---|---|
 | Depth-dependent replacement | How does replacement tolerance vary with depth, and how does it differ from zero ablation? | All four architectures | Zero, calibration centroid, and Gaussian surrogates at 25% replacement across depths 5–10; depth-6 follow-up for ViT-B and DINOv2 | Establishes architecture-dependent depth profiles and the distinction between content replacement and removal. |
@@ -198,6 +200,12 @@ The multi-block prediction extension evaluates 100 perturbation vectors per mode
 Within-family correlations are retained in the extension output directory. They vary substantially and include weak or negative values; the aggregate result therefore applies to the fixed mixed perturbation distribution. The source manifest records that the local operator averages over the 20-image reference batch while the end-to-end Jacobian is linearized at the first image.
 
 
+The joint token–feature grid uses the same perturbation definition and logit outcome as main Figure 6. The primary depth grid contains DeiT-Small at Blocks 5, 8, and 10 and ViT-B/16 AugReg at Blocks 5, 7, and 10. Each model uses the same 100 calibration images to construct the covariance and margin-gradient directions and to evaluate the perturbation outcomes. DeiT-Tiny and DINOv2 have reduced Block-8 replications only; these are not included in the full-factorial depth grid.
+
+![Supplementary Figure S14. Joint token–feature geometry across depth.](../figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg)
+
+**Supplementary Figure S14. Joint token–feature geometry across depth.** Mean per-image Euclidean final-logit \(L_2\) change at \(s=1.0\) for the eight token patterns and five feature directions in each panel: (a–c) DeiT-Small Blocks 5, 8, and 10; (d–f) ViT-B/16 AugReg Blocks 5, 7, and 10. All panels use one logarithmic color scale shared with main Figure 6. Each panel summarizes the same \(N=100\) calibration images used to construct its directions; these outcomes are within-cohort descriptive summaries. Reduced Block-8 replications in DeiT-Tiny and DINOv2 are reported separately and are not included in this six-panel full-factorial grid.
+
 ## S12. Primary Q/K/V projection-path comparison
 
 The primary projection-path audit compares V-only and \(K+V\) interventions for DeiT-Small at Block 8 and ViT-B/16 AugReg at Block 7. V-only perturbs \(V\) while keeping \(Q\), \(K\), and the residual clean. \(K+V\) perturbs \(K\) and \(V\) while keeping \(Q\) and the residual clean, and recomputes attention. Both conditions use the same \(N=100\) image cohort and the same mean per-image Euclidean \(L_2\) immediate-readout metric. The coherent V-only/\(K+V\) ratios are 97.4% and 99.4%, with \(K+V\) as the denominator. This primary decomposition is available only for these two architectures.
@@ -206,14 +214,15 @@ The primary projection-path audit compares V-only and \(K+V\) interventions for 
 
 **Supplementary Figure S12.** Mean per-image Euclidean \(L_2\) change in the immediate readout for V-only and \(K+V\) at (a) DeiT-Small, Block 8, and (b) ViT-B/16 AugReg, Block 7. V-only perturbs \(V\) with clean \(Q\), \(K\), and residual; \(K+V\) perturbs \(K,V\) with clean \(Q\) and residual and recomputes attention. Coherent, random-sign, and checkerboard patterns are shown in that order. Each panel uses its own y-axis scale; \(N=100\) outcome images per model.
 
-The signed true-class logit drop is the clean target-class logit minus the perturbed target-class logit, averaged over the same \(N=100\) outcome images. For intervention condition \(c\), define the coherent-minus-random-sign contrast as
+The signed true-class logit drop is the clean target-class logit minus the perturbed target-class logit, averaged across the same (N=100) outcome images. For condition (c), we define
 
-\[
-\operatorname{Contrast}(c)=\text{Mean true-class logit drop(coherent, }c\text{)}
--\text{Mean true-class logit drop(random-sign, }c\text{)}.
-\]
+**Contrast(c)** = mean true-class logit drop (coherent, c) − mean true-class logit drop (random-sign, c).
 
-The reported ratio is \(100\times\operatorname{Contrast}(\text{frozen-attention V-only with perturbed residual})/\operatorname{Contrast}(\text{full perturbation})\). The contrasts use `feature_dir=jac_top` and \(s=1.0\). Both ViT-B/16 AugReg contrasts are negative. Its 102.2% ratio is a quotient of two signed contrasts; it does not indicate more than 100% causal contribution because the interventions are not additive causal components.
+and report
+
+**Ratio (%)** = 100 × Contrast(frozen-attention V-only with perturbed residual) / Contrast(full perturbation).
+
+The contrasts use `feature_dir=jac_top` and (s=1.0). Both ViT-B/16 AugReg contrasts are negative. Its 102.2% ratio is the quotient of these two signed contrasts; it does not indicate more than 100% causal contribution because the interventions are not additive causal components.
 
 **Table S4. Signed true-class logit-drop contrasts for the primary Value-path audit.**
 
@@ -230,12 +239,6 @@ The held-out classifier-carrier study reports accuracy and measured full-model t
 
 **Supplementary Figure S13.** Held-out classifier-carrier accuracy and measured full-model throughput at batch size 64, shown with architecture-specific throughput axes. q=16 contributes a narrow ViT-B/16 AugReg frontier point.
 
-The joint-stream depth grid covers DeiT-Small at depths 5, 8, and 10 and ViT-B/16 AugReg at depths 5, 7, and 10. DeiT-Tiny and DINOv2 were evaluated only in reduced Block-8 replications and therefore are not included in this six-panel grid. The same (N=100)-image cohort per model supplies feature-direction estimation and outcome scoring.
-
-![Supplementary Figure S14. Joint token–feature response across depths.](../figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg)
-
-**Supplementary Figure S14.** Mean per-image final-logit (L_2) change at (s=1) across the six model–depth combinations listed above. Every panel shows the same eight token-space patterns by five feature-space directions, with cell values and the shared logarithmic color scale used in Figure 6. “Grad. top” and “Grad. near-null” are the joint-stream audit’s mean patch-margin-gradient directions; PC1, Random, and Centroid have the same definitions as in Figure 6. For each model, the same (N=100)-image cohort is used to estimate directions and score outcomes.
-
-## Code and data availability
+## S14. Code and data availability
 
 The repository provides the experiment protocols, frozen split manifests, per-image results, seed-level summaries, validation manifests, and figure-generation sources. Publication-facing results are traceable through the main-text claims and number maps; experiment-specific seed IDs and statistical procedures are listed in Supplementary Section S10.

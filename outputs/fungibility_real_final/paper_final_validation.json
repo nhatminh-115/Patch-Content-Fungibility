@@ -47,15 +47,15 @@
     },
     "bibliography_resolves_without_duplicates": {
       "status": "PASS",
-      "detail": "51 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
+      "detail": "53 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
     },
     "all_manuscript_figures_exist_and_are_v4_svg": {
       "status": "PASS",
       "detail": "Referenced figures=8; missing=[]; invalid=[]."
     },
-    "joint_stream_figure_uses_all_240_audited_scale1_cells": {
+    "joint_stream_figures_match_all_240_audited_cells": {
       "status": "PASS",
-      "detail": "Expected 240 unique positive logit-L2 cells across the six audited model-depth pairs; source=D:\\Study\\ResCancel\\pcf-canonical\\outputs\\fungibility_joint_stream_geometry\\directional_curves.csv."
+      "detail": "At scale_s=1.0: rows=240, unique=240, expected=240; model-depth pairs=[('deit_small', 5), ('deit_small', 8), ('deit_small', 10), ('vit_base', 5), ('vit_base', 7), ('vit_base', 10)]; all logit_l2 values positive for shared LogNorm=True."
     },
     "publication_figures_present_source_scoped_and_reviewed": {
       "status": "PASS",
@@ -63,19 +63,23 @@
     },
     "main_docx_embeds_eight_reviewed_figures": {
       "status": "PASS",
-      "detail": "Main DOCX package contains exactly eight main-text figure drawings and eight embedded PNG assets; supplementary figures remain in the separate supplement DOCX."
+      "detail": "Main DOCX package contains exactly eight main-text figure drawings and eight embedded PNG assets; supplementary figures are kept in the separate supplement DOCX."
     },
     "supplementary_docx_embeds_all_figures_and_tables": {
       "status": "PASS",
-      "detail": "Supplementary DOCX contains 14 figure drawings/14 image assets and 5 tables; required 14 figures and five tables (evidence map plus Tables S1\u2013S4)."
+      "detail": "Supplementary DOCX contains 14 figure drawings/14 image assets and 5 tables; required 14 figures and five tables (evidence map plus Tables S1\u2013S4), including verified S4 values=True."
     },
     "quantitative_claims_traceable": {
       "status": "PASS",
       "detail": "Numeric evidence families absent from traceability map: []."
     },
-    "bibliography_has_51_complete_unique_published_records": {
+    "same_group_operator_residual_claim_matches_csv": {
       "status": "PASS",
-      "detail": "Entries=51; complete fields=True; duplicate normalized titles=0; duplicate DOIs=0."
+      "detail": "Primary feature-similarity rows=20000; per-architecture counts and five-budget means={'DeiT-Tiny': {'rows': 5000, 'budgets': [32, 49, 72, 98, 147], 'n_per_budget': [1000, 1000, 1000, 1000, 1000], 'mean_delta': 1.2734326490573584}, 'DeiT-Small': {'rows': 5000, 'budgets': [32, 49, 72, 98, 147], 'n_per_budget': [1000, 1000, 1000, 1000, 1000], 'mean_delta': 1.4813734684199096}, 'ViT-B/16': {'rows': 5000, 'budgets': [32, 49, 72, 98, 147], 'n_per_budget': [1000, 1000, 1000, 1000, 1000], 'mean_delta': 2.527802714386582}, 'DINOv2 ViT-S/14': {'rows': 5000, 'budgets': [42, 64, 94, 128, 192], 'n_per_budget': [1000, 1000, 1000, 1000, 1000], 'mean_delta': 7.2039423407435415}}; all deltas positive=True."
+    },
+    "bibliography_has_53_complete_unique_records": {
+      "status": "PASS",
+      "detail": "Entries=53; complete fields=True; duplicate normalized titles=0; duplicate DOIs=0."
     },
     "bibliography_numbering_matches_first_citation_and_sidecar": {
       "status": "PASS",
@@ -83,7 +87,7 @@
     },
     "ieee_citation_order_and_ranges_match_docx": {
       "status": "PASS",
-      "detail": "Citation clusters=27; ordering issues=[]; reference heading found=True; source/rendered tokens=33/33; ranges=7; exact match=True."
+      "detail": "Citation clusters=22; ordering issues=[]; reference heading found=True; source/rendered tokens=24/24; ranges=7; exact match=True."
     },
     "abstract_uses_no_defined_abbreviations": {
       "status": "PASS",
@@ -113,11 +117,11 @@
       "status": "PASS",
       "detail": "Parsed rows=4; integer correct counts, N=1,000 percentages, and percentage-point changes checked."
     },
-    "editable_main_docx_contains_three_tables_eight_figures_ten_equations_and_51_ieee_refs": {
+    "editable_main_docx_contains_three_native_tables_eight_figures_ten_equations_and_53_ieee_refs": {
       "status": "PASS",
-      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=113, references=51."
+      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=125, references=53."
     }
   },
-  "passed_count": 29,
-  "assertion_count": 29
+  "passed_count": 30,
+  "assertion_count": 30
 }
