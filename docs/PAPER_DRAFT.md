@@ -175,7 +175,7 @@ $$
 K_j=Σ_{i∈G_j}(J_s)_i, H_J=Σ_{j=1}^{B}(1/m_j)K_jK_jᵀ, λ=10·tr(H_J)/d_s.
 \tag{8}
 $$
-H_J is a positive-semidefinite Gram matrix of grouped Jacobian blocks in readout space, not a feature-activation covariance. It is distinct from the centered calibration-activation covariance that defines PCA directions. The regularization factor 10 was fixed after a pilot sweep and before confirmatory evaluation; λ was not tuned on held-out test images. The per-image closed-form carrier update is
+H_J is a positive-semidefinite Gram matrix of grouped Jacobian blocks in readout space, not a feature-activation covariance. It is distinct from the centered calibration-activation covariance that defines PCA directions. The confirmatory implementation used regularization factor 10. The archived repository does not contain a pilot sweep under this per-image Jacobian objective that supports an optimality claim for this value. The confirmatory protocol prohibited tuning on the evaluation split. The per-image closed-form carrier update is
 $$
 r_{mean}=J_s rvec(E_{mean}), c_j^*=c_j^{mean}+(1/m_j)K_jᵀ(H_J+λI_{d_s})^{-1}r_{mean}.
 \tag{9}

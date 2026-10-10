@@ -2,7 +2,7 @@
 
 **Project:** Mechanistic Patch-Content Fungibility in Vision Transformers  
 **Repository:** [nhatminh-115/Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
-**Pre-Registered Protocol:** [FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_PROTOCOL.md](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_PROTOCOL.md) (Git Commit: `77e694a`)  
+**Protocol Record:** [FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_PROTOCOL.md](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_PROTOCOL.md) (the report's cited commit `77e694a` is unavailable in the current repository; see Section 2 addendum)<br>
 **Evaluation Dataset:** ImageNet-1k Validation Split ($N = 1,000$ canonical held-out images, eval seed `9201`, strictly disjoint from calibration split)  
 **Architectures Evaluated:** DeiT-Tiny ($l=8$), DeiT-Small ($l=8$), ViT-B/16 AugReg ($l=7$), DINOv2 ViT-S/14 ($l=8$)  
 **Date:** October 2026  
@@ -12,7 +12,7 @@
 ## 1. Executive Summary & Confirmatory Verdict
 
 ### 1.1 Confirmatory Verdict: LEVEL A / LEVEL B BOUNDARY
-The pre-registered confirmatory benchmark on $N = 1,000$ held-out images establishes a definitive, rigorously audited result:
+The confirmatory benchmark reported on $N = 1,000$ held-out images establishes the following results:
 
 1. **Decisive Dominance Over All Matched-Budget Pruning Baselines (Level A):**  
    Across all four architectures, all token budgets ($B \in [32, 147]$), and all seeds, **Operator-Aware Compression comprehensively and overwhelmingly outperforms Random Pruning, Norm-Based Pruning, and Attention-Based Pruning**. At aggressive compression ($B = 32$ or $B = 42$, retaining only $16.3\%$ of tokens), Operator-Aware Compression achieves $+4.2\%$ to $+17.3\%$ higher Top-1 accuracy ($p < 10^{-15}$, McNemar and Wilcoxon signed-rank tests).
@@ -35,13 +35,17 @@ The pre-registered confirmatory benchmark on $N = 1,000$ held-out images establi
 
 ## 2. Pre-Registration & Protocol Verification
 
-All algorithmic parameters, mathematical solvers, and evaluation protocols were strictly pre-registered and committed to git repository history before confirmatory execution:
+The original report records that all algorithmic parameters, mathematical solvers, and evaluation protocols were pre-registered before confirmatory execution. This chronology cannot be independently verified from the current repository snapshot because the cited protocol commit is unavailable locally (see the audit addendum below):
 - **Protocol Document:** [FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_PROTOCOL.md](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_PROTOCOL.md)
 - **Git Commit Hash:** `77e694a96e530ee5c9776d11daab8a426de14117`
-- **Evaluation Set Integrity:** Disjoint split of $N = 1,000$ ImageNet-1k validation images (eval seed `9201`, stratified 1 per class). No overlap with calibration data (seed `9101`). Zero hyperparameter tuning on the evaluation set.
+- **Evaluation Set Integrity (as reported):** Disjoint split of $N = 1,000$ ImageNet-1k validation images (eval seed `9201`, stratified 1 per class), with no overlap with calibration data (seed `9101`) and zero hyperparameter tuning on the evaluation set. The current archive does not independently verify these chronology/integrity claims because the cited protocol commit is unavailable.
 - **Intervention Depths:** DeiT-Tiny ($l=8$), DeiT-Small ($l=8$), ViT-B/16 ($l=7$), DINOv2 ViT-S/14 ($l=8$).
 - **Regularization Factor:** $\lambda = 10.0 \times \frac{\text{Tr}(\Sigma)}{D_{\text{readout}}}$ frozen globally.
 - **Numerical Parity Check:** Multiplicity-aware sequence collapse parity was verified on all models: maximum observed logit discrepancy against the uncollapsed surrogate was $2.05 \times 10^{-5}$ for DINOv2 and $\le 4.77 \times 10^{-6}$ for timm models, confirming numerical exactness to float32 machine precision.
+
+### Audit addendum on regularization provenance (2026-10-10)
+
+The archived run manifest records `frozen_lambda_factor: 10.0` and cites commit `77e694a96e530ee5c9776d11daab8a426de14117`. That commit object is unavailable in the current repository, so the claimed ordering of protocol freeze and confirmatory execution cannot be independently authenticated from the current Git history. The archived files also do not document a pilot sweep for this confirmatory objective. The value 10 is verified as the setting used by the confirmatory code and run manifest; its optimality rationale is not verified. See [the regularization-factor audit](REGULARIZATION_FACTOR_AUDIT.md) for the evidence and the distinction from the earlier implicit-carrier audit.
 
 ---
 

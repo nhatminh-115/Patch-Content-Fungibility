@@ -30,7 +30,7 @@ All hyperparameter choices, solver formulations, grouping methods, and intervent
 - **Regularization Parameter:**
   $$\lambda = \lambda_{\text{factor}} \cdot \frac{\text{Tr}(\Sigma)}{D_{\text{readout}}}, \quad \lambda_{\text{factor}} = 10.0$$
   where $\Sigma = \sum_{j=1}^B \frac{1}{m_j} K_j K_j^\top \in \mathbb{R}^{D_{\text{readout}} \times D_{\text{readout}}}$ is the carrier Gram matrix and $K_j = \sum_{i \in G_j} J_{i} \in \mathbb{R}^{D_{\text{readout}} \times D}$.
-  *Rationale:* Frozen based on pilot $\lambda$-sweep showing that $\lambda_{\text{factor}} = 10.0$ optimally balances linear transmission cancellation against high-order manifold distortion.
+  *Audit correction (2026-10-10):* The archived repository does not contain a $\lambda_{\text{factor}}$ sweep under this per-image exact-Jacobian objective, nor measurements that establish an optimum balancing linear transmission cancellation against nonlinear manifold distortion. The confirmatory implementation used $\lambda_{\text{factor}}=10.0$; this is a frozen run setting, not a verified optimum. The historical implicit-carrier sweep used absolute $\lambda$ values in a different projected-operator formulation and does not establish the choice here. The original rationale is withdrawn. This written protocol prohibits tuning on the evaluation split.
 - **Numerical Solver:** Exact closed-form linear system solve via Cholesky / LU decomposition:
   $$\tilde{\alpha} = (\Sigma + \lambda I)^{-1} r_{\text{mean}}$$
   $$C_j^* = C_{\text{mean}, j} + \frac{1}{m_j} K_j^\top \tilde{\alpha}$$
