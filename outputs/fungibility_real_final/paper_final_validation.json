@@ -51,19 +51,23 @@
     },
     "all_manuscript_figures_exist_and_are_v4_svg": {
       "status": "PASS",
-      "detail": "Referenced figures=7; missing=[]; invalid=[]."
+      "detail": "Referenced figures=8; missing=[]; invalid=[]."
+    },
+    "joint_stream_figure_uses_all_240_audited_scale1_cells": {
+      "status": "PASS",
+      "detail": "Expected 240 unique positive logit-L2 cells across the six audited model-depth pairs; source=D:\\Study\\ResCancel\\pcf-canonical\\outputs\\fungibility_joint_stream_geometry\\directional_curves.csv."
     },
     "publication_figures_present_source_scoped_and_reviewed": {
       "status": "PASS",
       "detail": "Missing SVGs=[]; missing PNGs=[]; stale S1 carrier assets=[]; generator source checks=True; manifest/contact/review=[True, True, True]."
     },
-    "main_docx_embeds_seven_reviewed_figures": {
+    "main_docx_embeds_eight_reviewed_figures": {
       "status": "PASS",
-      "detail": "Main DOCX package contains exactly seven main-text figure drawings and seven embedded PNG assets; supplementary Figures S11\u2013S13 are kept in the separate supplement DOCX."
+      "detail": "Main DOCX package contains exactly eight main-text figure drawings and eight embedded PNG assets; supplementary figures remain in the separate supplement DOCX."
     },
     "supplementary_docx_embeds_all_figures_and_tables": {
       "status": "PASS",
-      "detail": "Supplementary DOCX contains 13 figure drawings/13 image assets and 4 tables; required 13 figures and four tables (evidence map plus Tables S1\u2013S3)."
+      "detail": "Supplementary DOCX contains 14 figure drawings/14 image assets and 5 tables; required 14 figures and five tables (evidence map plus Tables S1\u2013S4)."
     },
     "quantitative_claims_traceable": {
       "status": "PASS",
@@ -91,7 +95,7 @@
     },
     "figure_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
-      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7']; captions=['1', '2', '3', '4', '5', '6', '7']; callouts=['1', '2', '3', '4', '5', '6', '7', 'S10', 'S11', 'S12', 'S13']; supplementary callouts=['S10', 'S11', 'S12', 'S13']; supplement labels=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13']; object/caption/path resolution=True; placement=True; unique S1\u2013S13 numbering=True."
+      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7', '8']; captions=['1', '2', '3', '4', '5', '6', '7', '8']; callouts=['1', '2', '3', '4', '5', '6', '7', '8', 'S10', 'S11', 'S12', 'S13', 'S14']; supplementary callouts=['S10', 'S11', 'S12', 'S13', 'S14']; supplement labels=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14']; object/caption/path resolution=True; placement=True; unique S1\u2013S14 numbering=True."
     },
     "table_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
@@ -109,11 +113,11 @@
       "status": "PASS",
       "detail": "Parsed rows=4; integer correct counts, N=1,000 percentages, and percentage-point changes checked."
     },
-    "editable_main_docx_contains_three_tables_seven_figures_ten_equations_and_51_ieee_refs": {
+    "editable_main_docx_contains_three_tables_eight_figures_ten_equations_and_51_ieee_refs": {
       "status": "PASS",
-      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=7, display math lines=15, inline math objects=117, references=51."
+      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=113, references=51."
     }
   },
-  "passed_count": 28,
-  "assertion_count": 28
+  "passed_count": 29,
+  "assertion_count": 29
 }

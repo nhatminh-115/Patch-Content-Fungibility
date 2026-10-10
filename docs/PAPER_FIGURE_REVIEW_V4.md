@@ -77,6 +77,14 @@ Scores use a 1–5 scale (5 is strongest).
 - The main manuscript was updated only after this visual review was accepted; changes are limited to figure paths, captions, and the sentence assigning figure roles.
 - The editable Word export is generated from the canonical manuscript Markdown and the reviewed v4 PNG figures. Its eight embedded images and updated Figure 1 caption were structurally verified; page layout was not visually verified because this host lacks a DOCX renderer.
 
+## Joint-stream geometry integration on 2026-10-09
+
+- Added main Figure 6 from the audited `directional_curves.csv` at `scale_s=1.0`, with DeiT-Small Block 8 and ViT-B/16 AugReg Block 7. Added Supplementary Figure S14 for the full six-depth grid. Both use the same logarithmic normalization over the 240 audited cells.
+- Visually reviewed both 300-dpi previews after reserving a dedicated colorbar axis; no cell labels or colorbar overlap. The two plots show the mean per-image final-logit L2 change, not a gradient metric.
+- Renumbered the prior end-to-end transmission figure as Figure 7 and the compression figure as Figure 8, updating their manuscript callouts, traceability entries, and figure manifest.
+- Removed the saturated-regression fallback values from paper-facing text. The N=100 direction-estimation and outcome cohorts are identified as the same samples; the grid is descriptive and makes no inferential interaction claim.
+- Preserved the saved supplementary Table S4 and all existing Word table XML while adding the new figure assets. No model runs or raw data modifications were performed.
+
 
 ## Figure 1 overview update requested on 2026-10-07
 

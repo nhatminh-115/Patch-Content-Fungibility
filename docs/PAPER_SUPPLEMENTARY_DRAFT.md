@@ -206,6 +206,22 @@ The primary projection-path audit compares V-only and \(K+V\) interventions for 
 
 **Supplementary Figure S12.** Mean per-image Euclidean \(L_2\) change in the immediate readout for V-only and \(K+V\) at (a) DeiT-Small, Block 8, and (b) ViT-B/16 AugReg, Block 7. V-only perturbs \(V\) with clean \(Q\), \(K\), and residual; \(K+V\) perturbs \(K,V\) with clean \(Q\) and residual and recomputes attention. Coherent, random-sign, and checkerboard patterns are shown in that order. Each panel uses its own y-axis scale; \(N=100\) outcome images per model.
 
+The signed true-class logit drop is the clean target-class logit minus the perturbed target-class logit, averaged over the same \(N=100\) outcome images. For intervention condition \(c\), define the coherent-minus-random-sign contrast as
+
+\[
+\operatorname{Contrast}(c)=\text{Mean true-class logit drop(coherent, }c\text{)}
+-\text{Mean true-class logit drop(random-sign, }c\text{)}.
+\]
+
+The reported ratio is \(100\times\operatorname{Contrast}(\text{frozen-attention V-only with perturbed residual})/\operatorname{Contrast}(\text{full perturbation})\). The contrasts use `feature_dir=jac_top` and \(s=1.0\). Both ViT-B/16 AugReg contrasts are negative. Its 102.2% ratio is a quotient of two signed contrasts; it does not indicate more than 100% causal contribution because the interventions are not additive causal components.
+
+**Table S4. Signed true-class logit-drop contrasts for the primary Value-path audit.**
+
+| Model | Intervention depth | Full-block coherent-minus-random-sign contrast | Frozen-attention V-only with perturbed-residual contrast | Ratio |
+|---|---:|---:|---:|---:|
+| DeiT-Small | Block 8 | +0.006282993 | +0.004448350 | 70.8% |
+| ViT-B/16 AugReg | Block 7 | −0.247199488 | −0.252697120 | 102.2% |
+
 ## S13. Measured classifier-carrier boundary
 
 The held-out classifier-carrier study reports accuracy and measured full-model throughput at batch size 64. The q=16 variant contributes a narrow ViT-B/16 AugReg point to the tested frontier; the figure does not imply a general deployment gain.
@@ -214,6 +230,12 @@ The held-out classifier-carrier study reports accuracy and measured full-model t
 
 **Supplementary Figure S13.** Held-out classifier-carrier accuracy and measured full-model throughput at batch size 64, shown with architecture-specific throughput axes. q=16 contributes a narrow ViT-B/16 AugReg frontier point.
 
-## S14. Code and data availability
+The joint-stream depth grid covers DeiT-Small at depths 5, 8, and 10 and ViT-B/16 AugReg at depths 5, 7, and 10. DeiT-Tiny and DINOv2 were evaluated only in reduced Block-8 replications and therefore are not included in this six-panel grid. The same (N=100)-image cohort per model supplies feature-direction estimation and outcome scoring.
+
+![Supplementary Figure S14. Joint token–feature response across depths.](../figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg)
+
+**Supplementary Figure S14.** Mean per-image final-logit (L_2) change at (s=1) across the six model–depth combinations listed above. Every panel shows the same eight token-space patterns by five feature-space directions, with cell values and the shared logarithmic color scale used in Figure 6. “Grad. top” and “Grad. near-null” are the joint-stream audit’s mean patch-margin-gradient directions; PC1, Random, and Centroid have the same definitions as in Figure 6. For each model, the same (N=100)-image cohort is used to estimate directions and score outcomes.
+
+## Code and data availability
 
 The repository provides the experiment protocols, frozen split manifests, per-image results, seed-level summaries, validation manifests, and figure-generation sources. Publication-facing results are traceable through the main-text claims and number maps; experiment-specific seed IDs and statistical procedures are listed in Supplementary Section S10.

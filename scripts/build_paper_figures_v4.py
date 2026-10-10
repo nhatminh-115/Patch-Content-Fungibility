@@ -679,6 +679,136 @@ def fig5(root: Path, out: Path) -> None:
     save_figure(fig, out, "figure5_value_path_cancellation")
 
 
+JOINT_PATTERN_ORDER = [
+    "single_central", "single_corner", "global_coherent", "random_sign",
+    "random_gaussian", "spatial_cluster_25%", "checkerboard", "smooth_spatial",
+]
+JOINT_PATTERN_LABELS = [
+    "Single central", "Single corner", "Global coherent", "Random sign",
+    "Random Gaussian", "Spatial cluster (25%)", "Checkerboard", "Smooth spatial",
+]
+JOINT_DIRECTION_ORDER = ["jac_top", "jac_null", "pc1", "rand_dir", "centroid_dir"]
+JOINT_DIRECTION_LABELS = ["Grad. top", "Grad. near-null", "PC1", "Random", "Centroid"]
+JOINT_MODEL_DEPTHS = [
+    ("deit_small", 8, "DeiT-Small · Block 8"),
+    ("vit_base", 7, "ViT-B/16 AugReg · Block 7"),
+    ("deit_small", 5, "DeiT-Small · Block 5"),
+    ("deit_small", 10, "DeiT-Small · Block 10"),
+    ("vit_base", 5, "ViT-B/16 AugReg · Block 5"),
+    ("vit_base", 10, "ViT-B/16 AugReg · Block 10"),
+]
+
+
+def joint_stream_matrices(root: Path) -> tuple[dict[tuple[str, int], np.ndarray], LogNorm]:
+    """Read and validate the complete audited logit-L2 grid at scale s=1."""
+    path = root / "outputs/fungibility_joint_stream_geometry/directional_curves.csv"
+    rows = [r for r in read_csv(path) if float(r["scale_s"]) == 1.0]
+    expected_pairs = {(model, depth) for model, depth, _ in JOINT_MODEL_DEPTHS}
+    keys = [(r["model_key"], int(r["depth"]), r["token_pattern"], r["feature_dir"]) for r in rows]
+    if len(rows) != 240 or len(set(keys)) != 240:
+        raise ValueError(f"Expected 240 unique scale_s=1 joint-stream rows; got {len(rows)} rows/{len(set(keys))} unique")
+    pairs = {(r["model_key"], int(r["depth"])) for r in rows}
+    if pairs != expected_pairs:
+        raise ValueError(f"Joint-stream model-depth pairs differ from the audited six-grid: {sorted(pairs)}")
+    expected_cells = {
+        (model, depth, pattern, direction)
+        for model, depth, _ in JOINT_MODEL_DEPTHS
+        for pattern in JOINT_PATTERN_ORDER
+        for direction in JOINT_DIRECTION_ORDER
+    }
+    if set(keys) != expected_cells:
+        raise ValueError("Joint-stream grid is missing or has unexpected pattern/direction cells")
+    values = [float(r["logit_l2"]) for r in rows]
+    if not all(np.isfinite(values)) or min(values) <= 0:
+        raise ValueError("Logarithmic color normalization requires finite positive logit_l2 values")
+    matrices = {}
+    for model, depth, _ in JOINT_MODEL_DEPTHS:
+        lookup = {(r["token_pattern"], r["feature_dir"]): float(r["logit_l2"])
+                  for r in rows if r["model_key"] == model and int(r["depth"]) == depth}
+        matrices[(model, depth)] = np.array([
+            [lookup[(pattern, direction)] for direction in JOINT_DIRECTION_ORDER]
+            for pattern in JOINT_PATTERN_ORDER
+        ], dtype=float)
+    return matrices, LogNorm(vmin=min(values), vmax=max(values))
+
+
+def draw_joint_heatmap(ax, matrix: np.ndarray, norm: LogNorm, *, annotate: bool,
+                       show_ylabels: bool = True, show_xlabels: bool = True):
+    image = ax.imshow(matrix, aspect="auto", cmap="YlGnBu", norm=norm,
+                      interpolation="nearest", zorder=1)
+    ax.set_xticks(np.arange(len(JOINT_DIRECTION_LABELS)))
+    if show_xlabels:
+        ax.set_xticklabels(JOINT_DIRECTION_LABELS, rotation=22, ha="right", rotation_mode="anchor")
+    else:
+        ax.set_xticklabels([])
+    ax.set_yticks(np.arange(len(JOINT_PATTERN_LABELS)))
+    if show_ylabels:
+        ax.set_yticklabels(JOINT_PATTERN_LABELS)
+    else:
+        ax.set_yticklabels([])
+    ax.set_xticks(np.arange(-.5, len(JOINT_DIRECTION_LABELS), 1), minor=True)
+    ax.set_yticks(np.arange(-.5, len(JOINT_PATTERN_LABELS), 1), minor=True)
+    ax.grid(which="minor", color="white", linewidth=1.25)
+    ax.tick_params(which="minor", bottom=False, left=False)
+    ax.tick_params(axis="both", which="major", length=0, pad=4, labelcolor=INK)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    if annotate:
+        for row in range(matrix.shape[0]):
+            for col in range(matrix.shape[1]):
+                value = matrix[row, col]
+                text_color = "white" if norm(value) > .56 else INK
+                ax.text(col, row, f"{value:.2g}", ha="center", va="center",
+                        fontsize=7.0 if show_ylabels else 6.2, color=text_color,
+                        weight="medium", zorder=3)
+    return image
+
+
+def fig6_joint_stream_geometry(root: Path, out: Path) -> None:
+    matrices, norm = joint_stream_matrices(root)
+    fig, axes = plt.subplots(1, 2, figsize=(11.4, 5.9), sharey=True)
+    plotted = []
+    for ax, (model, depth, title), panel in zip(axes, JOINT_MODEL_DEPTHS[:2], ("a", "b")):
+        plotted.append(draw_joint_heatmap(ax, matrices[(model, depth)], norm, annotate=True))
+        ax.set_title(title, color=INK, pad=11)
+        ax.set_xlabel("Feature-space direction")
+        ax.set_ylabel("Token-space pattern")
+        panel_label(ax, panel)
+        ax.tick_params(axis="y", labelsize=7.4)
+        ax.tick_params(axis="x", labelsize=7.2)
+    fig.subplots_adjust(left=.19, right=.84, bottom=.21, top=.90, wspace=.48)
+    colorbar = fig.colorbar(plotted[-1], cax=fig.add_axes([.87, .20, .018, .68]),
+                            ticks=[.1, .2, .5, 1, 2, 5, 8])
+    colorbar.set_label("Mean final-logit L2 change", labelpad=10)
+    colorbar.ax.set_yticklabels(["0.1", "0.2", "0.5", "1", "2", "5", "8"])
+    colorbar.ax.tick_params(labelsize=7.5, length=2.5, color=GRAY)
+    save_figure(fig, out, "figure6_joint_stream_geometry")
+
+
+def figS14_joint_stream_geometry(root: Path, out: Path) -> None:
+    matrices, norm = joint_stream_matrices(root)
+    fig, axes = plt.subplots(2, 3, figsize=(12.0, 7.8), sharex=True, sharey=True)
+    plotted = None
+    for index, (ax, (model, depth, title)) in enumerate(zip(axes.flat, JOINT_MODEL_DEPTHS)):
+        row, col = divmod(index, 3)
+        plotted = draw_joint_heatmap(ax, matrices[(model, depth)], norm, annotate=True,
+                                     show_ylabels=(col == 0), show_xlabels=(row == 1))
+        ax.set_title(title, color=INK, pad=7, fontsize=9)
+        if col == 0:
+            ax.set_ylabel("Token pattern")
+        if row == 1:
+            ax.set_xlabel("Feature direction")
+        ax.tick_params(axis="y", labelsize=6.2)
+        ax.tick_params(axis="x", labelsize=6.2)
+    fig.subplots_adjust(left=.13, right=.84, bottom=.13, top=.93, wspace=.24, hspace=.24)
+    colorbar = fig.colorbar(plotted, cax=fig.add_axes([.87, .17, .018, .72]),
+                            ticks=[.1, .2, .5, 1, 2, 5, 8])
+    colorbar.set_label("Mean final-logit L2 change", labelpad=8)
+    colorbar.ax.set_yticklabels(["0.1", "0.2", "0.5", "1", "2", "5", "8"])
+    colorbar.ax.tick_params(labelsize=6.8, length=2.2, color=GRAY)
+    save_figure(fig, out / "supp", "figureS14_joint_stream_geometry")
+
+
 def figS12(root: Path, out: Path) -> None:
     # Preserve the primary V-only versus K+V projection-path audit.
     rows = read_csv(root / "outputs/fungibility_attention_causal_audit/qkv_decomposition.csv")
@@ -735,7 +865,7 @@ def figS12(root: Path, out: Path) -> None:
     save_figure(fig, out, "figureS12_primary_qkv_decomposition")
 
 
-def fig6(root: Path, out: Path) -> None:
+def fig7(root: Path, out: Path) -> None:
     """Compare local and end-to-end prediction across models, plus finite-radius direction ratios."""
     correlations = read_csv(root/"outputs/fungibility_section5_cross_arch_extension/multiblock_prediction/model_specific_correlations.csv")
     damage = read_csv(root/"outputs/fungibility_multiblock_operator/replication_summary.csv")
@@ -802,9 +932,9 @@ def fig6(root: Path, out: Path) -> None:
     polish_axis(axr, grid="x")
     axr.tick_params(axis="both", labelsize=7.3)
     fig.subplots_adjust(left=.10, right=.98, bottom=.11, top=.88)
-    save_figure(fig, out, "figure6_end_to_end_operator")
+    save_figure(fig, out, "figure7_end_to_end_operator")
 
-def fig7(root: Path, out: Path) -> None:
+def fig8(root: Path, out: Path) -> None:
     rows = read_csv(root/"outputs/fungibility_operator_compression_confirmatory/budget_summary.csv")
     rank_rows = read_csv(root/"outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv")
     if not {16, 32}.issubset({int(r["rank"]) for r in rank_rows}):
@@ -843,7 +973,7 @@ def fig7(root: Path, out: Path) -> None:
                bbox_to_anchor=(.5,.09), fontsize=8.0)
     for ax,p in zip(axs.flat,"abcd"): panel_label(ax,p)
     fig.tight_layout(rect=(0, .15, 1, .98), h_pad=1.8, w_pad=1.8)
-    save_figure(fig, out, "figure7_operator_compression")
+    save_figure(fig, out, "figure8_operator_compression")
 
 
 def fig_s1(root: Path, out: Path) -> None:
@@ -947,12 +1077,14 @@ FIGURE_SOURCES = {
     "figure3_geometry_diversity": ("outputs/fungibility_v0_7/tiny_fraction_summary.csv; outputs/fungibility_v0_7/small_fraction_summary.csv; outputs/fungibility_v0_7/tiny_prototype_comparison.csv; outputs/fungibility_v0_7/small_prototype_comparison.csv; outputs/fungibility_v0_7/tiny_sign_flip_sweep.csv; outputs/fungibility_v0_7/small_sign_flip_sweep.csv; outputs/fungibility_v1/vitb_geometry_results.csv; outputs/fungibility_v1/dinov2_geometry_results.csv; outputs/fungibility_v1/vitb_depth_results.csv; outputs/fungibility_v1/dinov2_depth_results.csv; outputs/fungibility_v0_8/grouped_diversity_results.csv; outputs/fungibility_v0_8/statistical_comparisons.csv; outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv; outputs/fungibility_v0_9/pc_identity_results.csv; outputs/fungibility_v0_9/random_direction_results.csv; outputs/fungibility_v1/vitb_1d_results.csv; outputs/fungibility_v1/dinov2_1d_results.csv", "Panel (a): 50% replacement geometry controls and clean baselines for all four architectures. DeiT centroid and clean values come from the V0.7 fraction summaries; DeiT coordinate-shuffle error bars summarize three saved seed outcomes; DeiT sign inversion comes from the 100%-flip V0.7 control. ViT-B/DINOv2 use V1 geometry and clean-depth CSVs, with three coordinate-shuffle seeds. Each model uses N=1,000 evaluation and N=1,000 calibration images. Panel (b): grouped-diversity Top-1 curves for DeiT-Tiny/Small (three seeds) and ViT-B/16 AugReg/DINOv2 (five seeds), each with a clean-accuracy reference. Panel (c): complete replacement at Block 8 comparing calibration-derived natural PC1 with an energy-matched random 1D direction; per-seed outcomes are shown for all four architectures, with five seeds for DeiT and three for ViT-B/DINOv2. All PCA comparisons use the audited disjoint calibration/evaluation cohorts."),
     "figure4_anisotropic_geometry": ("outputs/fungibility_section5_cross_arch_extension/functional_geometry/pc_directional_sensitivity.csv; outputs/fungibility_section5_cross_arch_extension/functional_geometry/functional_spectrum_robustness.csv", "Panel (a): raw PC1-to-lowest-variance-PC directional margin-sensitivity ratios at depths 5, 7, 8, and 10, plotted as log10(ratio). Panel (b): threshold-defined near-null fraction at λ_k≤10⁻³λ_max. All four models use a matched N=100-image calibration cohort; the updated extension reports raw sensitivities, covariance eigengaps, metric spectra, and cutoff robustness separately."),
     "figure5_value_path_cancellation": ("outputs/fungibility_attention_causal_audit/causal_conditions.csv; outputs/fungibility_attention_causal_audit/replication_summary.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json; patch_fungibility/attention_causal_audit.py", "All panels filter full_perturbation and frozen_attn_v_only_pert_res at feature_dir=jac_top and scale_s=1.0, depths 8/7/8/8 for DeiT-Small/ViT-B/DeiT-Tiny/DINOv2; patterns coherent, random-sign, checkerboard. dz_readout_l1 is the mean of per-image Euclidean norms (torch.norm(dim=-1)), not L1. N=100 images/model; Tiny/DINOv2 are reduced replications. DINOv2 readout concatenates CLS and mean patch representations."),
-    "figure6_end_to_end_operator": ("outputs/fungibility_section5_cross_arch_extension/multiblock_prediction/model_specific_correlations.csv; outputs/fungibility_multiblock_operator/replication_summary.csv", "Panels (a,b): model-specific Pearson and Spearman correlations for the prescribed 100-perturbation mixture with stratified-bootstrap 95% intervals. Panel (c): multi-block top-mode / multi-block near-null finite-radius final-logit-L2 damage ratios at s=0.4 for four architectures."),
-    "figure7_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures. Rank-16 and rank-32 outcomes are available in low_rank_ablation.csv and Table II; the figure itself contains only the rank-32 curve."),
+    "figure6_joint_stream_geometry": ("outputs/fungibility_joint_stream_geometry/directional_curves.csv; outputs/fungibility_joint_stream_geometry/validation_manifest.json; patch_fungibility/joint_stream_geometry.py", "Filtered directional_curves.csv to scale_s=1.0. Main panels: DeiT-Small Block 8 and ViT-B/16 AugReg Block 7; each is an 8 token-pattern × 5 feature-direction grid of logit_l2. The same per-model N=100 images are used to estimate directions and score outcomes. The logarithmic scale is shared across all 240 cells in the six-panel grid."),
+    "figure7_end_to_end_operator": ("outputs/fungibility_section5_cross_arch_extension/multiblock_prediction/model_specific_correlations.csv; outputs/fungibility_multiblock_operator/replication_summary.csv", "Panels (a,b): model-specific Pearson and Spearman correlations for the prescribed 100-perturbation mixture with stratified-bootstrap 95% intervals. Panel (c): multi-block top-mode / multi-block near-null finite-radius final-logit-L2 damage ratios at s=0.4 for four architectures."),
+    "figure8_operator_compression": ("outputs/fungibility_operator_compression_confirmatory/budget_summary.csv; outputs/fungibility_operator_compression_confirmatory/low_rank_ablation.csv; docs/FUNGIBILITY_OPERATOR_COMPRESSION_CONFIRMATORY_REPORT.md", "Filtered budget_summary.csv to Attention Pruning, Group-Mean Merging, ToMe (BSM), Operator-Aware (Oracle), and Operator-Aware (Rank-32), for all budgets and four architectures. Rank-16 and rank-32 outcomes are available in low_rank_ablation.csv and Table II; the figure itself contains only the rank-32 curve."),
     "figureS12_primary_qkv_decomposition": ("outputs/fungibility_attention_causal_audit/qkv_decomposition.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json", "DeiT-Small Block 8 and ViT-B/16 AugReg Block 7; feature_dir=jac_top; scale_s=1.0; V_only and K_plus_V; coherent, random-sign, checkerboard; N=100 images. Mean per-image immediate-readout Euclidean L2."),
     "figureS13_real_carrier_boundary": ("outputs/fungibility_real_final/real_accuracy_throughput_frontier.csv", "batch_size=64; all four architectures and available Clean/Group Mean/q16/q32/Selective q16 rows; fields top1_accuracy and img_per_sec. Output files reside in supp/."),
     "figureS10_dinov2_margin_diversity": ("outputs/fungibility_v1_grouped_diversity_extension/aggregate_results.csv", "DINOv2 ViT-S/14 true-class logit margin versus K under 100% patch replacement at Block 8; points are five-seed means and error bars are sample SD across seeds. N=1,000 held-out evaluation images per seed. Top-1 remains near its floor and is not represented as recovered accuracy."),
     "figureS11_value_path_replication": ("outputs/fungibility_attention_causal_audit/replication_summary.csv; outputs/fungibility_attention_causal_audit/validation_manifest.json", "Block-8 reduced replication in DeiT-Tiny and DINOv2. Signed true-class logit drops under full perturbation versus frozen-attention V-only with perturbed residual for coherent, random-sign, checkerboard. N=100 outcome images/model; direction estimated from first four images; not a full Q/K/V decomposition."),
+    "figureS14_joint_stream_geometry": ("outputs/fungibility_joint_stream_geometry/directional_curves.csv; outputs/fungibility_joint_stream_geometry/validation_manifest.json; patch_fungibility/joint_stream_geometry.py", "Filtered to scale_s=1.0 and plotted as 8 × 5 grids for DeiT-Small depths 5/8/10 and ViT-B/16 AugReg depths 5/7/10. The six panels share the color normalization with Figure 6 and span all 240 audited cells. Tiny and DINOv2 Block-8 replications are not part of this full-factorial depth grid."),
 }
 
 
@@ -964,17 +1096,20 @@ def write_manifest(out: Path) -> None:
         "figure4_anisotropic_geometry": ("Anisotropic functional geometry", "Shows architecture-dependent covariance-PC directional margin sensitivity and the depth-wise threshold-defined near-null fraction of M_l across four models."),
         "figureS11_value_path_replication": ("Reduced Value-path replication", "Shows coherent, random-sign, and checkerboard signed true-class logit drops for full and frozen-attention V-only perturbations in DeiT-Tiny and DINOv2."),
         "figure5_value_path_cancellation": ("Matched Value-path transmission comparison", "All panels use the same full-perturbation and frozen-attention V-only-with-perturbed-residual conditions, patterns, and mean per-image readout L2. Small/ViT-B are primary audit models; Tiny/DINOv2 are reduced replications. Y-scales are architecture-specific; DINOv2 uses concatenated CLS and mean-patch readout."),
-        "figure6_end_to_end_operator": ("Local and end-to-end damage prediction", "Model-specific prediction correlations and finite-radius directional damage contrasts across four architectures."),
-        "figure7_operator_compression": ("Confirmatory operator-aware compression", "Plots N=1,000 accuracy-token curves across four architectures, including the measured rank-32 curve; no recovery percentage is encoded."),
+        "figure6_joint_stream_geometry": ("Joint token–feature response geometry", "Mean final-logit L2 change across eight token-space patterns and five feature-space directions at DeiT-Small Block 8 and ViT-B/16 AugReg Block 7."),
+        "figure7_end_to_end_operator": ("Local and end-to-end damage prediction", "Model-specific prediction correlations and finite-radius directional damage contrasts across four architectures."),
+        "figure8_operator_compression": ("Confirmatory operator-aware compression", "Plots N=1,000 accuracy-token curves across four architectures, including the measured rank-32 curve; no recovery percentage is encoded."),
         "figureS12_primary_qkv_decomposition": ("Primary Q/K/V projection-path comparison", "Compares V-only with K+V in the primary DeiT-Small and ViT-B audits, with clean residuals and mean per-image immediate-readout L2."),
         "figureS13_real_carrier_boundary": ("Real-model carrier boundary", "Shows the measured accuracy-throughput tradeoff as a bounded supplementary result."),
+        "figureS14_joint_stream_geometry": ("Joint token–feature geometry across depth", "Six shared-scale heatmaps for the DeiT-Small and ViT-B/16 AugReg depth grids; each panel reports the same eight token patterns and five feature directions."),
         "figureS10_dinov2_margin_diversity": ("DINOv2 margin across token diversity", "Shows the five-seed mean true-class logit margin across K; DINOv2 Top-1 remains near floor, so this margin change is not accuracy recovery."),
     }
     lines = ["# Figure Manifest v4", "", "Generated by `scripts/build_paper_figures_v4.py`. White background, DejaVu Sans, consistent typography; SVG and 300 dpi PNG saved for every panel. No models were executed.", ""]
     for i, (stem, (purpose, design)) in enumerate(titles.items(), 1):
         filename = f"{stem}.svg / {stem}.png"
         if stem in ("figureS10_dinov2_margin_diversity", "figureS11_value_path_replication",
-                    "figureS12_primary_qkv_decomposition", "figureS13_real_carrier_boundary"):
+                    "figureS12_primary_qkv_decomposition", "figureS13_real_carrier_boundary",
+                    "figureS14_joint_stream_geometry"):
             filename = f"supp/{filename}"
         sources, filters = FIGURE_SOURCES[stem]
         design_notes = "user-supplied source image preserved pixel-for-pixel in PNG and embedded in an SVG wrapper; no empirical data."
@@ -988,7 +1123,11 @@ def write_manifest(out: Path) -> None:
             design_notes = "Code-generated line plot of mean true-class logit margin across K; error bars show SD across five seeds. The margin axis is separate from the Top-1 accuracy display and does not imply accuracy recovery."
         if stem == "figure2_depthwise":
             design_notes = "Clean 2×2 architecture layout with common Top-1 scale, consistent Zero/Centroid/Gaussian colors and markers, and gray dashed clean baselines. Error bars show Gaussian seed-level sample SD; DeiT panels use five seeds, while ViT-B/16 AugReg and DINOv2 panels use three seeds. DeiT centroids use the calibration-derived global mean."
-        if stem == "figure6_end_to_end_operator":
+        if stem == "figure6_joint_stream_geometry":
+            design_notes = "The main 1×2 heatmap and Supplementary Figure S14 use one logarithmic color normalization over the same 240 audited scale_s=1.0 cells. The N=100 cohort for each model supplies both direction estimation and outcome scoring; no held-out interpretation is implied. Cell annotations are mean per-image final-logit L2 changes. `jac_top` and `jac_null` are labeled as gradient directions to distinguish them from the end-to-end readout Jacobian."
+        if stem == "figureS14_joint_stream_geometry":
+            design_notes = "2×3 supplementary grid with a shared logarithmic color scale across all six 8×5 panels. Panels cover DeiT-Small depths 5/8/10 and ViT-B/16 AugReg depths 5/7/10. DeiT-Tiny and DINOv2 reduced Block-8 replications are outside this full-factorial depth grid."
+        if stem == "figure7_end_to_end_operator":
             design_notes = "Panels (a,b) show model-specific Pearson and Spearman estimates for single-block A and end-to-end J with stratified-bootstrap 95% intervals. Panel (c) separately plots finite-radius multi-block top-mode / near-null damage ratios. Perturbation vectors, not images or tokens, are the correlation unit."
         if stem == "figureS11_value_path_replication":
             design_notes = "Two independent axes preserve architecture-specific signed true-class logit-drop scales. The outcome is clean target logit minus perturbed target logit; signed bars include negative values and no seed uncertainty is implied. This supplement shows the reduced coherent/random-sign replication, not a complete Q/K/V decomposition."
@@ -1006,7 +1145,9 @@ def write_manifest(out: Path) -> None:
 
 
 def contact_sheet(out: Path) -> None:
-    paths = sorted(out.glob("figure*.png")) + sorted((out/"supp").glob("figure*.png"))
+    # Root-level assets are main figures; supplementary figures live only in supp/.
+    paths = sorted(p for p in out.glob("figure*.png") if not p.stem.startswith("figureS"))
+    paths += sorted((out/"supp").glob("figure*.png"))
     thumbs = []
     canvas_w = 900; cell_w = 430; cell_h = 300; pad = 20
     for path in paths:
@@ -1032,14 +1173,16 @@ def main() -> None:
     parser=argparse.ArgumentParser()
     parser.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[1])
     parser.add_argument("--only", nargs="+",
-                        choices=("figure5", "figureS11", "figureS12", "figureS13"),
+                        choices=("figure5", "figure6", "figure7", "figure8",
+                                 "figureS11", "figureS12", "figureS13", "figureS14"),
                         help="Regenerate only selected assets; the default rebuilds the complete figure set.")
     args = parser.parse_args()
     root=args.root.resolve()
     out=root/"figures/paper_final_v4"; (out/"supp").mkdir(parents=True,exist_ok=True)
     setup_style()
     if args.only is None:
-        fig1(root,out); fig2(root,out); fig3(root,out); fig4(root,out); fig5(root,out); fig6(root,out); fig7(root,out)
+        fig1(root,out); fig2(root,out); fig3(root,out); fig4(root,out); fig5(root,out)
+        fig6_joint_stream_geometry(root,out); fig7(root,out); fig8(root,out)
         fig_s1(root,out/"supp")
         figS10(root,out)
         figS11(root,out/"supp")
@@ -1048,12 +1191,20 @@ def main() -> None:
         for asset in args.only:
             if asset == "figure5":
                 fig5(root,out)
+            elif asset == "figure6":
+                fig6_joint_stream_geometry(root,out)
+            elif asset == "figure7":
+                fig7(root,out)
+            elif asset == "figure8":
+                fig8(root,out)
             elif asset == "figureS11":
                 figS11(root,out/"supp")
             elif asset == "figureS12":
                 figS12(root,out/"supp")
             elif asset == "figureS13":
                 fig_s1(root,out/"supp")
+            elif asset == "figureS14":
+                figS14_joint_stream_geometry(root,out)
     write_manifest(out); contact_sheet(out)
     print(f"Rendered requested figure assets; contact sheet: {out/'contact_sheet.png'}")
 
