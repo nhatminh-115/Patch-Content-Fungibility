@@ -1,8 +1,16 @@
-# Final manuscript consistency audit
+# Final manuscript consistency audit — pre-restructure snapshot
 
 **Audit date:** 2026-10-10
 
 **Source:** current `main` worktree; no experiment or raw-output modification was performed.
+
+## Post-restructure addendum (2026-10-10)
+
+The audit body below is retained as a record of the manuscript before the practical-carrier section was moved. Its references to three main tables, Table III, sensitivity Table S5, Supplementary Figures S1–S14, 30/30 paper checks, and the earlier Word page counts describe that prior state and are not current layout expectations.
+
+The current manuscript transitions from Section 6 to Section 7, Limitations, and Section 8, Conclusion. Main-text tables are I–II. Practical-carrier evidence, including the existing Figure S13, is in Supplementary Section S13 with classifier results in Table S5; the S15 regularization table is Table S6. Main Figures 1–8 and Supplementary Figures S1–S15 retain their numbering. No experimental results or raw outputs were changed.
+
+The final DOCX updates preserve every package part except `word/document.xml`; Microsoft Word rendered the main and supplementary files read-only to 16- and 17-page PDFs for visual review. The final check recorded 38/38 manuscript checks and 12/12 real-final benchmark checks as passing. This addendum supersedes the historical layout and validation counts above while retaining them as an auditable record.
 
 ## Citations and references
 

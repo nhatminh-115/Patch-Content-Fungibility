@@ -67,11 +67,15 @@
     },
     "supplementary_docx_embeds_all_figures_and_tables": {
       "status": "PASS",
-      "detail": "Supplementary DOCX contains 15 figure drawings/15 image assets and 7 table elements; required 15 figures and seven tables (evidence map, Tables S1\u2013S5, and one display-equation layout), including verified S4/S5 values=True/True."
+      "detail": "Supplementary DOCX contains 15 figure drawings/15 image assets and 8 table elements; required 15 figures and eight tables (evidence map, Tables S1\u2013S6, and one display-equation layout), including verified S4/S5/S6 values=True/True/True."
+    },
+    "main_docx_has_separate_correct_limitations_and_conclusion_headings": {
+      "status": "PASS",
+      "detail": "Main Word export contains Section 7 Limitations and Section 8 Conclusion, without the former practical-carrier section or Table III."
     },
     "sensitivity_word_exports_match_scientific_wording": {
       "status": "PASS",
-      "detail": "Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains S15/Table S5 and corrected cohort seed=True."
+      "detail": "Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains S15/Table S6 and practical Table S5=True."
     },
     "corrected_sensitivity_manuscript_claims_match_v2_csvs": {
       "status": "PASS",
@@ -105,13 +109,29 @@
       "status": "PASS",
       "detail": "Missing or late definitions: []."
     },
+    "main_sections_run_from_operator_compression_to_limitations_and_conclusion": {
+      "status": "PASS",
+      "detail": "Numbered headings=[(1, 'Introduction'), (2, 'Related Work'), (3, 'Experimental Setup and Interventions'), (4, 'Geometric and Diversity Constraints on Patch-Content Fungibility'), (5, 'Functional Geometry and Attention-Mediated Transmission'), (6, 'Operator-Aware Token Compression'), (7, 'Limitations'), (8, 'Conclusion')]; expected Sections 1\u20138 ending in Limitations and Conclusion, with no standalone practical-carrier section."
+    },
+    "supplementary_AUROC_defined_at_first_use": {
+      "status": "PASS",
+      "detail": "AUROC is expanded at or before its first use in the supplementary manuscript, where the operator-space result now appears."
+    },
+    "supplementary_table_numbering_unique_first_appearance_and_callouts_resolve": {
+      "status": "PASS",
+      "detail": "Caption order=['S1', 'S2', 'S3', 'S4', 'S5', 'S6']; expected S1\u2013S6 once each; Table S5/S6 callouts precede their captions."
+    },
     "figure_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
-      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7', '8']; captions=['1', '2', '3', '4', '5', '6', '7', '8']; callouts=['1', '2', '3', '4', '5', '6', '7', '8', 'S10', 'S11', 'S12', 'S13', 'S14']; supplementary callouts=['S10', 'S11', 'S12', 'S13', 'S14']; supplement labels=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15']; object/caption/path resolution=True; placement=True; unique S1\u2013S15 numbering=True."
+      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7', '8']; captions=['1', '2', '3', '4', '5', '6', '7', '8']; callouts=['1', '2', '3', '4', '5', '6', '7', '8', 'S10', 'S11', 'S12', 'S14']; supplementary callouts=['S10', 'S11', 'S12', 'S14']; supplement labels=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15']; object/caption/path resolution=True; placement=True; unique S1\u2013S15 numbering=True."
     },
     "table_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
-      "detail": "Table headings=['I', 'II', 'III']; captions=['I', 'II', 'III']; callouts=['I', 'II', 'III']; placement=True."
+      "detail": "Table headings=['I', 'II']; captions=['I', 'II']; callouts=['I', 'II']; placement=True."
+    },
+    "main_table_I_excludes_relocated_practical_carrier_row": {
+      "status": "PASS",
+      "detail": "Table I rows including header=6; expected six rows and no practical-carrier row."
     },
     "ten_display_equations_match_implementation_and_are_explained": {
       "status": "PASS",
@@ -121,15 +141,19 @@
       "status": "PASS",
       "detail": "Parsed rows=4; best-pruning row and all five compression columns checked; oracle/low-rank gain range=4.200000000000004\u201312.0 pp."
     },
-    "table_III_counts_and_differences_match_real_classifier_csv": {
+    "table_S5_counts_and_differences_match_real_classifier_csv": {
       "status": "PASS",
-      "detail": "Parsed rows=4; integer correct counts, N=1,000 percentages, and percentage-point changes checked."
+      "detail": "Parsed rows=4; integer correct counts, N=1,000 percentages, and percentage-point changes checked against real_accuracy_summary.csv."
     },
-    "editable_main_docx_contains_three_native_tables_eight_figures_ten_equations_and_53_ieee_refs": {
+    "table_S6_matches_corrected_sensitivity_csv": {
       "status": "PASS",
-      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=3, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=123, references=53."
+      "detail": "Parsed eight model-budget cells with seven factors each; factor-10, cell maximum, maximizing factor set, and Group Mean checked against the corrected v2 aggregate CSV."
+    },
+    "editable_main_docx_contains_two_native_tables_eight_figures_ten_equations_and_53_ieee_refs": {
+      "status": "PASS",
+      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=2, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=123, references=53; headings/removed Table III valid=True."
     }
   },
-  "passed_count": 32,
-  "assertion_count": 32
+  "passed_count": 38,
+  "assertion_count": 38
 }

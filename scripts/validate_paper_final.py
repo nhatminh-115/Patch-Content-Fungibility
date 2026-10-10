@@ -45,6 +45,26 @@ def markdown_table(text: str, roman: str) -> list[list[str]]:
         block.append([cell.strip() for cell in line.strip().strip("|").split("|")])
     return [row for row in block if not row or not all(re.fullmatch(r":?-{2,}:?", cell.replace(" ", "")) for cell in row)]
 
+
+def supplementary_markdown_table(text: str, label: str) -> list[list[str]]:
+    lines = text.splitlines()
+    try:
+        caption = next(i for i, line in enumerate(lines)
+                       if re.match(rf"^\*\*Table\s+{re.escape(label)}\.", line.strip()))
+        start = next(i for i in range(caption + 1, len(lines))
+                     if lines[i].strip().startswith("|"))
+    except StopIteration:
+        return []
+    block = []
+    for line in lines[start:]:
+        if not line.strip().startswith("|"):
+            break
+        row = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if not all(re.fullmatch(r":?-{2,}:?", cell.replace(" ", "")) for cell in row):
+            block.append(row)
+    return block
+
+
 def source_value(rows_: list[dict[str, str]], **filters) -> dict[str, str] | None:
     return next((r for r in rows_ if all(r.get(k) == str(v) for k, v in filters.items())), None)
 
@@ -240,7 +260,7 @@ def main() -> int:
 
     supplementary_docx_ok = False
     supp_drawings = supp_media = supp_tables = 0
-    s4_present = s5_present = False
+    s4_present = s5_present = s6_present = False
     if SUPPLEMENTARY_DOCX.is_file():
         try:
             with zipfile.ZipFile(SUPPLEMENTARY_DOCX) as archive:
@@ -251,12 +271,16 @@ def main() -> int:
             supp_doc_text = "".join(node.text or "" for node in supp_xml.iter() if node.tag.endswith("}t"))
             required_s4_values = ["Table S4.", "+0.006282993", "+0.004448350", "−0.247199488", "−0.252697120", "102.2%"]
             s4_present = all(value in supp_doc_text for value in required_s4_values)
-            s5_present = all(value in supp_doc_text for value in ["Table S5.", "71.5", "61327", "within 0.5"])
-            supplementary_docx_ok = supp_media == 15 and supp_drawings == 15 and supp_tables == 7 and s4_present and s5_present
+            s5_present = all(value in supp_doc_text for value in
+                             ["Table S5.", "764/1,000", "568/1,000", "76.4%", "56.8%"])
+            s6_present = all(value in supp_doc_text for value in
+                             ["Table S6.", "71.5", "61327", "within 0.5"])
+            supplementary_docx_ok = (supp_media == 15 and supp_drawings == 15 and supp_tables == 8
+                                     and s4_present and s5_present and s6_present)
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             supplementary_docx_ok = False
     record("supplementary_docx_embeds_all_figures_and_tables", supplementary_docx_ok,
-           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} table elements; required 15 figures and seven tables (evidence map, Tables S1–S5, and one display-equation layout), including verified S4/S5 values={s4_present}/{s5_present}.")
+           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} table elements; required 15 figures and eight tables (evidence map, Tables S1–S6, and one display-equation layout), including verified S4/S5/S6 values={s4_present}/{s5_present}/{s6_present}.")
 
     # Confirm that the delivered Word files carry the post-hoc wording and table.
     main_doc_text = supp_doc_text = ""
@@ -270,13 +294,23 @@ def main() -> int:
         supp_doc_text = "".join(node.text or "" for node in supplementary_xml.iter(main_w))
     except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
         pass
+    main_docx_headings_ok = ("7. Limitations" in main_doc_text
+                             and "8. Conclusion" in main_doc_text
+                             and "7. From Operator-Aware Optimization to Practical Compression" not in main_doc_text
+                             and "9. Conclusion" not in main_doc_text
+                             and "TABLE III" not in main_doc_text
+                             and "Practical carrier evaluation" not in main_doc_text)
+    record("main_docx_has_separate_correct_limitations_and_conclusion_headings",
+           main_docx_headings_ok,
+           "Main Word export contains Section 7 Limitations and Section 8 Conclusion, without the former practical-carrier section or Table III.")
     docx_sensitivity_ok = ("post-hoc sensitivity analysis" in main_doc_text.lower()
                            and "not as a demonstrated global optimum" in main_doc_text.lower()
                            and "fixed after a pilot sweep" not in main_doc_text.lower()
                            and "Regularization Sensitivity of Operator-Aware Carriers" in supp_doc_text
-                           and all(value in supp_doc_text for value in ["Table S5.", "71.5", "61327"]))
+                           and all(value in supp_doc_text for value in ["Table S6.", "71.5", "61327"])
+                           and all(value in supp_doc_text for value in ["Table S5.", "764/1,000", "568/1,000"]))
     record("sensitivity_word_exports_match_scientific_wording", docx_sensitivity_ok,
-           f"Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains S15/Table S5 and corrected cohort seed={docx_sensitivity_ok}.")
+           f"Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains S15/Table S6 and practical Table S5={docx_sensitivity_ok}.")
 
     # Reconcile the new post-hoc sensitivity claims to the corrected archived CSVs.
     sensitivity_root = ROOT / "outputs/fungibility_regularization_sensitivity_v2_class_randomized"
@@ -306,7 +340,7 @@ def main() -> int:
                              and logit_better_than_gm and no_significant_mcnemar
                              and "post-hoc" in sensitivity_texts.lower()
                              and "not a demonstrated global optimum" in sensitivity_texts.lower()
-                             and "Table S5" in sensitivity_texts and "Figure S15" in sensitivity_texts)
+                             and "Table S6" in sensitivity_texts and "Figure S15" in sensitivity_texts)
     record("corrected_sensitivity_manuscript_claims_match_v2_csvs", sensitivity_claims_ok,
            f"Corrected cells={len(cells)}; factor rows={len(factor_rows)}; factor 10 at/tied max={max_count}/8; within 0.5 pp all cells={within_half_pp}; logit damage below Group Mean all cells={logit_better_than_gm}; 16 paired McNemar contrasts p>=.05={no_significant_mcnemar}.")
 
@@ -414,8 +448,7 @@ def main() -> int:
                    ("PCF", r"Patch-Content Fungibility\s+\(PCF\)"),
                    ("LLMs", r"large language models\s+\(LLMs\)"),
                    ("PCA", r"principal component analysis\s+\(PCA\)"),
-                   ("SVD", r"singular value decomposition\s+\(SVD\)"),
-                   ("AUROC", r"area under the receiver operating characteristic curve\s+\(AUROC\)")]
+                   ("SVD", r"singular value decomposition\s+\(SVD\)")]
     acronym_issues = []
     for acronym, definition in definitions:
         d = re.search(definition, body, re.I)
@@ -427,6 +460,15 @@ def main() -> int:
 
     # Every figure/table callout must resolve to the numbered object and precede its placement.
     lines = text.splitlines()
+    main_sections = [(int(m.group(1)), m.group(2))
+                     for line in lines
+                     if (m := re.match(r"^##\s+(\d+)\.\s+(.+)$", line.strip()))]
+    section_structure_ok = ([number for number, _ in main_sections] == list(range(1, 9))
+                            and main_sections[-2:] == [(7, "Limitations"), (8, "Conclusion")]
+                            and "From Operator-Aware Optimization to Practical Compression" not in text)
+    record("main_sections_run_from_operator_compression_to_limitations_and_conclusion",
+           section_structure_ok,
+           f"Numbered headings={main_sections}; expected Sections 1–8 ending in Limitations and Conclusion, with no standalone practical-carrier section.")
     fig_objects = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"!\[Figure\s+(S?\d+)", line.strip()))]
     fig_captions = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*Figure\s*(S?\d+)\.", line.strip()))]
     table_headings = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*\*TABLE\s+([IVX]+)\*\*", line.strip()))]
@@ -454,7 +496,7 @@ def main() -> int:
     fig_placement_ok = all(label in figure_callouts and figure_callouts[label] < pos for pos, label in fig_objects)
     table_labels = [label for _, label in table_headings]
     table_cap_labels = [label for _, label in table_captions]
-    table_order_ok = table_labels == table_cap_labels == ["I", "II", "III"]
+    table_order_ok = table_labels == table_cap_labels == ["I", "II"] and not markdown_table(text, "III")
     table_placement_ok = all(label in table_callouts and table_callouts[label] < pos for pos, label in table_headings)
     resolved_figs = set(re.findall(r"\bFigure\s+(S?\d+)\b", text))
     resolved_tables = set(m.group(1).upper() for m in re.finditer(r"\bTable\s+([IVX]+)\b", text, re.I))
@@ -462,7 +504,41 @@ def main() -> int:
     # Supplementary callouts resolve against the separate supplementary manuscript and DOCX.
     supplementary_path = SUPPLEMENTARY_DRAFT
     supplementary_text = supplementary_path.read_text(encoding="utf-8-sig") if supplementary_path.is_file() else ""
+    auroc_definition = re.search(
+        r"area under the receiver operating characteristic curve\s+\(AUROC\)",
+        supplementary_text,
+        re.I,
+    )
+    auroc_first_use = re.search(r"\bAUROC\b", supplementary_text)
+    record("supplementary_AUROC_defined_at_first_use",
+           bool(auroc_definition and auroc_first_use and auroc_definition.start() <= auroc_first_use.start()),
+           "AUROC is expanded at or before its first use in the supplementary manuscript, where the operator-space result now appears.")
     supplementary_lines = supplementary_text.splitlines()
+    supplementary_table_captions = [
+        (i, m.group(1).upper())
+        for i, line in enumerate(supplementary_lines)
+        if (m := re.match(r"^\*\*Table\s+(S\d+)\.", line.strip()))
+    ]
+    supplementary_table_labels = [label for _, label in supplementary_table_captions]
+    expected_supplementary_tables = [f"S{i}" for i in range(1, 7)]
+    supplementary_table_callouts = {}
+    caption_lines = {i for i, _ in supplementary_table_captions}
+    for i, line in enumerate(supplementary_lines):
+        if i in caption_lines:
+            continue
+        for match in re.finditer(r"\bTable\s+(S\d+)\b", line):
+            supplementary_table_callouts.setdefault(match.group(1).upper(), i)
+    supplementary_table_numbering_ok = (
+        supplementary_table_labels == expected_supplementary_tables
+        and len(set(supplementary_table_labels)) == 6
+        and all(label in supplementary_table_callouts
+                and supplementary_table_callouts[label] < next(pos for pos, value in supplementary_table_captions
+                                                                 if value == label)
+                for label in ("S5", "S6"))
+    )
+    record("supplementary_table_numbering_unique_first_appearance_and_callouts_resolve",
+           supplementary_table_numbering_ok,
+           f"Caption order={supplementary_table_labels}; expected S1–S6 once each; Table S5/S6 callouts precede their captions.")
     supplementary_objects = {}
     for i, line in enumerate(supplementary_lines):
         match = re.match(r"!\[Supplementary Figure\s+(S?\d+)[^]]*\]\(([^)]+)\)", line.strip())
@@ -499,6 +575,11 @@ def main() -> int:
            f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement labels={supplementary_labels}; object/caption/path resolution={supplementary_refs_ok}; placement={fig_placement_ok}; unique S1–S15 numbering={supplementary_numbering_ok}.")
     record("table_cross_references_resolve_and_precede_objects", table_order_ok and table_placement_ok and resolved_tables == set(table_labels),
            f"Table headings={table_labels}; captions={table_cap_labels}; callouts={sorted(resolved_tables)}; placement={table_placement_ok}.")
+    table_i = markdown_table(text, "I")
+    table_i_ok = len(table_i) == 6 and all(len(row) == 4 for row in table_i) and "Practical carrier evaluation" not in text
+    record("main_table_I_excludes_relocated_practical_carrier_row",
+           table_i_ok,
+           f"Table I rows including header={len(table_i)}; expected six rows and no practical-carrier row.")
     equation_blocks = text.count("$$") // 2
     equation_tags = re.findall(r"\\tag\{(\d+)\}", text)
     equation_explanation_text = re.sub(r"<sub>(.*?)</sub>", r"_\1", text, flags=re.IGNORECASE)
@@ -553,31 +634,32 @@ def main() -> int:
     record("table_II_and_abstract_match_confirmatory_csv", bool(table2_ok),
            f"Parsed rows={max(0,len(table2)-1)}; best-pruning row and all five compression columns checked; oracle/low-rank gain range={min(gain_values) if gain_values else 'n/a'}–{max(gain_values) if gain_values else 'n/a'} pp.")
 
-    # Recompute Table III integer counts and percentage-point differences from real-final output.
-    table3 = markdown_table(text, "III")
+    # Recompute the relocated Table S5 counts and percentage-point differences
+    # from the real classifier output, and Table S6 from the corrected v2 CSVs.
+    table5 = supplementary_markdown_table(supplementary_text, "S5")
     real_path = ROOT / "outputs/fungibility_real_final/real_accuracy_summary.csv"
     real_rows = rows(real_path) if real_path.exists() else []
     arch_map = {"DeiT-Small":"DeiT-Small", "DINOv2 ViT-S/14":"DINOv2 ViT-S/14", "ViT-B/16 AugReg":"ViT-B/16 AugReg"}
-    method3 = ["Hybrid Group Mean", "Static Feature-PCA q=16", "Static Feature-PCA q=32"]
-    table3_ok = bool(real_rows) and len(table3) == 5 and len(table3[0]) == 5
-    if table3_ok:
-        for row in table3[1:]:
+    method5 = ["Hybrid Group Mean", "Static Feature-PCA q=16", "Static Feature-PCA q=32"]
+    table5_ok = bool(real_rows) and len(table5) == 5 and all(len(row) == 5 for row in table5)
+    if table5_ok:
+        for row in table5[1:]:
             if len(row) != 5:
-                table3_ok = False
+                table5_ok = False
                 break
             model = arch_map.get(row[0])
             budget = int(row[1]) if row[1].isdigit() else -1
             baseline_acc = None
-            for index, method in enumerate(method3, start=2):
+            for index, method in enumerate(method5, start=2):
                 source_row = source_value(real_rows, architecture=model, budget_tokens=budget, method=method)
                 if not source_row or int(source_row["n"]) != 1000:
-                    table3_ok = False
+                    table5_ok = False
                     break
                 value = re.match(r"([0-9,]+)/1,000\s+\(([0-9.]+)%", row[index])
                 count = int(value.group(1).replace(",", "")) if value else -1
                 pct = float(value.group(2)) if value else -1.0
                 if count != int(source_row["correct_count"]) or abs(pct-float(source_row["top1_accuracy"])) > 0.0005:
-                    table3_ok = False
+                    table5_ok = False
                     break
                 if index == 2:
                     baseline_acc = float(source_row["top1_accuracy"])
@@ -586,12 +668,57 @@ def main() -> int:
                     expected_diff = float(source_row["top1_accuracy"])-baseline_acc
                     reported_diff = float(diff.group(1).replace("−", "-")) if diff else 999.0
                     if not diff or abs(reported_diff-expected_diff) > 0.051:
-                        table3_ok = False
+                        table5_ok = False
                         break
-            if not table3_ok:
+            if not table5_ok:
                 break
-    record("table_III_counts_and_differences_match_real_classifier_csv", bool(table3_ok),
-           f"Parsed rows={max(0,len(table3)-1)}; integer correct counts, N=1,000 percentages, and percentage-point changes checked.")
+    record("table_S5_counts_and_differences_match_real_classifier_csv", bool(table5_ok),
+           f"Parsed rows={max(0,len(table5)-1)}; integer correct counts, N=1,000 percentages, and percentage-point changes checked against real_accuracy_summary.csv.")
+
+    table6 = supplementary_markdown_table(supplementary_text, "S6")
+    sensitivity_root = ROOT / "outputs/fungibility_regularization_sensitivity_v2_class_randomized"
+    aggregate_path = sensitivity_root / "aggregated_by_architecture_budget_factor.csv"
+    sens_rows = rows(aggregate_path) if aggregate_path.exists() else []
+    factor_by_cell: dict[tuple[str, str], dict[float, dict[str, str]]] = {}
+    group_mean_by_cell = {}
+    for item in sens_rows:
+        key = (item.get("model", ""), item.get("budget", ""))
+        if item.get("method") == "operator_aware":
+            factor_by_cell.setdefault(key, {})[float(item["lambda_factor"])] = item
+        elif item.get("method") == "group_mean":
+            group_mean_by_cell[key] = item
+
+    def factor_label(value: float) -> str:
+        return str(int(round(value))) if abs(value - round(value)) < 1e-12 else f"{value:g}"
+
+    table6_ok = len(table6) == 9 and all(len(row) == 6 for row in table6)
+    seen_cells = set()
+    if table6_ok:
+        for row in table6[1:]:
+            model = row[0]
+            budget = row[1]
+            key = (model, budget)
+            factors = factor_by_cell.get(key, {})
+            gm = group_mean_by_cell.get(key)
+            if key in seen_cells or len(factors) != 7 or gm is None:
+                table6_ok = False
+                break
+            seen_cells.add(key)
+            rates = {factor: float(value["top1_rate"]) for factor, value in factors.items()}
+            maximum = max(rates.values())
+            best = [factor for factor, rate in rates.items() if abs(rate - maximum) < 1e-12]
+            best_text = "all seven factors" if len(best) == 7 else ", ".join(
+                factor_label(value) for value in sorted(best))
+            values = [float(row[2]), float(row[3]), float(row[5])]
+            expected = [rates[10.0] * 100.0, maximum * 100.0, float(gm["top1_rate"]) * 100.0]
+            if (any(abs(a-b) > 0.051 for a, b in zip(values, expected))
+                    or row[4] != best_text):
+                table6_ok = False
+                break
+    table6_ok = table6_ok and len(seen_cells) == 8
+    record("table_S6_matches_corrected_sensitivity_csv",
+           bool(table6_ok),
+           f"Parsed eight model-budget cells with seven factors each; factor-10, cell maximum, maximizing factor set, and Group Mean checked against the corrected v2 aggregate CSV.")
 
     # Inspect the actual editable DOCX package: real tables, drawings, equations, and reference sequence.
     docx_path = DOCX_PATH
@@ -619,11 +746,22 @@ def main() -> int:
                     para_text.append("".join(n.text or "" for n in para.iter(W+"t")))
                 ref_nums = [int(m.group(1)) for value in para_text if (m := re.match(r"\[(\d+)\]\s", value))]
                 docx_valid = [n for n in names if n.startswith("word/media/")]
-                docx_structure_ok = manuscript_tables == 3 and equation_layout_tables == 10 and drawings_in_docx == 8 and len(docx_valid) == 8 and display_math_lines >= 10 and ref_nums == list(range(1,54))
+                main_docx_headings_ok = ("7. Limitations" in para_text
+                                         and "8. Conclusion" in para_text
+                                         and not any("7. From Operator-Aware Optimization to Practical Compression" in value
+                                                     or "9. Conclusion" in value
+                                                     or "TABLE III" in value
+                                                     or "Practical carrier evaluation" in value
+                                                     for value in para_text))
+                docx_structure_ok = (manuscript_tables == 2 and equation_layout_tables == 10
+                                     and drawings_in_docx == 8 and len(docx_valid) == 8
+                                     and display_math_lines >= 10 and ref_nums == list(range(1,54))
+                                     and main_docx_headings_ok)
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_structure_ok = False
-    record("editable_main_docx_contains_three_native_tables_eight_figures_ten_equations_and_53_ieee_refs", docx_structure_ok,
-           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}.")
+    record("editable_main_docx_contains_two_native_tables_eight_figures_ten_equations_and_53_ieee_refs",
+           docx_structure_ok,
+           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}; headings/removed Table III valid={main_docx_headings_ok if docx_path.is_file() else False}.")
 
     passed = all(v["status"] == "PASS" for v in checks.values())
     manifest = {"status":"PASS" if passed else "FAIL", "checks":checks,

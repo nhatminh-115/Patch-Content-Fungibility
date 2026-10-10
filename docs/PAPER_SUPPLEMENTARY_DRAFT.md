@@ -231,13 +231,44 @@ The contrasts use `feature_dir=jac_top` and (s=1.0). Both ViT-B/16 AugReg contra
 | DeiT-Small | Block 8 | +0.006282993 | +0.004448350 | 70.8% |
 | ViT-B/16 AugReg | Block 7 | −0.247199488 | −0.252697120 | 102.2% |
 
-## S13. Measured classifier-carrier boundary
+## S13. Practical Carrier Evaluation and Accuracy–Throughput Boundary
 
-The held-out classifier-carrier study reports accuracy and measured full-model throughput at batch size 64. The q=16 variant contributes a narrow ViT-B/16 AugReg point to the tested frontier; the figure does not imply a general deployment gain.
+The held-out classifier-carrier study measures nonlinear accuracy and full-model throughput using calibration-frozen carrier corrections. Its measured frontier contains one narrow ViT-B/16 AugReg q=16 operating point; the result does not imply a general deployment gain.
 
 ![Supplementary Figure S13. Measured classifier-carrier accuracy–throughput boundary.](../figures/paper_final_v4/supp/figureS13_real_carrier_boundary.svg)
 
 **Supplementary Figure S13.** Held-out classifier-carrier accuracy and measured full-model throughput at batch size 64, shown with architecture-specific throughput axes. q=16 contributes a narrow ViT-B/16 AugReg frontier point.
+
+### S13.1 Calibration-Frozen Feature-PCA Approximation
+
+The Full-J and restricted carrier oracles use image-dependent downstream-Jacobian information to optimize each image's carriers. The classifier approximation instead freezes a feature basis and correction coefficients from calibration data. In the implementation, the feature directions are the leading right singular vectors from an uncentered singular-value decomposition (SVD) of the first 2,000 patch-activation vectors drawn from the first 50 images in the 500-image calibration set (seed 7101). The activations are not mean-centered before the SVD. The resulting q=16 or q=32 directions are shared across carrier groups.
+
+For each q, restricted-oracle correction coefficients are estimated on calibration images using the fixed-spatial grouping at the configured calibration budget with \(\lambda=10^{-3}\), then averaged into one q-dimensional coefficient vector. That vector and the feature directions are shared across carrier groups and evaluation images. For each held-out image, the baseline carrier is still image-dependent: it is the mean of that image's patch activations within each fixed spatial group. The frozen correction is added to those image-specific Group Mean carriers, after which the actual model suffix and classifier are evaluated. Evaluation does not fit a per-image Jacobian or use labels to select the correction. This calibration-frozen construction is not the per-image, per-carrier optimization in Equation (9). Implementation sources are scripts/run_real_final_accuracy.py and patch_fungibility/implicit_carrier_operator.py.
+
+On DeiT-Small at q=16, the calibration-average correction reduces mean held-out linearized residual ||J E|| from 12.5234 for Group Mean to 9.2724; the per-image restricted q=16 oracle reaches 6.6023. The calibration-frozen correction therefore recovers 54.91% of the restricted-oracle residual reduction in this operator-space audit. A PCA-coordinate shuffling control raises mean ||J E|| from 6.6023 to 8.0763 (Δ=1.4740). These measurements use 500 calibration images and a separate N=100 operator-space evaluation cohort. They describe linearized operator-space residuals, not classifier accuracy or a percentage of classification performance recovered.
+
+### S13.2 Held-Out Classification and Throughput
+
+The classifier-carrier protocol uses 500 calibration images (seed 7101) and 1,000 held-out classifier images per architecture (seed 9201). The operator-space audit uses its separate 100-image cohort. Section 6's strict confirmatory compression follows its own calibration/evaluation design, including a 1,000-image calibration split (seed 9101) and feature-similarity grouping, whereas this carrier study uses fixed-spatial groups. These protocol-specific outcomes are not pooled, and comparisons across them are not treated as matched-method contrasts.
+
+Table S5 reports selected operating points from the evaluated budget grid, not the full grid. The complete real-classifier and measured-frontier results are archived in outputs/fungibility_real_final/real_accuracy_summary.csv, real_accuracy_per_image.csv, and real_accuracy_throughput_frontier.csv.
+
+**Table S5. Held-out classification accuracy of calibration-frozen carrier corrections at selected token budgets.** Correct-prediction counts and Top-1 accuracy on 1,000 held-out images. Parenthetical values are percentage-point (pp) changes from Hybrid Group Mean at the same architecture and budget. Hybrid Group Mean uses the practical study's fixed-spatial grouping and is distinct from the primary feature-similarity Group Mean in Section 6.
+
+| Architecture | Budget | Hybrid Group Mean | Static Feature-PCA, q=16 | Static Feature-PCA, q=32 |
+|---|---:|---:|---:|---:|
+| DeiT-Small | 98 | 764/1,000 (76.4%) | 763/1,000 (76.3%; −0.1 pp) | 760/1,000 (76.0%; −0.4 pp) |
+| DeiT-Small | 49 | 755/1,000 (75.5%) | 740/1,000 (74.0%; −1.5 pp) | 740/1,000 (74.0%; −1.5 pp) |
+| DINOv2 ViT-S/14 | 42 | 613/1,000 (61.3%) | 568/1,000 (56.8%; −4.5 pp) | 570/1,000 (57.0%; −4.3 pp) |
+| ViT-B/16 AugReg | 49 | 712/1,000 (71.2%) | 719/1,000 (71.9%; +0.7 pp) | 716/1,000 (71.6%; +0.4 pp) |
+
+Throughput uses measured full-model calls at batch size 64, rather than operator-only timing or simulated estimates. At ViT-B/16 AugReg, B=98, q=16 reaches 73.7% Top-1 at 263.28 images/s, compared with 73.6% at 297.14 images/s for Hybrid Group Mean. This is a narrow measured accuracy–throughput tradeoff for one architecture and budget.
+
+### S13.3 Selective Gating and Scope
+
+The selective classifier gate applies the frozen q=16 correction only when a calibration-frozen score based on the normalized within-group residual exceeds a threshold estimated on the calibration set. It reaches 75.8% versus 76.4% for Hybrid Group Mean at DeiT-Small B=98, and 58.5% versus 61.3% at DINOv2 B=42. A separate exploratory operator-space risk score has an area under the receiver operating characteristic curve (AUROC) of 0.784 and Top-30 recall of 0.60 on N=100 operator-space cases; this is not classifier-level evidence. Other dynamic-alpha and MLP predictor variants are summarized in Supplementary Section S8 and the operator-space prediction audit in outputs/fungibility_implicit_carrier_operator_audit/predicted_alpha_audit.csv.
+
+Across the tested architectures and budgets, the static and selective approximations have not established a consistent accuracy–throughput improvement. These results delimit the evaluated implementations and do not establish a fundamental limit on carrier corrections or the underlying functional geometry.
 
 ## S14. Code and data availability
 
@@ -251,9 +282,9 @@ $$
 $$
 with \(f\in\{0.01,0.1,1,3,10,30,100\}\). The calibration cohort was constructed from the canonical 1,000-image, 1,000-class calibration split with seed 9101. We sampled 200 distinct class labels uniformly without replacement using independent fixed seed 61327 and used the corresponding image IDs for every model, budget, and factor. All IDs are in the canonical calibration split and disjoint from the seed-9201 confirmatory evaluation IDs; evaluation images and outcomes were not used. The cohort hash and selected labels and global image indices are recorded in the v2 manifest and selected cohort CSV.
 
-We evaluated frozen DeiT-Tiny, DeiT-Small, and ViT-B/16 AugReg at retained-token budgets \(B\in\{32,98\}\), and DINOv2 ViT-S/14 at \(B\in\{42,128\}\). Feature-similarity grouping and the existing exact per-image Jacobian solver were used. Each image's Jacobian and grouping were reused across all factors and both budgets, and the multiplicity-aware downstream forward was unchanged. Each model–budget cell therefore contains the same \(N=200\) calibration images for every factor and for the common Group Mean baseline. The per-image CSV records nonlinear Top-1 correctness, clean-to-compressed final-logit \(L_2\) damage, true-class margin change, linearized residual \(\left\|JE\right\|\), carrier displacement \(\left\|C_{opt}-C_{mean}\right\|_F\), \(\mathrm{tr}(H_J)/d_s\), and effective absolute regularization.
+We evaluated frozen DeiT-Tiny, DeiT-Small, and ViT-B/16 AugReg at retained-token budgets \(B\in\{32,98\}\), and DINOv2 ViT-S/14 at \(B\in\{42,128\}\). Feature-similarity grouping and the existing exact per-image Jacobian solver were used. Each image's Jacobian and grouping were reused across all factors and both budgets, and the multiplicity-aware downstream forward was unchanged. Each model–budget cell therefore contains the same \(N=200\) calibration images for every factor and for the common Group Mean baseline. The per-image CSV records nonlinear Top-1 correctness, clean-to-compressed final-logit \(L_2\) damage, true-class margin change, linearized residual \(\left\|JE\right\|\), carrier displacement \(\left\|C_{opt}-C_{mean}\right\|_F\), \(\mathrm{tr}(H_J)/d_s\), and effective absolute regularization. The calibration-cohort Top-1 summary appears in Table S6.
 
-**Table S5. Calibration-cohort Top-1 sensitivity across regularization factors.**
+**Table S6. Calibration-cohort Top-1 sensitivity across regularization factors.**
 
 | Architecture | Budget (B) | Factor 10 Top-1 (%) | Cell maximum (%) | Factor(s) at maximum | Group Mean Top-1 (%) |
 |---|---:|---:|---:|---|---:|
@@ -276,4 +307,4 @@ The original exploratory cohort selected the first 200 sorted class labels. The 
 
 ![Supplementary Figure S15. Post-hoc regularization sensitivity on the class-randomized calibration cohort.](../figures/paper_final_v4/supp/figureS15_regularization_sensitivity.svg)
 
-**Supplementary Figure S15.** Calibration-cohort means across the seven dimensionless regularization factors. Panels show (a) nonlinear Top-1 accuracy, (b) clean-to-compressed final-logit \(L_2\) damage, (c) linearized operator residual \(\left\|JE\right\|\), and (d) carrier displacement \(\left\|C_{opt}-C_{mean}\right\|_F\). Colors identify architecture and solid/dashed lines identify the two model-specific token budgets. Each point uses the same 200 calibration images within its model–budget cell; the figure is descriptive and does not treat factors or budgets as independent samples. Data are from the corrected v2 class-randomized cohort; Group Mean is tabulated in Table S5 but is not a regularization-factor curve.
+**Supplementary Figure S15.** Calibration-cohort means across the seven dimensionless regularization factors. Panels show (a) nonlinear Top-1 accuracy, (b) clean-to-compressed final-logit \(L_2\) damage, (c) linearized operator residual \(\left\|JE\right\|\), and (d) carrier displacement \(\left\|C_{opt}-C_{mean}\right\|_F\). Colors identify architecture and solid/dashed lines identify the two model-specific token budgets. Each point uses the same 200 calibration images within its model–budget cell; the figure is descriptive and does not treat factors or budgets as independent samples. Data are from the corrected v2 class-randomized cohort; Group Mean is tabulated in Table S6 but is not a regularization-factor curve.

@@ -821,7 +821,7 @@ def build(source: Path, output: Path, *, allow_no_bibliography: bool = False):
         joined = " ".join(paragraph).replace("\\ ", "").strip()
         is_supp_table_caption = joined.startswith("**Table S")
         is_supp_figure_caption = joined.startswith("**Supplementary Figure")
-        is_supp_carrier_figure_intro = joined.startswith("The held-out classifier-carrier study reports accuracy and measured full-model throughput")
+        is_supp_carrier_figure_intro = joined.startswith("The held-out classifier-carrier study measures nonlinear accuracy and full-model throughput")
         add_inline_paragraph(
             doc, joined, key_to_num,
             keep_together=(r"v^\top M_\ell v=" in joined or is_supp_table_caption or is_supp_figure_caption),
