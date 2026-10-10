@@ -474,10 +474,38 @@ def analyze_token_feature_interaction(df_condition_results: pd.DataFrame) -> pd.
         r2_int = float(model_int.rsquared)
         delta_r2 = float(r2_int - r2_add)
 
-        # ANOVA comparison
-        anova_table = sm.stats.anova_lm(model_add, model_int)
-        f_stat = float(anova_table["F"].iloc[1]) if len(anova_table) > 1 and pd.notna(anova_table["F"].iloc[1]) else 0.0
-        p_val = float(anova_table["Pr(>F)"].iloc[1]) if len(anova_table) > 1 and pd.notna(anova_table["Pr(>F)"].iloc[1]) else 1.0
+        # The full interaction can be saturated when there is one observation
+        # per TokenPattern x FeatureDir cell. With zero residual degrees of
+        # freedom, the nested-model F test is undefined; keep F/p unavailable
+        # instead of encoding them as the misleading neutral values 0 and 1.
+        f_stat = np.nan
+        p_val = np.nan
+        inferential_status = "available"
+        if not np.isfinite(model_int.df_resid) or model_int.df_resid <= 0:
+            inferential_status = (
+                "unavailable: saturated interaction model has no residual degrees of freedom"
+            )
+        else:
+            anova_table = sm.stats.anova_lm(model_add, model_int)
+            if len(anova_table) > 1:
+                f_candidate = anova_table["F"].iloc[1]
+                p_candidate = anova_table["Pr(>F)"].iloc[1]
+                if pd.notna(f_candidate) and pd.notna(p_candidate):
+                    f_candidate = float(f_candidate)
+                    p_candidate = float(p_candidate)
+                    if np.isfinite(f_candidate) and np.isfinite(p_candidate):
+                        f_stat = f_candidate
+                        p_val = p_candidate
+                    else:
+                        inferential_status = (
+                            "unavailable: nested-model ANOVA returned non-finite statistics"
+                        )
+                else:
+                    inferential_status = (
+                        "unavailable: nested-model ANOVA returned undefined statistics"
+                    )
+            else:
+                inferential_status = "unavailable: nested-model ANOVA returned no comparison row"
 
         # Calculate Coherence Ratio: Global Coherent / Random Sign across directions
         gc_sub = df_sub[df_sub["token_pattern"] == "global_coherent"].set_index("feature_dir")["damage_at_s10"]
@@ -493,6 +521,7 @@ def analyze_token_feature_interaction(df_condition_results: pd.DataFrame) -> pd.
             "delta_r2_interaction": delta_r2,
             "f_statistic": f_stat,
             "p_value": p_val,
+            "inferential_status": inferential_status,
             "mean_coherence_damage_ratio_gc_vs_rs": mean_coherence_ratio
         })
 

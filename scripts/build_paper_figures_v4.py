@@ -1187,6 +1187,7 @@ def main() -> None:
         figS10(root,out)
         figS11(root,out/"supp")
         figS12(root,out/"supp")
+        figS14_joint_stream_geometry(root,out)
     else:
         for asset in args.only:
             if asset == "figure5":
