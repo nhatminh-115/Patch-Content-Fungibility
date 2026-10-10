@@ -98,15 +98,17 @@ def style_axis(ax, grid: str = "y") -> None:
         ax.grid(False)
 
 
-def panel_label(ax, label: str, x: float = -0.12) -> None:
+def panel_label(ax, label: str, x: float = -0.12, y: float = 1.055, align_title: bool = False) -> None:
+    transform = ax.title.get_transform() if align_title else ax.transAxes
+    y = 1.0 if align_title else y
     ax.text(
         x,
-        1.055,
+        y,
         label,
-        transform=ax.transAxes,
+        transform=transform,
         fontweight="bold",
         fontsize=10.8,
-        va="top",
+        va="baseline" if align_title else "top",
         ha="left",
         color=C["text"],
     )
@@ -824,7 +826,7 @@ def plot_supp_s1_mask_robustness() -> None:
         if i % 2 == 0:
             ax.set_ylabel("Top-1 accuracy (%)")
         style_axis(ax, "both")
-        panel_label(ax, f"({chr(97+i)})")
+        panel_label(ax, f"({chr(97+i)})", align_title=True)
 
     handles = [
         Line2D([0], [0], color="#AAB7C4", linewidth=1, label="Individual mask seed"),
@@ -869,7 +871,7 @@ def plot_supp_s2_thresholds() -> None:
         if k == 0:
             ax.set_ylabel("Max replacement fraction (%)")
         style_axis(ax, "y")
-        panel_label(ax, f"({chr(97+k)})")
+        panel_label(ax, f"({chr(97+k)})", align_title=True)
     axes[0].legend(frameon=False, loc="upper left", fontsize=7.6)
     fig.subplots_adjust(wspace=0.16, bottom=0.27)
     save_figure(fig, SUPP_DIR / "figS02_retention_thresholds")
@@ -902,7 +904,7 @@ def plot_supp_s3_pca_rank() -> None:
         ax.set_ylabel("Top-1 accuracy (%)")
         ax.set_title(title)
         style_axis(ax, "both")
-        panel_label(ax, f"({chr(97+i)})")
+        panel_label(ax, f"({chr(97+i)})", align_title=True)
     axes[0].legend(frameon=False, loc="best")
     fig.subplots_adjust(wspace=0.28, bottom=0.20)
     save_figure(fig, SUPP_DIR / "figS03_pca_rank")
@@ -939,7 +941,7 @@ def plot_supp_s4_pc1_amplitude() -> None:
         ax.set_ylabel("Top-1 accuracy (%)")
         ax.set_title(title)
         style_axis(ax, "both")
-        panel_label(ax, f"({chr(97+i)})", x=-0.12 if i == 0 else 0.01)
+        panel_label(ax, f"({chr(97+i)})", x=-0.12 if i == 0 else 0.01, align_title=True)
     axes[0].legend(frameon=False, loc="best")
     fig.subplots_adjust(wspace=0.28, bottom=0.20)
     save_figure(fig, SUPP_DIR / "figS04_pc1_amplitude")
@@ -970,7 +972,7 @@ def plot_supp_s5_rank_propagation() -> None:
         ax.set_xticks([8,9,10,11])
         ax.set_title(title)
         style_axis(ax, "y")
-        panel_label(ax, f"({chr(97+i)})")
+        panel_label(ax, f"({chr(97+i)})", align_title=True)
     axes[0].legend(frameon=False, fontsize=7.7, loc="upper right")
     fig.subplots_adjust(wspace=0.28, bottom=0.20)
     save_figure(fig, SUPP_DIR / "figS05_rank_propagation")
@@ -1001,7 +1003,7 @@ def plot_supp_s6_equivalence() -> None:
     ax1.set_ylabel("Max absolute logit error")
     ax1.set_title("Numerical discrepancy")
     style_axis(ax1, "both")
-    panel_label(ax1, "(a)")
+    panel_label(ax1, "(a)", align_title=True)
 
     ax2.axhline(100, color=C["clean"], linestyle="--", linewidth=1.0)
     ax2.set_ylim(99.94, 100.02)
@@ -1011,7 +1013,7 @@ def plot_supp_s6_equivalence() -> None:
     ax2.set_ylabel("Prediction agreement (%)")
     ax2.set_title("Argmax agreement")
     style_axis(ax2, "both")
-    panel_label(ax2, "(b)")
+    panel_label(ax2, "(b)", align_title=True)
 
     handles, labels = ax1.get_legend_handles_labels()
     # exclude tolerance from common model legend
@@ -1045,10 +1047,10 @@ def plot_supp_s7_token_count() -> None:
         ax.set_xlabel("Downstream spatial tokens")
         ax.set_ylabel("Top-1 accuracy (%)")
         style_axis(ax, "both")
-        panel_label(ax, f"({chr(97+i)})")
+        panel_label(ax, f"({chr(97+i)})", align_title=True)
     handles = [Line2D([0],[0], color=c, marker=m, label=l) for _,c,l,m in conds]
     fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False, bbox_to_anchor=(0.5, -0.01))
-    fig.subplots_adjust(bottom=0.16, hspace=0.36, wspace=0.24)
+    fig.subplots_adjust(bottom=0.16, hspace=0.52, wspace=0.24)
     save_figure(fig, SUPP_DIR / "figS07_accuracy_vs_tokens")
 
 
@@ -1091,7 +1093,7 @@ def plot_supp_s8_latency() -> None:
         ax.set_xlabel("End-to-end latency (ms)")
         ax.set_ylabel("Top-1 accuracy (%)")
         style_axis(ax, "both")
-        panel_label(ax, f"({chr(97+i)})")
+        panel_label(ax, f"({chr(97+i)})", align_title=True)
 
     cond_handles = [Line2D([0],[0], marker="o", linestyle="", color=color, label=label) for _,color,label in conds]
     model_handles = [Line2D([0],[0], marker=markers[m], linestyle="", markerfacecolor="white",
@@ -1133,7 +1135,7 @@ def plot_supp_s9_geometry_bank() -> None:
         if i % 2 == 0:
             ax.set_ylabel("Δ top-1 vs random pruning (pp)")
         style_axis(ax, "both")
-        panel_label(ax, f"({chr(97+i)})")
+        panel_label(ax, f"({chr(97+i)})", align_title=True)
     axes[0].legend(frameon=False, fontsize=6.8, ncol=2, loc="lower left")
     fig.subplots_adjust(hspace=0.36, wspace=0.20)
     save_figure(fig, SUPP_DIR / "figS09_geometry_bank_vs_pruning")
