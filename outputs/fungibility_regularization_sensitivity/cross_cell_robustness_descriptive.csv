@@ -1,0 +1,17 @@
+model,budget,factor_10_vs,images_factor10_correct_but_other_wrong,images_other_correct_but_factor10_wrong,images_tied,n_images,descriptive_only_same_images_reused_across_cells
+DINOv2 ViT-S/14,42,3.0,6,4,190,200,True
+DINOv2 ViT-S/14,42,30.0,1,8,191,200,True
+DINOv2 ViT-S/14,128,3.0,1,1,198,200,True
+DINOv2 ViT-S/14,128,30.0,0,0,200,200,True
+DeiT-Small,32,3.0,1,0,199,200,True
+DeiT-Small,32,30.0,3,0,197,200,True
+DeiT-Small,98,3.0,1,0,199,200,True
+DeiT-Small,98,30.0,0,0,200,200,True
+DeiT-Tiny,32,3.0,3,2,195,200,True
+DeiT-Tiny,32,30.0,1,4,195,200,True
+DeiT-Tiny,98,3.0,1,0,199,200,True
+DeiT-Tiny,98,30.0,0,0,200,200,True
+ViT-B/16 AugReg,32,3.0,0,0,200,200,True
+ViT-B/16 AugReg,32,30.0,0,0,200,200,True
+ViT-B/16 AugReg,98,3.0,0,0,200,200,True
+ViT-B/16 AugReg,98,30.0,0,0,200,200,True

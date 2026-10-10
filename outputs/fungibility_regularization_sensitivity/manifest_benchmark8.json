@@ -1,0 +1,139 @@
+{
+  "study": "post-hoc exact-Jacobian regularization sensitivity; not the missing historical pilot",
+  "status": "benchmark_only_cost_estimate",
+  "timestamp_local": "2026-10-10 13:28:21 +0700",
+  "git_commit": "4dcfef9e1d22294e7ddd143161d0409de1ace9c8",
+  "device": "cuda",
+  "gpu_name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "gpu_total_memory_gib": 7.95953369140625,
+  "calibration_split_seed": 9101,
+  "evaluation_split_seed_used": null,
+  "calibration_images_per_architecture": 8,
+  "calibration_global_index_sha256": "125a3ab0a9adcd4a21ac0acd0004c4a437a21a3b5940a1a9ecea8d327d366e6f",
+  "calibration_global_indices": [
+    29,
+    68,
+    134,
+    171,
+    230,
+    259,
+    338,
+    386
+  ],
+  "factor_grid": [
+    0.01,
+    0.1,
+    1.0,
+    3.0,
+    10.0,
+    30.0,
+    100.0
+  ],
+  "models": [
+    {
+      "model": "DeiT-Tiny",
+      "model_id": "deit_tiny_patch16_224",
+      "depth": 8,
+      "patches": 196,
+      "budgets": [
+        32,
+        98
+      ]
+    },
+    {
+      "model": "DeiT-Small",
+      "model_id": "deit_small_patch16_224",
+      "depth": 8,
+      "patches": 196,
+      "budgets": [
+        32,
+        98
+      ]
+    },
+    {
+      "model": "ViT-B/16 AugReg",
+      "model_id": "vit_base_patch16_224.augreg_in1k",
+      "depth": 7,
+      "patches": 196,
+      "budgets": [
+        32,
+        98
+      ]
+    },
+    {
+      "model": "DINOv2 ViT-S/14",
+      "model_id": "dinov2_vits14_lc",
+      "depth": 8,
+      "patches": 256,
+      "budgets": [
+        42,
+        128
+      ]
+    }
+  ],
+  "runtime_benchmark": [
+    {
+      "model": "DeiT-Tiny",
+      "n_benchmark_images": 8,
+      "model_load_sec": 0.5360309999960009,
+      "mean_full_image_sec": 0.6131153499973152,
+      "mean_jacobian_sec": 0.07223266250184679,
+      "mean_grouping_sec": 0.050683149996984866,
+      "mean_all_factor_solves_sec": 0.37787816249692696,
+      "mean_compressed_forward_sec": 0.035713912517167046,
+      "estimated_200_image_compute_hours": 0.034061963888739735,
+      "peak_cuda_allocated_gib": 0.9728684425354004,
+      "peak_cuda_reserved_gib": 1.041015625,
+      "baseline_cuda_allocated_gib_after_model_load": 0.021320343017578125
+    },
+    {
+      "model": "DeiT-Small",
+      "n_benchmark_images": 8,
+      "model_load_sec": 0.30791050000698306,
+      "mean_full_image_sec": 0.8730107124993083,
+      "mean_jacobian_sec": 0.3756288625008892,
+      "mean_grouping_sec": 0.03155750000223634,
+      "mean_all_factor_solves_sec": 0.3980344375013374,
+      "mean_compressed_forward_sec": 0.03211022499817773,
+      "estimated_200_image_compute_hours": 0.04850059513885046,
+      "peak_cuda_allocated_gib": 2.093027114868164,
+      "peak_cuda_reserved_gib": 2.2578125,
+      "baseline_cuda_allocated_gib_after_model_load": 0.12821388244628906
+    },
+    {
+      "model": "ViT-B/16 AugReg",
+      "n_benchmark_images": 8,
+      "model_load_sec": 0.8881854000064777,
+      "mean_full_image_sec": 3.466128537498662,
+      "mean_jacobian_sec": 2.8150121875005425,
+      "mean_grouping_sec": 0.031466825001189136,
+      "mean_all_factor_solves_sec": 0.5371428875077982,
+      "mean_compressed_forward_sec": 0.03910679999899003,
+      "estimated_200_image_compute_hours": 0.19256269652770344,
+      "peak_cuda_allocated_gib": 5.485954761505127,
+      "peak_cuda_reserved_gib": 6.28515625,
+      "baseline_cuda_allocated_gib_after_model_load": 0.45082616806030273
+    },
+    {
+      "model": "DINOv2 ViT-S/14",
+      "n_benchmark_images": 8,
+      "model_load_sec": 0.5543876000010641,
+      "mean_full_image_sec": 1.7307001624994882,
+      "mean_jacobian_sec": 1.0610772749987518,
+      "mean_grouping_sec": 0.037826474999747006,
+      "mean_all_factor_solves_sec": 0.5515098375108209,
+      "mean_compressed_forward_sec": 0.036403312495167484,
+      "estimated_200_image_compute_hours": 0.09615000902774934,
+      "peak_cuda_allocated_gib": 3.0874953269958496,
+      "peak_cuda_reserved_gib": 3.615234375,
+      "baseline_cuda_allocated_gib_after_model_load": 0.5387334823608398
+    }
+  ],
+  "estimated_full_200_image_compute_hours_excluding_model_and_dataset_load": 0.371275264583043,
+  "dataset_setup_sec": 1.0614027000119677,
+  "jacobian_policy": "one exact per-image J, reused for both budgets and all seven factors",
+  "grouping": "existing confirmatory feature_similarity, seed 42, computed once per image-budget",
+  "downstream_forward": "existing multiplicity-aware compressed forward",
+  "primary_solver_modified": false,
+  "historical_confirmatory_outputs_modified": false
+}

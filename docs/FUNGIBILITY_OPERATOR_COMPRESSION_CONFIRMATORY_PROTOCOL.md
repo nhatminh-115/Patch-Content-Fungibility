@@ -1,6 +1,6 @@
 # Confirmatory Benchmark Protocol: Operator-Aware Token Compression
 
-**Status:** PRE-REGISTERED & FROZEN BEFORE EVALUATION  
+**Historical status label (chronology unverified):** “PRE-REGISTERED & FROZEN BEFORE EVALUATION.” The cited protocol commit is unavailable in the current repository, so the timing of this protocol relative to confirmatory evaluation cannot be independently authenticated; see the dated audit correction in Section 2.1 and the provenance audit.
 **Date:** October 2026  
 **Repository:** [nhatminh-115/Patch-Content-Fungibility](https://github.com/nhatminh-115/Patch-Content-Fungibility)  
 **Related Protocol:** [FUNGIBILITY_V0_REPORT.md](file:///d:/Study/Patch-Content-Fungibility/docs/FUNGIBILITY_V0_REPORT.md)  
