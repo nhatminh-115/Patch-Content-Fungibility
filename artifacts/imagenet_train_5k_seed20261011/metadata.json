@@ -1,0 +1,84 @@
+{
+  "source": {
+    "dataset_repo": "ILSVRC/imagenet-1k",
+    "dataset_revision": "49e2ee26f3810fb5a7536bbf732a7b07389a47b5",
+    "split_loaded": "train",
+    "official_source_check": "Hugging Face repository card identifies ILSVRC2012/ImageNet-1k",
+    "streaming": true,
+    "shuffle_seed": 20261011,
+    "shuffle_buffer_size": 2000,
+    "sampling_method": "datasets IterableDataset.shuffle(seed, buffer_size); first 5,000 unique encoded and decoded-image hashes",
+    "rows_read_into_shuffle": 7000,
+    "encoded_image_payload_bytes_read": 802567212,
+    "duplicate_payloads_skipped": 0,
+    "access_token_written_to_artifacts": false
+  },
+  "sample": {
+    "selected_total": 5000,
+    "finetune_train_count": 4000,
+    "development_count": 1000,
+    "development_name": "dev_train; drawn from official ILSVRC2012 train split",
+    "split_seed": 20261012,
+    "balanced_sampling": false,
+    "unique_encoded_hashes": 5000,
+    "unique_decoded_rgb_hashes": 5000,
+    "all_images_decoded": true,
+    "all_labels_in_0_999": true,
+    "train_dev_disjoint": true,
+    "pcf_validation_cohorts_loaded": false,
+    "official_imagenet_validation_split_loaded": false,
+    "preflight_train_images_decoded": 10,
+    "preflight_encoded_image_payload_bytes": 1108823,
+    "saved_image_payload_bytes": 577405716,
+    "image_filesystem_bytes": 577405716
+  },
+  "transforms": {
+    "stored_images": "original encoded bytes; no resize, crop, or re-encoding during acquisition",
+    "fine_tuning": [
+      "Resize(256, bicubic)",
+      "RandomCrop(224)",
+      "RandomHorizontalFlip(0.5)",
+      "ToTensor()",
+      "Normalize(mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])"
+    ],
+    "development": [
+      "Resize(256, bicubic)",
+      "CenterCrop(224)",
+      "ToTensor()",
+      "Normalize(mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])"
+    ]
+  },
+  "classifier_label_mapping": {
+    "source_class_count": 1000,
+    "timm_synset_count": 1000,
+    "timm_synsets_unique_and_sorted": true,
+    "classifier_model": "deit_small_patch16_224.fb_in1k",
+    "classifier_num_classes": 1000,
+    "label_offset": 0,
+    "integer_label_remapping": "none; both use the sorted ILSVRC2012 synset index",
+    "description_alias_mismatches": [
+      {
+        "index": 517,
+        "source_name": "crane2",
+        "timm_name": "crane"
+      }
+    ]
+  },
+  "files": {
+    "manifest": "examples.csv",
+    "manifest_sha256": "834a302d9dd24733187676f872fdc2fd13a49f3cd39452b1758af79241e7d5de",
+    "label_counts": "label_counts.csv",
+    "label_counts_sha256": "fcc7c201c848bf7ab2fdcb06d787048566d2f981837a674be6ef1cb7f4bc2800",
+    "images_directory": "images/"
+  },
+  "environment": {
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "datasets": "4.8.5",
+    "huggingface_hub": "1.11.0",
+    "timm": "1.0.26",
+    "torch": "2.11.0+cu128",
+    "pillow": "12.1.1"
+  },
+  "created_utc": "2026-10-11T10:45:14.354481+00:00"
+}
