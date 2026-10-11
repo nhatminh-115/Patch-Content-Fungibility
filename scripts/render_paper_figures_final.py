@@ -11,6 +11,7 @@ Outputs are saved as both high-resolution PNG and vector PDF.
 
 from __future__ import annotations
 
+import argparse
 import os
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
@@ -849,7 +850,7 @@ def plot_supp_s2_thresholds() -> None:
     titles = ["95% retention", "90% retention", "80% retention"]
     conds = [("ZERO", C["zero"], "Zero"), ("CENTROID", C["centroid"], "Centroid"), ("DIAGONAL_GAUSSIAN", C["gaussian"], "Gaussian")]
 
-    fig, axes = plt.subplots(1, 3, figsize=(7.25, 2.75), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(7.25, 2.405), sharey=True)
     x = np.arange(len(MODEL_ORDER))
     width = 0.24
     for k, (ax, metric, title) in enumerate(zip(axes, metrics, titles)):
@@ -872,8 +873,10 @@ def plot_supp_s2_thresholds() -> None:
             ax.set_ylabel("Max replacement fraction (%)")
         style_axis(ax, "y")
         panel_label(ax, f"({chr(97+k)})", align_title=True)
-    axes[0].legend(frameon=False, loc="upper left", fontsize=7.6)
-    fig.subplots_adjust(wspace=0.16, bottom=0.27)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, loc="lower center", ncol=3,
+               fontsize=7.4, bbox_to_anchor=(0.5, 0.015))
+    fig.subplots_adjust(wspace=0.16, bottom=0.23)
     save_figure(fig, SUPP_DIR / "figS02_retention_thresholds")
 
 
@@ -884,7 +887,7 @@ def plot_supp_s2_thresholds() -> None:
 def plot_supp_s3_pca_rank() -> None:
     df = _read("outputs/fungibility_v0_9/natural_vs_energy_matched_rank.csv")
     models = [("deit_tiny_patch16_224", "DeiT-Tiny"), ("deit_small_patch16_224", "DeiT-Small")]
-    fig, axes = plt.subplots(1, 2, figsize=(7.25, 3.0), sharey=False)
+    fig, axes = plt.subplots(1, 2, figsize=(7.25, 2.89), sharey=False)
     for i, (ax, (m, title)) in enumerate(zip(axes, models)):
         d = df[df["model"] == m]
         for formulation, color, label, marker in [
@@ -905,8 +908,10 @@ def plot_supp_s3_pca_rank() -> None:
         ax.set_title(title)
         style_axis(ax, "both")
         panel_label(ax, f"({chr(97+i)})", align_title=True)
-    axes[0].legend(frameon=False, loc="best")
-    fig.subplots_adjust(wspace=0.28, bottom=0.20)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, loc="lower center", ncol=2,
+               bbox_to_anchor=(0.5, 0.015))
+    fig.subplots_adjust(wspace=0.28, bottom=0.22)
     save_figure(fig, SUPP_DIR / "figS03_pca_rank")
 
 
@@ -917,7 +922,7 @@ def plot_supp_s3_pca_rank() -> None:
 def plot_supp_s4_pc1_amplitude() -> None:
     df = _read("outputs/fungibility_v0_9/pc1_scale_sweep.csv")
     models = [("deit_tiny_patch16_224", "DeiT-Tiny"), ("deit_small_patch16_224", "DeiT-Small")]
-    fig, axes = plt.subplots(1, 2, figsize=(7.25, 3.0), sharey=False)
+    fig, axes = plt.subplots(1, 2, figsize=(7.25, 2.89), sharey=False)
 
     for i, (ax, (m, title)) in enumerate(zip(axes, models)):
         # The multiplier sweep is geometric; log spacing separates the two low-end ticks.
@@ -942,8 +947,10 @@ def plot_supp_s4_pc1_amplitude() -> None:
         ax.set_title(title)
         style_axis(ax, "both")
         panel_label(ax, f"({chr(97+i)})", x=-0.12 if i == 0 else 0.01, align_title=True)
-    axes[0].legend(frameon=False, loc="best")
-    fig.subplots_adjust(wspace=0.28, bottom=0.20)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, loc="lower center", ncol=2,
+               bbox_to_anchor=(0.5, 0.015))
+    fig.subplots_adjust(wspace=0.28, bottom=0.32)
     save_figure(fig, SUPP_DIR / "figS04_pc1_amplitude")
 
 
@@ -954,7 +961,7 @@ def plot_supp_s4_pc1_amplitude() -> None:
 def plot_supp_s5_rank_propagation() -> None:
     df = _read("outputs/fungibility_v0_9/rank_propagation.csv")
     models = [("deit_tiny_patch16_224", "DeiT-Tiny"), ("deit_small_patch16_224", "DeiT-Small")]
-    fig, axes = plt.subplots(1, 2, figsize=(7.25, 3.05), sharey=False)
+    fig, axes = plt.subplots(1, 2, figsize=(7.25, 2.92), sharey=False)
     conds = [
         ("clean", C["clean"], "Clean", "--"),
         ("static_centroid", C["zero"], "Static centroid", ":"),
@@ -973,8 +980,10 @@ def plot_supp_s5_rank_propagation() -> None:
         ax.set_title(title)
         style_axis(ax, "y")
         panel_label(ax, f"({chr(97+i)})", align_title=True)
-    axes[0].legend(frameon=False, fontsize=7.7, loc="upper right")
-    fig.subplots_adjust(wspace=0.28, bottom=0.20)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, fontsize=7.4, ncol=4,
+               loc="lower center", bbox_to_anchor=(0.5, 0.015))
+    fig.subplots_adjust(wspace=0.28, bottom=0.24)
     save_figure(fig, SUPP_DIR / "figS05_rank_propagation")
 
 
@@ -1061,7 +1070,7 @@ def plot_supp_s7_token_count() -> None:
 def plot_supp_s8_latency() -> None:
     lat = _read("outputs/fungibility_compression_poc/latency_summary.csv")
     base = _read("outputs/fungibility_compression_poc/baseline_comparison.csv")
-    fig, axes = plt.subplots(1, 2, figsize=(7.25, 3.25), sharey=False)
+    fig, axes = plt.subplots(1, 2, figsize=(7.25, 3.14), sharey=False)
     conds = [
         ("WEIGHTED_CENTROID_CARRIER", C["centroid"], "Weighted carrier"),
         ("UNWEIGHTED_CENTROID", C["permute"], "Unweighted centroid"),
@@ -1098,10 +1107,11 @@ def plot_supp_s8_latency() -> None:
     cond_handles = [Line2D([0],[0], marker="o", linestyle="", color=color, label=label) for _,color,label in conds]
     model_handles = [Line2D([0],[0], marker=markers[m], linestyle="", markerfacecolor="white",
                             markeredgecolor=C["clean"], color=C["clean"], label=MODEL_LABEL[m]) for m in MODEL_ORDER]
-    leg1 = axes[0].legend(handles=cond_handles, frameon=False, fontsize=7.0, loc="lower left")
-    axes[0].add_artist(leg1)
-    axes[1].legend(handles=model_handles, frameon=False, fontsize=7.0, loc="lower left")
-    fig.subplots_adjust(wspace=0.30, bottom=0.20)
+    fig.legend(handles=cond_handles, frameon=False, fontsize=6.7, ncol=4,
+               loc="lower center", bbox_to_anchor=(0.5, 0.13))
+    fig.legend(handles=model_handles, frameon=False, fontsize=6.4, ncol=4,
+               loc="lower center", bbox_to_anchor=(0.5, 0.035))
+    fig.subplots_adjust(wspace=0.30, bottom=0.40)
     save_figure(fig, SUPP_DIR / "figS08_accuracy_vs_latency")
 
 
@@ -1111,7 +1121,7 @@ def plot_supp_s8_latency() -> None:
 
 def plot_supp_s9_geometry_bank() -> None:
     df = _read("outputs/fungibility_geometry_bank/delta_vs_pruning.csv")
-    fig, axes = plt.subplots(2, 2, figsize=(7.25, 5.0), sharey=True)
+    fig, axes = plt.subplots(2, 2, figsize=(7.25, 5.24), sharey=True)
     axes = axes.ravel()
     family = [
         ("REAL_PLUS_CENTROID", 1, C["centroid"], "Centroid K=1", "o"),
@@ -1132,13 +1142,29 @@ def plot_supp_s9_geometry_bank() -> None:
         ax.axhline(0, color=C["clean"], linewidth=1.0)
         ax.set_title(MODEL_LABEL[model])
         ax.set_xlabel("Downstream token budget")
-        if i % 2 == 0:
-            ax.set_ylabel("Δ top-1 vs random pruning (pp)")
         style_axis(ax, "both")
         panel_label(ax, f"({chr(97+i)})", align_title=True)
-    axes[0].legend(frameon=False, fontsize=6.8, ncol=2, loc="lower left")
-    fig.subplots_adjust(hspace=0.36, wspace=0.20)
+    fig.supylabel("Δ top-1 vs random pruning (pp)", x=0.02, fontsize=10)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, fontsize=6.8, ncol=4,
+               loc="lower center", bbox_to_anchor=(0.5, 0.015))
+    fig.subplots_adjust(left=0.12, hspace=0.65, wspace=0.20, bottom=0.22)
     save_figure(fig, SUPP_DIR / "figS09_geometry_bank_vs_pruning")
+
+
+def generate_supplementary(selected: List[str]) -> None:
+    apply_style()
+    SUPP_DIR.mkdir(parents=True, exist_ok=True)
+    renderers = {
+        "S2": plot_supp_s2_thresholds,
+        "S3": plot_supp_s3_pca_rank,
+        "S4": plot_supp_s4_pc1_amplitude,
+        "S5": plot_supp_s5_rank_propagation,
+        "S8": plot_supp_s8_latency,
+        "S9": plot_supp_s9_geometry_bank,
+    }
+    for figure in selected:
+        renderers[figure]()
 
 
 def generate_all() -> None:
@@ -1165,4 +1191,11 @@ def generate_all() -> None:
 
 
 if __name__ == "__main__":
-    generate_all()
+    parser = argparse.ArgumentParser(description="Render the final paper and supplementary figure sets.")
+    parser.add_argument("--only-supp", nargs="+", choices=("S2", "S3", "S4", "S5", "S8", "S9"),
+                        help="Render only selected supplementary figures without rebuilding the main figure set.")
+    args = parser.parse_args()
+    if args.only_supp:
+        generate_supplementary(args.only_supp)
+    else:
+        generate_all()

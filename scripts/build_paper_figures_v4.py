@@ -1037,7 +1037,7 @@ def figS11(root: Path, out: Path) -> None:
         ("full_perturbation", "Full perturbation", BLUE),
         ("frozen_attn_v_only_pert_res", "Frozen-attention V-only", TEAL),
     ]
-    fig, axs = plt.subplots(1, 2, figsize=(8.8, 3.45))
+    fig, axs = plt.subplots(1, 2, figsize=(8.8, 3.35))
     x = np.arange(len(patterns))
     width = .34
     for ax, (model, title) in zip(axs, models):
@@ -1064,10 +1064,12 @@ def figS11(root: Path, out: Path) -> None:
         ax.set_title(title, loc="left", color=INK, fontsize=9, pad=8)
         polish_axis(ax)
         ax.tick_params(axis="both", labelsize=7.2)
-    axs[0].legend(frameon=False, fontsize=7.0, loc="upper right")
+    handles, labels = axs[0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, fontsize=7.0, ncol=2,
+               loc="lower center", bbox_to_anchor=(.5, .015))
     for ax, label_text in zip(axs, ("a", "b")):
         panel_label(ax, label_text)
-    fig.tight_layout(rect=(0, .02, 1, .98), w_pad=1.6)
+    fig.tight_layout(rect=(0, .12, 1, .98), w_pad=1.6)
     save_figure(fig, out, "figureS11_value_path_replication")
 
 
