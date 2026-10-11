@@ -1,0 +1,195 @@
+{
+  "gate": "M0",
+  "passed": true,
+  "identity_pass": true,
+  "pretraining_mechanism_screen_pass": true,
+  "model": "deit_small_patch16_224.fb_in1k",
+  "model_state_dict_sha256": "0306cf05b1af78b6d42ad0365ce8a41b21b0b0d5293a45a02e9179467f2be69e",
+  "pretrained_cfg": {
+    "url": "https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth",
+    "hf_hub_id": "timm/deit_small_patch16_224.fb_in1k",
+    "architecture": "deit_small_patch16_224",
+    "tag": "fb_in1k",
+    "custom_load": false,
+    "input_size": [
+      3,
+      224,
+      224
+    ],
+    "fixed_input_size": true,
+    "interpolation": "bicubic",
+    "crop_pct": 0.9,
+    "crop_mode": "center",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "num_classes": 1000,
+    "pool_size": null,
+    "first_conv": "patch_embed.proj",
+    "classifier": "head",
+    "license": "apache-2.0"
+  },
+  "device": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "cuda_runtime": "12.8",
+  "torch": "2.11.0+cu128",
+  "timm": "1.0.26",
+  "batch_size": 8,
+  "dev_split": "dev_train; official ILSVRC2012 train only",
+  "dev_images": 1000,
+  "clean_top1": 0.902,
+  "untrained_pool_top1": 0.873,
+  "untrained_pool_accuracy_delta_pp": -2.9,
+  "mean_centered_logit_distortion": 0.4291128401756287,
+  "clean_manual_max_abs_logit_error": 0.0,
+  "dev_accuracy_seconds": 7.631504000019049,
+  "mechanism_images": 64,
+  "covariance_identity_max_abs_residual": 2.3096799850463867e-07,
+  "median_covariance_ratio": 0.8029739558696747,
+  "mean_covariance_ratio_bootstrap_95ci": [
+    0.7585160286398605,
+    0.8361471780459396
+  ],
+  "median_image_spearman_omega_vs_projected_covariance": 0.7027897570782811,
+  "mean_image_spearman_bootstrap_95ci": [
+    0.6709606941130707,
+    0.7082346098002746
+  ],
+  "mechanism_metrics": {
+    "omega": {
+      "mean": 0.5726064988411963,
+      "median": 0.5513777732849121,
+      "std": 0.15493222475853388
+    },
+    "attention_logit_std": {
+      "mean": 0.7511333487927914,
+      "median": 0.7425478994846344,
+      "std": 0.09240456919868549
+    },
+    "covariance_norm": {
+      "mean": 1.7714985981583595,
+      "median": 1.6852130889892578,
+      "std": 0.4598873029719806
+    },
+    "actual_attention_error": {
+      "mean": 2.246809957548976,
+      "median": 2.217739224433899,
+      "std": 0.42019236377820474
+    },
+    "block_output_error": {
+      "mean": 2.539905084297061,
+      "median": 2.5629074573516846,
+      "std": 0.5489907806028885
+    },
+    "final_logit_distortion": {
+      "mean": 0.41913828905671835,
+      "median": 0.39703552424907684,
+      "std": 0.11766592808684671
+    },
+    "group_mass_tv": {
+      "mean": 0.11442483065184206,
+      "median": 0.11016258969902992,
+      "std": 0.01859854033514625
+    },
+    "pooled_key_mismatch": {
+      "mean": 0.3078046010341495,
+      "median": 0.3094577342271805,
+      "std": 0.03296720157817495
+    },
+    "pooled_value_mismatch": {
+      "mean": 0.2917732521891594,
+      "median": 0.2934082895517349,
+      "std": 0.03471454849325234
+    },
+    "full_entropy": {
+      "mean": 3.9348533116281033,
+      "median": 3.94218647480011,
+      "std": 0.2023219716624948
+    },
+    "compressed_entropy": {
+      "mean": 2.8636607974767685,
+      "median": 2.872726082801819,
+      "std": 0.17533591549374092
+    },
+    "covariance_ratio": {
+      "mean": 0.7968418798409402,
+      "median": 0.8029739558696747,
+      "std": 0.15911574017823463
+    }
+  },
+  "gpu_peak_allocated_bytes": 157661696,
+  "gpu_peak_reserved_bytes": 188743680,
+  "partition_manifest_sha256": "834a302d9dd24733187676f872fdc2fd13a49f3cd39452b1758af79241e7d5de",
+  "mechanism_dev_hashes": [
+    "521dfeeb9e21737f9a245ea2fd8719cf347ecd9b739efd1edc7bf5d18d0ea8d8",
+    "4317dda4851be5ea1cd16248caff0b324b58ad213e88e6711648007f20c9b5b0",
+    "b3f7a87f36845cb0fbfe948943e16f1d34b01cf7f376c62b4d6b4ce4b8e19b2d",
+    "7bede9eecf87a6cf755e48bfa0c507d501a0eb8394dceac90f238efbf80b10b7",
+    "4e26cb98845a90c964d6d3d94d7bfb900d185345034957ecc8cc81216d781c4c",
+    "cf035489fe9162e25de87298d25f35d7b55553ad03789a40ade52a480a5bca88",
+    "74dcaa04ee52aaf837fa4613d42a981cf3b5a85133b5a0d4e3d205d5feb2be24",
+    "500b4e992d72e59e264f019ed4ece046dbe0ccd1d2bfeac59eb5853f09e2d9d0",
+    "c1052e62a6d8b91c0e89cbd6721110b223db0b32a58141238603708ff73c5963",
+    "ea4aeae915982a941db224889c821669481cab5c24cf6a30b8e07f36aaa70f64",
+    "7eb7ec7ca190c820734fae47d89375121b8a605dcd86b7c0968b7d84f3c56032",
+    "70233154f27bc4ab2a73babe494b906e58a084ebc424eea1a38b6b7c3076f12f",
+    "887fc8e9ca1399e0858c1a327cb16afaea83c3203fc4b3fb42b1b1b58eb0f2a4",
+    "f551a2f243d3e1ff79bb9e918c46caa14851c942e7cc6d9c764df95910f8be15",
+    "49829529aa72984109731b5da0fa4adc75cf7713303101709b231d0446e41744",
+    "7a2db085b86d8b40fce77aec68f5f59dda164f684604a525b0d827f40d6de29b",
+    "05942a87e21a857449484aca4f4959b90056689af0edc30663922012a305bd18",
+    "247d3c24fd75d4d8838cf8d82f023becf01c2e6c6a7f211d27ea40b0dfba358c",
+    "d494cfa71e2548727f267232f1a5d65d4e8f6a1e6ce4ce8e401389ec564fb669",
+    "f75b35ba6e96416093239e01c51c217753796ecfb18ebadb999a292c90769efa",
+    "df773fa24ef16e508e0802c5fc841f1cafed47af7e07ba4a283d80ed2ae07362",
+    "6b9b0939bbd2308e4ffad5544e23de060b5db7dc5213146e200fea5d66eb128f",
+    "01dbd75cd0733b266f036fef6589d65266816689dd93ff71272f1706dba03771",
+    "c404bfea115a08724156750769965591b91d8d9ada51ba90caad72c76a0f12c2",
+    "26f053635c6f8a8989c4bf939be098369760a81124156b9232793ff62780a234",
+    "e7c6d2bff823161e940c46d0155ab798b8bb6a384139337a60f89c434aa333a0",
+    "7769bfccc0f8b8471958d7e3f33e41597eeb09e13a081128793c2dd845e9c49a",
+    "0f5da6744a9a6bac19377881b6c261b87f126832e5c6caa6282e1c2aaa89542d",
+    "a05dd0dd543cc6d8b08c719e6731117fb91f19aaec5bbd051b27871f1af63b38",
+    "5694bb1d531aed1620cf515b24d69bc26e33c359abd6fff9e961e6bbfbabbdd4",
+    "3fc9b8734f051fb5d18538b6bda971b05ea4bee517823cf050520e7f7e6d71e9",
+    "e7cf737124712f95455b5823fdd4c193bf82271e081c93e629cc35f07d407b56",
+    "b00dcbd40775c35bda7e4bfa6d97dd7cffa8296888398f9282f4f30373c09f11",
+    "46dc75e7a401b6fd029038511630acd2a851023c62468b8b8c740b9715dda80a",
+    "d5453d096aba7141b6b6a087b68e6c7d6b38e1c1e1640ae22f177fcecce665cb",
+    "0590d3f364dce8e94da9df687cb4dfff3e9bec1791bf604c8743719228e2da26",
+    "efe655991ab0d6c055b2fd9369ff7d782aef9f94b52d163a3e7b8c01083e2f5b",
+    "a0646c599f848e382f27eb610016c2c4b10013f874a332a959092e31284a8408",
+    "2488896b9f447f9c190cde8fab72db0ce570d71eab05ef87c28fce441ca6c259",
+    "74693d01b370fcc5639a2f87302101e69903251e160a600d87c1f9f29582b772",
+    "ff478c04c2f4f8e03f619675f74e035292cbf9030584ef262158f0f0fc57e90d",
+    "b6531495689da18dd2f729315bb68c3de1d1f635403b42133e8ed7a6ca277465",
+    "e4dd4dac313b334c8e1e52cd4a645b5489c50f0ec66918feb20198ce26e2f0dd",
+    "4f4add163f0e34725fc4ebda39c4982a0470dd34aa49713ba048833f76134602",
+    "c8ca1c461083cb11ee8c31c334a5114b29da04983a60d06e34c9caa1d4a7f8a8",
+    "1707e8782cd488d4f381d4c5e3b9d813c2ca0d2c10fd0d776f2e49f379196387",
+    "391d7bd35a6b24fdee41a50bc99a7cbbe177df3711161464013465986ff985c1",
+    "45b917256fe8c8526a8067c8adfccb7a182a834e5f0ab689f7973954792bc329",
+    "aa1b08c8041a5cb1ce4e6cc5adaea5a1c3e07544835b5c556c496ecef4746ced",
+    "e27aa127372333512dd6cd6b3e69b36740fedb30c0d619a015a71f6f4458c3d0",
+    "35d419b61b5d7bcdeb7ccb33f5eb5c966832213e0be718504bfa989747966f2b",
+    "4b670ce0904bc56d622691057152bcaf1d5516ce3700ce7acb0285319dfe6925",
+    "2a468492a97915e6d668504c6d150bfeb0e0726ef3b7e3033018af4a33849b8d",
+    "e7b57dcc35b30518b0b3dceaa7a70936eb512c1673a298408dfa0ddde2a7d01c",
+    "ece3883b9eb8af6d3d3cee7d65135a39561324ab5ef4406c5a68a319b8883a13",
+    "100ff77416006ed99831d8ae3dd5f4a5318e3ee5418fa403a66897cd83ad32e6",
+    "5d85409caddac451647a8fcc70830890dd2806b0eb27858a5149090de61ab966",
+    "4557903bdf962cbc29513a999db006b3722018781fb911c263b877e89b860da2",
+    "d36424c8ed62a40a2c0986de6eacf13c5e465d64959b87b1b5941618bc97c8e1",
+    "2498b6401ec13a73711ba90b94e974940704d959afce5fa60a054c0188ec3d82",
+    "8d135c6391fa253e26b07862f424f0d3e29e8f410b9084e58b541a2e178ce816",
+    "0e38820e661d4503c97447feaa0bd0713a68a60f6d55ada06706bbdcf22d2a05",
+    "ac8317df63a322d200d36e5384c364a72aa6df27d8b9ab3dcd437161f5760688",
+    "fce872d01b5f88686a9208b0bcf609b76f159a6db7b9fd71742668a680d7ca6f"
+  ]
+}
