@@ -1,0 +1,61 @@
+{
+  "protocol_commit": "189a5ca9db17fa5144be93d1d726901e21db3756",
+  "calibration_seed": 9101,
+  "split_seed": 64011,
+  "candidate_seed_base": 64021,
+  "bootstrap_seed": 64012,
+  "pilot_n": 128,
+  "stability_n": 64,
+  "candidate_count": 32,
+  "candidate_batch_size": 8,
+  "source_parquets": [
+    {
+      "path": "C:\\Users\\Minh/.cache/huggingface/hub\\datasets--evanarlian--imagenet_1k_resized_256\\snapshots\\8de107e08d1f61884d5a4ec2dea8740667264a60\\data\\val-00000-of-00002-b5248be478d25e41.parquet",
+      "size_bytes": 449401116
+    },
+    {
+      "path": "C:\\Users\\Minh/.cache/huggingface/hub\\datasets--evanarlian--imagenet_1k_resized_256\\snapshots\\8de107e08d1f61884d5a4ec2dea8740667264a60\\data\\val-00001-of-00002-85f3d9c8fa1edb63.parquet",
+      "size_bytes": 419982685
+    }
+  ],
+  "torch": "2.11.0+cu128",
+  "timm": "1.0.26",
+  "scipy": "1.15.3",
+  "python": "3.11.9",
+  "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "models": {
+    "deit_small": {
+      "model_key": "deit_small",
+      "model_id": "deit_small_patch16_224",
+      "embed_dim": 384,
+      "num_patches": 196,
+      "depth": 12,
+      "primary_depth": 8,
+      "readout": "cls_token",
+      "intervention_depth": 8,
+      "weight_state_sha256": "9cc8d3502a88115f32ba516560697d043dc82e00144147347f559adf5dc377f6"
+    },
+    "vit_base": {
+      "model_key": "vit_base",
+      "model_id": "vit_base_patch16_224.augreg_in1k",
+      "embed_dim": 768,
+      "num_patches": 196,
+      "depth": 12,
+      "primary_depth": 7,
+      "secondary_depth": 8,
+      "readout": "cls_token",
+      "intervention_depth": 7,
+      "weight_state_sha256": "167c33a7ad88a6ace79d302775d7d89aa3c3967c597fa9e45259a0a14be75d68"
+    }
+  },
+  "parity": {
+    "deit_small": {
+      "full_max": 0.0,
+      "merged_max": 0.0
+    },
+    "vit_base": {
+      "full_max": 0.0,
+      "merged_max": 0.0
+    }
+  }
+}

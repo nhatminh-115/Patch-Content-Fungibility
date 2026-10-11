@@ -226,4 +226,5 @@ outputs/counterfactual_merge_smoke_*/
 outputs/counterfactual_merge_train_smoke_*/
 outputs/counterfactual_merge_*/candidate_results*.csv
 outputs/counterfactual_merge_train/pair_tokens_*.npy
+outputs/counterfactual_merge_train/gate_g1.json
 outputs/counterfactual_merge_student/*.partial.csv
