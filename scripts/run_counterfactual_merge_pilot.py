@@ -57,7 +57,8 @@ def calibration_records():
         raise RuntimeError("Unexpected calibration IDs")
     order = np.random.RandomState(SEED_SPLIT).permutation(1000)
     selected = []
-    for cohort, subset in (("pilot", order[:128]), ("stability", order[128:192])):
+    for cohort, subset in (("pilot", order[:128]), ("stability", order[128:192]),
+                           ("train", order[192:])):
         for ix in subset:
             selected.append({**records[int(ix)], "cohort": cohort, "canonical_calibration_index": int(ix)})
     counts = [pq.ParquetFile(path).metadata.num_rows for path in paths]
@@ -104,7 +105,7 @@ def model_weight_hash(model):
 
 
 def evaluate_image(model, model_key, depth, x, global_index, cohort,
-                   candidate_batch_size, parity_only=False):
+                   candidate_batch_size, parity_only=False, collect_pair_tokens=False):
     with torch.inference_mode():
         h = prefix(model, model_key, depth, x)
         clean = model(x)
@@ -124,8 +125,9 @@ def evaluate_image(model, model_key, depth, x, global_index, cohort,
         if merged_parity_error >= 5e-4:
             raise RuntimeError(f"Merged parity failed: {model_key} {merged_parity_error}")
         if parity_only:
-            return [], {"full": parity_error, "merged": merged_parity_error}
+            return [], {"full": parity_error, "merged": merged_parity_error}, []
         rows = []
+        pair_tokens = []
         for target in (196, 147, 98):
             state = baseline_state(full, target)
             assert state.count == target and float(state.multiplicities.sum()) == full.count
@@ -134,6 +136,11 @@ def evaluate_image(model, model_key, depth, x, global_index, cohort,
             current_d = float(normalized_distortion(current_logits, clean)[0])
             seed = SEED_CANDIDATE + global_index + 1009 * target + (0 if model_key == "deit_small" else 1000003)
             candidates = candidate_pool(state, seed)
+            if collect_pair_tokens:
+                pair_tokens.append(torch.stack([
+                    torch.stack([state.patches[c["source"]], state.patches[c["destination"]]])
+                    for c in candidates
+                ]).detach().cpu().to(torch.float16).numpy())
             sync()
             if torch.cuda.is_available():
                 torch.cuda.reset_peak_memory_stats()
@@ -156,7 +163,7 @@ def evaluate_image(model, model_key, depth, x, global_index, cohort,
                     "counterfactual_cost": next_d - current_d,
                     "teacher_elapsed_ms_for_32": elapsed_ms, "teacher_peak_mib": peak_mib,
                 })
-        return rows, {"full": parity_error, "merged": merged_parity_error}
+        return rows, {"full": parity_error, "merged": merged_parity_error}, pair_tokens
 
 
 def summarize(df):
@@ -225,13 +232,18 @@ def main():
                         help="Debug only when below 128; cannot produce a G1 pass")
     parser.add_argument("--stability-limit", type=int, default=64)
     parser.add_argument("--models", nargs="+", default=["deit_small", "vit_base"])
+    parser.add_argument("--cohort", choices=["pilot", "train"], default="pilot")
+    parser.add_argument("--train-limit", type=int, default=808)
     args = parser.parse_args()
     out = Path(args.output_dir).resolve()
     out.mkdir(parents=True, exist_ok=False)
     records, paths = calibration_records()
     # Preserve seeded order within each cohort, then cap only for debugging.
-    selected = [r for r in records if r["cohort"] == "pilot"][:args.pilot_limit]
-    selected += [r for r in records if r["cohort"] == "stability"][:args.stability_limit]
+    if args.cohort == "pilot":
+        selected = [r for r in records if r["cohort"] == "pilot"][:args.pilot_limit]
+        selected += [r for r in records if r["cohort"] == "stability"][:args.stability_limit]
+    else:
+        selected = [r for r in records if r["cohort"] == "train"][:args.train_limit]
     image_bytes(selected)
     pd.DataFrame([{k: v for k, v in r.items() if k != "image_bytes"} for r in selected]).to_csv(out / "source_image_ids.csv", index=False)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -239,7 +251,8 @@ def main():
         "protocol_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "calibration_seed": 9101, "split_seed": SEED_SPLIT,
         "candidate_seed_base": SEED_CANDIDATE, "bootstrap_seed": SEED_BOOTSTRAP,
-        "pilot_n": args.pilot_limit, "stability_n": args.stability_limit,
+        "cohort": args.cohort, "pilot_n": args.pilot_limit, "stability_n": args.stability_limit,
+        "train_n": args.train_limit if args.cohort == "train" else 0,
         "candidate_count": 32, "candidate_batch_size": args.candidate_batch_size,
         "source_parquets": [{"path": p, "size_bytes": os.path.getsize(p)} for p in paths],
         "torch": torch.__version__, "timm": timm.__version__, "scipy": scipy.__version__,
@@ -256,10 +269,22 @@ def main():
             manifest["models"][model_key] = {**meta, "intervention_depth": depth,
                                               "weight_state_sha256": model_weight_hash(model)}
             manifest["parity"][model_key] = {"full_max": 0.0, "merged_max": 0.0}
+            pair_memmap = None
+            if args.cohort == "train":
+                pair_memmap = np.lib.format.open_memmap(
+                    out / f"pair_tokens_{model_key}.npy", mode="w+", dtype=np.float16,
+                    shape=(len(selected) * 3 * 32, 2, meta["embed_dim"]),
+                )
             for n, r in enumerate(selected):
                 x = transform(Image.open(io.BytesIO(r["image_bytes"])).convert("RGB")).unsqueeze(0).to(device)
-                local, parity = evaluate_image(model, model_key, depth, x, r["global_index"], r["cohort"],
-                                               args.candidate_batch_size)
+                local, parity, pair_tokens = evaluate_image(
+                    model, model_key, depth, x, r["global_index"], r["cohort"],
+                    args.candidate_batch_size, collect_pair_tokens=pair_memmap is not None,
+                )
+                if pair_memmap is not None:
+                    pair_memmap[n * 96:(n + 1) * 96] = np.concatenate(pair_tokens, axis=0)
+                for ix, row in enumerate(local):
+                    row["pair_token_index"] = n * 96 + ix
                 rows.extend(local)
                 manifest["parity"][model_key]["full_max"] = max(manifest["parity"][model_key]["full_max"], parity["full"])
                 manifest["parity"][model_key]["merged_max"] = max(manifest["parity"][model_key]["merged_max"], parity["merged"])
@@ -267,6 +292,9 @@ def main():
                     print(f"{model_key}: {n + 1}/{len(selected)} images", flush=True)
                     pd.DataFrame(rows).to_csv(out / "candidate_results.partial.csv", index=False)
             del model
+            if pair_memmap is not None:
+                pair_memmap.flush()
+                del pair_memmap
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
     finally:
@@ -277,7 +305,7 @@ def main():
     result.to_csv(out / "candidate_results.csv", index=False)
     summary = summarize(result)
     summary.to_csv(out / "summary.csv", index=False)
-    decision = gate(summary) if args.pilot_limit == 128 and args.stability_limit == 64 and set(args.models) == {"deit_small", "vit_base"} else {"G1_pass": False, "reason": "debug or partial run"}
+    decision = gate(summary) if args.cohort == "pilot" and args.pilot_limit == 128 and args.stability_limit == 64 and set(args.models) == {"deit_small", "vit_base"} else {"G1_pass": False, "reason": "training labels or debug run"}
     (out / "gate_g1.json").write_text(json.dumps(decision, indent=2), encoding="utf8")
     print(summary.to_string(index=False), flush=True)
     print(json.dumps(decision, indent=2), flush=True)
