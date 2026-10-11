@@ -1,0 +1,34 @@
+{
+  "protocol_commit": "0f074b4",
+  "phase": "first",
+  "cohort": "stability",
+  "limit": 2,
+  "batch_size": 8,
+  "global_image_ids": [
+    10090,
+    41167
+  ],
+  "source_parquet_files": [
+    "val-00000-of-00002-b5248be478d25e41.parquet",
+    "val-00001-of-00002-85f3d9c8fa1edb63.parquet"
+  ],
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "torch": "2.11.0+cu128",
+  "python": "3.11.9",
+  "model_hashes": {
+    "deit_small": "9cc8d3502a88115f32ba516560697d043dc82e00144147347f559adf5dc377f6",
+    "vit_base": "167c33a7ad88a6ace79d302775d7d89aa3c3967c597fa9e45259a0a14be75d68"
+  },
+  "teacher_seconds": 1.4087255000195,
+  "teacher_sets": 1312,
+  "teacher_batches": 231,
+  "max_parity_error": 0.0,
+  "elapsed_seconds": 5.776282600010745,
+  "peak_gpu_mib": 432.234375,
+  "student_checkpoint_sha256": {
+    "deit_small": "bc88ddec83720b66be45b56f874cd7f1cafaa5c2888172dca2127a276fd1bef6",
+    "vit_base": "2ce1f54419099a5e688d4c166a9e68894af81d6f262c5a293506803374f4bd7e"
+  },
+  "candidate_schedule": "teacher"
+}
