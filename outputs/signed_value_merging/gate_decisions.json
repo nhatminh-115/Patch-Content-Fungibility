@@ -1,0 +1,15 @@
+{
+  "protocol_commit": "edb7fba",
+  "G0": "GO_TO_BOUNDED_PILOT",
+  "G1_smoke": "GO_POOLED_MEDIAN",
+  "G1_64_image_validity": "KILL",
+  "G1": "KILL",
+  "pooled_median_smoke": "pooled_metering/smoke/gate_smoke.json",
+  "64_image_decision": "pooled_metering/gate_decisions.json",
+  "earlier_smokes_retained": ["smoke/gate_smoke.json", "revised_metering/smoke/gate_smoke.json"],
+  "pilot_128_image_gate": "NOT_ENTERED",
+  "G2": "NOT_ENTERED",
+  "G3": "NOT_ENTERED",
+  "phase_D": "NOT_ENTERED",
+  "canonical_seed_9201_accessed": false
+}
