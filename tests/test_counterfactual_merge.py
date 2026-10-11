@@ -6,7 +6,7 @@ import torch
 
 from patch_fungibility.compression_models import forward_downstream_compressed
 from patch_fungibility.counterfactual_merge import (
-    apply_action, baseline_state, candidate_pool, forward_suffix_batch,
+    apply_action, apply_actions, baseline_state, candidate_pool, forward_suffix_batch,
     initial_state, state_batch,
 )
 
@@ -54,6 +54,21 @@ def test_candidate_pool_is_deterministic_and_valid():
     assert {c["kind"] for c in first} == {
         "tome_proposal", "high_cosine_alternative", "middle_similarity_sample"
     }
+
+
+def test_simultaneous_matching_assignments_and_weighted_carrier():
+    state = make_state()
+    reduced = apply_actions(state, [(0, 1), (2, 1), (4, 3)])
+    assert reduced.count == 193
+    assert torch.equal(reduced.cls, state.cls)
+    assert float(reduced.multiplicities.sum()) == 196
+    assert sorted(reduced.multiplicities.tolist())[-2:] == [2.0, 3.0]
+    torch.testing.assert_close(reduced.patches[0],
+                               (state.patches[0] + state.patches[1] + state.patches[2]) / 3)
+    with pytest.raises(ValueError):
+        apply_actions(state, [(0, 1), (0, 3)])
+    with pytest.raises(ValueError):
+        apply_actions(state, [(0, 1), (1, 3)])
 
 
 def test_calibration_partition_is_disjoint_from_reserved_ids():

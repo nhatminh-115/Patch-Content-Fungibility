@@ -92,6 +92,38 @@ def apply_action(state: MergeState, source: int, destination: int) -> MergeState
     return MergeState(state.cls.clone(), patches[keep], mass[keep], pos[keep])
 
 
+def apply_actions(state: MergeState, edges) -> MergeState:
+    """Simultaneously merge distinct even sources into odd destinations.
+
+    Destinations may receive multiple sources, as in ToMe. No destination may also
+    be a source within the same round. This conserves all original patch mass.
+    """
+    edges = list(edges)
+    sources = [int(i) for i, _ in edges]
+    destinations = [int(j) for _, j in edges]
+    if len(set(sources)) != len(sources) or set(sources) & set(destinations):
+        raise ValueError("Sources must be unique and disjoint from destinations")
+    if any(i < 0 or i >= state.count or j < 0 or j >= state.count for i, j in edges):
+        raise ValueError("Out-of-range merge index")
+    if not edges:
+        return state
+    device = state.patches.device
+    src = torch.tensor(sources, device=device, dtype=torch.long)
+    dst = torch.tensor(destinations, device=device, dtype=torch.long)
+    mass = state.multiplicities.clone()
+    numerator = state.patches * mass[:, None]
+    position_numerator = state.positions * mass[:, None]
+    mass.scatter_add_(0, dst, state.multiplicities[src])
+    numerator.scatter_add_(0, dst[:, None].expand(-1, state.patches.shape[1]),
+                           state.patches[src] * state.multiplicities[src, None])
+    position_numerator.scatter_add_(0, dst[:, None].expand(-1, 2),
+                                    state.positions[src] * state.multiplicities[src, None])
+    keep = torch.ones(state.count, device=device, dtype=torch.bool)
+    keep[src] = False
+    return MergeState(state.cls.clone(), (numerator / mass[:, None])[keep], mass[keep],
+                      (position_numerator / mass[:, None])[keep])
+
+
 def candidate_pool(state: MergeState, seed: int, count: int = 32) -> List[dict]:
     """Same deterministic pool for teacher, cosine, and random policies."""
     n = state.count
