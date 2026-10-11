@@ -31,9 +31,9 @@ def rows(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(f))
 
 
-def markdown_table(text: str, roman: str) -> list[list[str]]:
+def markdown_table(text: str, number: str) -> list[list[str]]:
     lines = text.splitlines()
-    title = f"**TABLE {roman}**"
+    title = f"**Table {number}**"
     try:
         start = next(i for i, line in enumerate(lines) if line.strip() == title)
         start = next(i for i in range(start + 1, len(lines)) if lines[i].strip().startswith("|"))
@@ -317,13 +317,20 @@ def main() -> int:
 
     # Confirm that the delivered Word files carry the post-hoc wording and table.
     main_doc_text = supp_doc_text = ""
+    main_doc_paragraphs = []
+    main_doc_table_labels = []
     try:
         with zipfile.ZipFile(DOCX_PATH) as archive:
             main_xml = ET.fromstring(archive.read("word/document.xml"))
         with zipfile.ZipFile(SUPPLEMENTARY_DOCX) as archive:
             supplementary_xml = ET.fromstring(archive.read("word/document.xml"))
         main_w = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t"
+        main_p = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p"
+        main_doc_paragraphs = ["".join(node.text or "" for node in paragraph.iter(main_w))
+                               for paragraph in main_xml.iter(main_p)]
         main_doc_text = "".join(node.text or "" for node in main_xml.iter(main_w))
+        main_doc_table_labels = [m.group(1) for value in main_doc_paragraphs
+                                 if (m := re.fullmatch(r"\s*Table\s+([1-4])\s*\.?\s*", value, re.I))]
         supp_doc_text = "".join(node.text or "" for node in supplementary_xml.iter(main_w))
     except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
         pass
@@ -331,11 +338,11 @@ def main() -> int:
                              and "8. Conclusion" in main_doc_text
                              and "7. From Operator-Aware Optimization to Practical Compression" not in main_doc_text
                              and "9. Conclusion" not in main_doc_text
-                             and all(f"TABLE {label}" in main_doc_text for label in ("I", "II", "III", "IV"))
+                             and main_doc_table_labels == ["1", "2", "3", "4"]
                              and "Practical carrier evaluation" not in main_doc_text)
     record("main_docx_has_separate_correct_limitations_and_conclusion_headings",
            main_docx_headings_ok,
-           "Main Word export contains Sections 7 and 8 and all four current main-table labels, without the former practical-carrier section.")
+           f"Main Word export contains Sections 7 and 8, numeric table captions={main_doc_table_labels}, and no former practical-carrier section.")
     docx_sensitivity_ok = ("post-hoc sensitivity analysis" in main_doc_text.lower()
                            and "not as a demonstrated global optimum" in main_doc_text.lower()
                            and "fixed after a pilot sweep" not in main_doc_text.lower()
@@ -412,15 +419,25 @@ def main() -> int:
         external_bib = external_bib_path.read_text(encoding="utf-8-sig") if external_bib_path.exists() else ""
         complete = all(v.get("author") and v.get("title") and v.get("year") and
                        (v.get("booktitle") or v.get("journal") or
-                        (v.get("archiveprefix", "").lower() == "arxiv" and v.get("eprint")))
+                        (v.get("archiveprefix", "").lower() == "arxiv" and v.get("eprint")) or
+                        (not v.get("doi") and v.get("url")
+                         and "software documentation" in v.get("note", "").lower()
+                         and "accessed" in v.get("note", "").lower()))
                        and (v.get("doi") or v.get("url"))
                        for _, v in bib_entries)
         norm_titles = [re.sub(r"[^a-z0-9]+", "", exporter.clean_tex(v.get("title", "")).lower())
                        for _, v in bib_entries]
         dois = [v.get("doi", "").strip().lower() for _, v in bib_entries if v.get("doi", "").strip()]
-        record("bibliography_has_55_complete_unique_records",
-               len(bib_entries) == 55 and complete and len(set(norm_titles)) == len(norm_titles) and len(set(dois)) == len(dois),
-               f"Entries={len(bib_entries)}; complete fields={complete}; duplicate normalized titles={len(norm_titles)-len(set(norm_titles))}; duplicate DOIs={len(dois)-len(set(dois))}.")
+        bibliography_integrity_ok = (
+            len(bib_entries) > 0
+            and len(bib_entries) == len(first_cite_order)
+            and len(bib_order) == len(set(bib_order))
+            and complete
+            and len(set(norm_titles)) == len(norm_titles)
+            and len(set(dois)) == len(dois)
+        )
+        record("bibliography_has_complete_unique_records", bibliography_integrity_ok,
+               f"Entries={len(bib_entries)}; cited keys={len(first_cite_order)}; complete fields={complete}; duplicate normalized titles={len(norm_titles)-len(set(norm_titles))}; duplicate DOIs={len(dois)-len(set(dois))}.")
         related_work = text.split("## 2. Related Work", 1)[1].split("## 3. Experimental Setup", 1)[0] if "## 2. Related Work" in text and "## 3. Experimental Setup" in text else ""
         new_prior_art_ok = (
             "\\citep{bond2026taskinduced}" in related_work
@@ -440,7 +457,7 @@ def main() -> int:
                f"First-citation ordering={bib_order == first_cite_order}; external BibTeX synchronized={bib_block.group(1).strip() == external_bib.strip()}.")
     except (ValueError, OSError, IndexError) as exc:
         bib_entries, bib_fields, first_cite_order = [], {}, []
-        record("bibliography_has_55_complete_unique_records", False, f"Could not parse or validate bibliography: {exc}")
+        record("bibliography_has_complete_unique_records", False, f"Could not parse or validate bibliography: {exc}")
         record("bond_and_liu_prior_art_are_cited_with_verified_types_and_distinctions", False,
                "Could not parse or validate the Bond/Liu bibliography records and Related Work citations.")
         record("bibliography_numbering_matches_first_citation_and_sidecar", False, "Bibliography parser or sidecar check failed.")
@@ -522,11 +539,11 @@ def main() -> int:
            f"Numbered headings={main_sections}; expected Sections 1–8 ending in Limitations and Conclusion, with no standalone practical-carrier section.")
     fig_objects = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"!\[Figure\s+(S?\d+)", line.strip()))]
     fig_captions = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*Figure\s*(S?\d+)\.", line.strip()))]
-    table_headings = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*\*TABLE\s+([IVX]+)\*\*", line.strip()))]
-    # This manuscript uses IEEE-style uppercase table labels followed by a bold uppercase title.
+    table_headings = [(i, m.group(1)) for i, line in enumerate(lines) if (m := re.match(r"\*\*Table\s+([1-4])\*\*", line.strip()))]
+    # Main tables use Arabic-numbered labels matching the editable DOCX.
     table_captions = []
     for i, line in enumerate(lines):
-        heading = re.match(r"\*\*TABLE\s+([IVX]+)\*\*", line.strip())
+        heading = re.match(r"\*\*Table\s+([1-4])\*\*", line.strip())
         if not heading:
             continue
         title_i = next((j for j in range(i + 1, len(lines)) if lines[j].strip()), None)
@@ -535,11 +552,11 @@ def main() -> int:
     figure_callouts = {}
     table_callouts = {}
     for i, line in enumerate(lines):
-        if line.strip().startswith(("![", "*Figure", "**TABLE", "*Table ")):
+        if line.strip().startswith(("![", "*Figure", "**Table", "*Table ")):
             continue
         for m in re.finditer(r"\bFigure\s+(S?\d+)\b", line):
             figure_callouts.setdefault(m.group(1), i)
-        for m in re.finditer(r"\bTable\s+([IVX]+)\b", line, re.I):
+        for m in re.finditer(r"\bTable\s+([1-4])\b", line, re.I):
             table_callouts.setdefault(m.group(1).upper(), i)
     fig_labels = [label for _, label in fig_objects]
     cap_labels = [label for _, label in fig_captions]
@@ -547,10 +564,10 @@ def main() -> int:
     fig_placement_ok = all(label in figure_callouts and figure_callouts[label] < pos for pos, label in fig_objects)
     table_labels = [label for _, label in table_headings]
     table_cap_labels = [label for _, label in table_captions]
-    table_order_ok = table_labels == table_cap_labels == ["I", "II", "III", "IV"]
+    table_order_ok = table_labels == table_cap_labels == ["1", "2", "3", "4"]
     table_placement_ok = all(label in table_callouts and table_callouts[label] < pos for pos, label in table_headings)
     resolved_figs = set(re.findall(r"\bFigure\s+(S?\d+)\b", text))
-    resolved_tables = set(m.group(1).upper() for m in re.finditer(r"\bTable\s+([IVX]+)\b", text, re.I))
+    resolved_tables = set(m.group(1).upper() for m in re.finditer(r"\bTable\s+([1-4])\b", text, re.I))
 
     # Supplementary callouts resolve against the separate supplementary manuscript and DOCX.
     supplementary_path = SUPPLEMENTARY_DRAFT
@@ -626,14 +643,14 @@ def main() -> int:
            f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement labels={supplementary_labels}; object/caption/path resolution={supplementary_refs_ok}; placement={fig_placement_ok}; unique S1–S15 numbering={supplementary_numbering_ok}.")
     record("table_cross_references_resolve_and_precede_objects", table_order_ok and table_placement_ok and resolved_tables == set(table_labels),
            f"Table headings={table_labels}; captions={table_cap_labels}; callouts={sorted(resolved_tables)}; placement={table_placement_ok}.")
-    table_i = markdown_table(text, "I")
+    table_i = markdown_table(text, "1")
     table_i_ok = len(table_i) == 6 and all(len(row) == 4 for row in table_i) and "Practical carrier evaluation" not in text
-    record("main_table_I_excludes_relocated_practical_carrier_row",
+    record("main_table_1_excludes_relocated_practical_carrier_row",
            table_i_ok,
-           f"Table I rows including header={len(table_i)}; expected six rows and no practical-carrier row.")
+           f"Table 1 rows including header={len(table_i)}; expected six rows and no practical-carrier row.")
 
-    # Recompute the controlled-replacement effect sizes in Table II from the archived runs.
-    table2_effects = markdown_table(text, "II")
+    # Recompute the controlled-replacement effect sizes in Table 2 from the archived runs.
+    table2_effects = markdown_table(text, "2")
     expected_table2_headers = ["Architecture", "Centroid − coordinate-permuted (50%)", "Centroid − sign-inverted (50%)",
                                "Grouped Kmax − K1", "PC1 − random 1D (100%)"]
     geometry_effects: dict[str, tuple[float, float]] = {}
@@ -736,15 +753,15 @@ def main() -> int:
             rounding_matches = all(abs(reported - source) <= tolerance
                                    for reported, source, tolerance in zip(values, sourced, effect_tolerances[arch]))
             table2_match = table2_match and signs_match and rounding_matches
-    table2_note = text.split("**CONTROLLED PATCH-CONTENT REPLACEMENT EFFECTS ACROSS ARCHITECTURES**", 1)[1].split("**TABLE III**", 1)[0] if "**CONTROLLED PATCH-CONTENT REPLACEMENT EFFECTS ACROSS ARCHITECTURES**" in text and "**TABLE III**" in text else ""
-    table2_note_ok = all(token in table2_note for token in ("percentage points", "Note (Table II)", "50%", "all spatial patches", "N=1,000 held-out images",
+    table2_note = text.split("**CONTROLLED PATCH-CONTENT REPLACEMENT EFFECTS ACROSS ARCHITECTURES**", 1)[1].split("**Table 3**", 1)[0] if "**CONTROLLED PATCH-CONTENT REPLACEMENT EFFECTS ACROSS ARCHITECTURES**" in text and "**Table 3**" in text else ""
+    table2_note_ok = all(token in table2_note for token in ("percentage points", "Note (Table 2)", "50%", "all spatial patches", "N=1,000 held-out images",
                                                              "disjoint", "three-seed means", "five seeds", "not meaningful accuracy recovery"))
-    record("table_II_controlled_replacement_effects_recompute_from_archived_runs",
+    record("table_2_controlled_replacement_effects_recompute_from_archived_runs",
            bool(table2_match and table2_note_ok),
-           f"Table II source effects in pp={effect_values}; geometry/grouped-K/PC-direction seed designs valid={seed_design_ok}; protocol/cohort/floor notes valid={table2_note_ok}.")
+           f"Table 2 source effects in pp={effect_values}; geometry/grouped-K/PC-direction seed designs valid={seed_design_ok}; protocol/cohort/floor notes valid={table2_note_ok}.")
 
-    # Recompute depth-5/depth-10 functional spectra and depth-8 directional ratios for Table III.
-    table3 = markdown_table(text, "III")
+    # Recompute depth-5/depth-10 functional spectra and depth-8 directional ratios for Table 3.
+    table3 = markdown_table(text, "3")
     spectrum_rows = rows(ROOT / "outputs/fungibility_section5_cross_arch_extension/functional_geometry/functional_spectrum_robustness.csv")
     direction_rows = rows(ROOT / "outputs/fungibility_section5_cross_arch_extension/functional_geometry/pc_directional_sensitivity.csv")
     expected_architectures = ["DeiT-Tiny", "DeiT-Small", "ViT-B/16 AugReg", "DINOv2 ViT-S/14"]
@@ -784,9 +801,9 @@ def main() -> int:
         "distinct from the full token-by-feature", "operational cutoff", "small at the primary threshold",
         "feature dimension D", "sensitive to a small depth-8 activation-covariance eigengap",
         "not a universal ranking", "Supplementary Table S2"))
-    record("table_III_functional_geometry_recompute_from_corrected_outputs",
+    record("table_3_functional_geometry_recompute_from_corrected_outputs",
            bool(table3_ok and table3_note_ok),
-           f"Table III source metrics={spectrum_summary}; corrected rows use N=100 and stable directional diagnostics; scope note valid={table3_note_ok}.")
+           f"Table 3 source metrics={spectrum_summary}; corrected rows use N=100 and stable directional diagnostics; scope note valid={table3_note_ok}.")
 
     # Independently recompute Figure 7 correlations and bootstrap intervals from the fixed perturbation cohort.
     multi_root = ROOT / "outputs/fungibility_section5_cross_arch_extension/multiblock_prediction"
@@ -875,8 +892,8 @@ def main() -> int:
            equation_blocks == 10 and equation_tags == [str(i) for i in range(1, 11)] and equation_explanations,
            f"Display equations={equation_blocks}; tags={equation_tags}; key implementation/notation explanations present={equation_explanations}.")
 
-    # Recompute the unchanged compression entries now published as Table IV.
-    table4 = markdown_table(text, "IV")
+    # Recompute the unchanged compression entries now published as Table 4.
+    table4 = markdown_table(text, "4")
     budget_path = ROOT / "outputs/fungibility_operator_compression_confirmatory/budget_summary.csv"
     budget_rows = rows(budget_path) if budget_path.exists() else []
     model_map = {"DeiT-Tiny":"DeiT-Tiny", "DeiT-Small":"DeiT-Small", "ViT-B/16":"ViT-B/16", "ViT-B/16 AugReg":"ViT-B/16", "DINOv2 ViT-S/14":"DINOv2 ViT-S/14"}
@@ -913,7 +930,7 @@ def main() -> int:
                 break
     range_in_abstract = bool(re.search(r"4\.2\s*[–-]\s*12\.0", abstract))
     table4_ok = table4_ok and gain_values and abs(min(gain_values)-4.2) < 0.051 and abs(max(gain_values)-12.0) < 0.051 and range_in_abstract
-    record("table_IV_and_abstract_match_confirmatory_csv", bool(table4_ok),
+    record("table_4_and_abstract_match_confirmatory_csv", bool(table4_ok),
            f"Parsed rows={max(0,len(table4)-1)}; best-pruning row and all five compression columns checked; oracle/low-rank gain range={min(gain_values) if gain_values else 'n/a'}–{max(gain_values) if gain_values else 'n/a'} pp.")
 
     # Recompute the relocated Table S5 counts and percentage-point differences
@@ -1005,6 +1022,9 @@ def main() -> int:
     # Inspect the actual editable DOCX package: real tables, drawings, equations, and reference sequence.
     docx_path = DOCX_PATH
     docx_structure_ok = False
+    ref_nums = []
+    docx_table_labels = []
+    expected_ref_count = 0
     if docx_path.is_file():
         try:
             with zipfile.ZipFile(docx_path) as archive:
@@ -1028,23 +1048,28 @@ def main() -> int:
                     para_text.append("".join(n.text or "" for n in para.iter(W+"t")))
                 ref_nums = [int(m.group(1)) for value in para_text if (m := re.match(r"\[(\d+)\]\s", value))]
                 docx_valid = [n for n in names if n.startswith("word/media/")]
-                docx_table_labels = [value for value in para_text if value in {"TABLE I", "TABLE II", "TABLE III", "TABLE IV"}]
+                docx_table_labels = [m.group(1) for value in para_text
+                                     if (m := re.fullmatch(r"\s*Table\s+([1-4])\s*\.?\s*", value, re.I))]
                 main_docx_headings_ok = ("7. Limitations" in para_text
                                          and "8. Conclusion" in para_text
                                          and not any("7. From Operator-Aware Optimization to Practical Compression" in value
                                                      or "9. Conclusion" in value
                                                      or "Practical carrier evaluation" in value
                                                      for value in para_text)
-                                         and docx_table_labels == ["TABLE I", "TABLE II", "TABLE III", "TABLE IV"])
+                                         and docx_table_labels == ["1", "2", "3", "4"])
+                expected_ref_count = len(first_cite_order)
+                reference_sequence_ok = (expected_ref_count > 0
+                                         and len(bib_entries) == expected_ref_count
+                                         and ref_nums == list(range(1, expected_ref_count + 1)))
                 docx_structure_ok = (manuscript_tables == 4 and equation_layout_tables == 10
                                      and drawings_in_docx == 8 and len(docx_valid) == 8
-                                     and display_math_lines >= 10 and ref_nums == list(range(1,56))
+                                     and display_math_lines >= 10 and reference_sequence_ok
                                      and main_docx_headings_ok)
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             docx_structure_ok = False
-    record("editable_main_docx_contains_four_native_tables_eight_figures_ten_equations_and_55_ieee_refs",
+    record("editable_main_docx_contains_four_native_tables_eight_figures_ten_equations_and_complete_ieee_refs",
            docx_structure_ok,
-           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}; table labels={docx_table_labels if docx_path.is_file() else []}.")
+           f"DOCX package {docx_path.name}: manuscript tables={manuscript_tables if docx_path.is_file() else 0}, numbered equation layout tables={equation_layout_tables if docx_path.is_file() else 0}, figures={drawings_in_docx if docx_path.is_file() else 0}, display math lines={display_math_lines if docx_path.is_file() else 0}, inline math objects={inline_math_objects if docx_path.is_file() else 0}, references={len(ref_nums) if docx_path.is_file() else 0}/{expected_ref_count if docx_path.is_file() else 0}; Table captions={docx_table_labels if docx_path.is_file() else []}.")
 
     passed = all(v["status"] == "PASS" for v in checks.values())
     manifest = {"status":"PASS" if passed else "FAIL", "checks":checks,

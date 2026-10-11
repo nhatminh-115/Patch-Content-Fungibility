@@ -47,7 +47,7 @@
     },
     "bibliography_resolves_without_duplicates": {
       "status": "PASS",
-      "detail": "55 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
+      "detail": "58 entries; unresolved citations=[]; uncited entries=[]; duplicates=False."
     },
     "all_manuscript_figures_exist_and_are_v4_svg": {
       "status": "PASS",
@@ -71,7 +71,7 @@
     },
     "main_docx_has_separate_correct_limitations_and_conclusion_headings": {
       "status": "PASS",
-      "detail": "Main Word export contains Sections 7 and 8 and all four current main-table labels, without the former practical-carrier section."
+      "detail": "Main Word export contains Sections 7 and 8, numeric table captions=['1', '2', '3', '4'], and no former practical-carrier section."
     },
     "sensitivity_word_exports_match_scientific_wording": {
       "status": "PASS",
@@ -89,9 +89,9 @@
       "status": "PASS",
       "detail": "Primary feature-similarity rows=20000; per-architecture counts and five-budget means={'DeiT-Tiny': {'rows': 5000, 'budgets': [32, 49, 72, 98, 147], 'n_per_budget': [1000, 1000, 1000, 1000, 1000], 'mean_delta': 1.2734326490573584}, 'DeiT-Small': {'rows': 5000, 'budgets': [32, 49, 72, 98, 147], 'n_per_budget': [1000, 1000, 1000, 1000, 1000], 'mean_delta': 1.4813734684199096}, 'ViT-B/16': {'rows': 5000, 'budgets': [32, 49, 72, 98, 147], 'n_per_budget': [1000, 1000, 1000, 1000, 1000], 'mean_delta': 2.527802714386582}, 'DINOv2 ViT-S/14': {'rows': 5000, 'budgets': [42, 64, 94, 128, 192], 'n_per_budget': [1000, 1000, 1000, 1000, 1000], 'mean_delta': 7.2039423407435415}}; all deltas positive=True."
     },
-    "bibliography_has_55_complete_unique_records": {
+    "bibliography_has_complete_unique_records": {
       "status": "PASS",
-      "detail": "Entries=55; complete fields=True; duplicate normalized titles=0; duplicate DOIs=0."
+      "detail": "Entries=58; cited keys=58; complete fields=True; duplicate normalized titles=0; duplicate DOIs=0."
     },
     "bond_and_liu_prior_art_are_cited_with_verified_types_and_distinctions": {
       "status": "PASS",
@@ -103,7 +103,7 @@
     },
     "ieee_citation_order_and_ranges_match_docx": {
       "status": "PASS",
-      "detail": "Citation clusters=24; ordering issues=[]; reference heading found=True; source/rendered tokens=26/26; ranges=7; exact match=True."
+      "detail": "Citation clusters=27; ordering issues=[]; reference heading found=True; source/rendered tokens=30/30; ranges=7; exact match=True."
     },
     "abstract_uses_no_defined_abbreviations": {
       "status": "PASS",
@@ -131,19 +131,19 @@
     },
     "table_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
-      "detail": "Table headings=['I', 'II', 'III', 'IV']; captions=['I', 'II', 'III', 'IV']; callouts=['I', 'II', 'III', 'IV']; placement=True."
+      "detail": "Table headings=['1', '2', '3', '4']; captions=['1', '2', '3', '4']; callouts=['1', '2', '3', '4']; placement=True."
     },
-    "main_table_I_excludes_relocated_practical_carrier_row": {
+    "main_table_1_excludes_relocated_practical_carrier_row": {
       "status": "PASS",
-      "detail": "Table I rows including header=6; expected six rows and no practical-carrier row."
+      "detail": "Table 1 rows including header=6; expected six rows and no practical-carrier row."
     },
-    "table_II_controlled_replacement_effects_recompute_from_archived_runs": {
+    "table_2_controlled_replacement_effects_recompute_from_archived_runs": {
       "status": "PASS",
-      "detail": "Table II source effects in pp={'DeiT-Tiny': [16.2, 65.6, 25.2, 7.84], 'DeiT-Small': [18.0, 65.1, 36.1, 7.3], 'ViT-B/16 AugReg': [6.5, 5.7, 11.34, 33.4], 'DINOv2 ViT-S/14': [47.8, 55.4, -0.02, 0.17]}; geometry/grouped-K/PC-direction seed designs valid=True; protocol/cohort/floor notes valid=True."
+      "detail": "Table 2 source effects in pp={'DeiT-Tiny': [16.2, 65.6, 25.2, 7.84], 'DeiT-Small': [18.0, 65.1, 36.1, 7.3], 'ViT-B/16 AugReg': [6.5, 5.7, 11.34, 33.4], 'DINOv2 ViT-S/14': [47.8, 55.4, -0.02, 0.17]}; geometry/grouped-K/PC-direction seed designs valid=True; protocol/cohort/floor notes valid=True."
     },
-    "table_III_functional_geometry_recompute_from_corrected_outputs": {
+    "table_3_functional_geometry_recompute_from_corrected_outputs": {
       "status": "PASS",
-      "detail": "Table III source metrics={'DeiT-Tiny': (0.5406934794285422, 0.1251014120655495, 0.5208333333333333, 31.770833333333332, 0.0890852531746517), 'DeiT-Small': (0.46676532326417325, 0.11382204446212006, 0.26041666666666663, 57.03125, 0.040891342727631466), 'ViT-B/16 AugReg': (0.3833718837847106, 0.13965681467129046, 0.26041666666666663, 49.609375, 65.21518228595933), 'DINOv2 ViT-S/14': (0.45303887969711226, 0.32276451867698347, 0.26041666666666663, 1.5625, 0.19936405080574554)}; corrected rows use N=100 and stable directional diagnostics; scope note valid=True."
+      "detail": "Table 3 source metrics={'DeiT-Tiny': (0.5406934794285422, 0.1251014120655495, 0.5208333333333333, 31.770833333333332, 0.0890852531746517), 'DeiT-Small': (0.46676532326417325, 0.11382204446212006, 0.26041666666666663, 57.03125, 0.040891342727631466), 'ViT-B/16 AugReg': (0.3833718837847106, 0.13965681467129046, 0.26041666666666663, 49.609375, 65.21518228595933), 'DINOv2 ViT-S/14': (0.45303887969711226, 0.32276451867698347, 0.26041666666666663, 1.5625, 0.19936405080574554)}; corrected rows use N=100 and stable directional diagnostics; scope note valid=True."
     },
     "figure_7_correlations_bootstrap_and_scope_match_prescribed_mixture": {
       "status": "PASS",
@@ -153,7 +153,7 @@
       "status": "PASS",
       "detail": "Display equations=10; tags=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']; key implementation/notation explanations present=True."
     },
-    "table_IV_and_abstract_match_confirmatory_csv": {
+    "table_4_and_abstract_match_confirmatory_csv": {
       "status": "PASS",
       "detail": "Parsed rows=4; best-pruning row and all five compression columns checked; oracle/low-rank gain range=4.200000000000004\u201312.0 pp."
     },
@@ -165,9 +165,9 @@
       "status": "PASS",
       "detail": "Parsed eight model-budget cells with seven factors each; factor-10, cell maximum, maximizing factor set, and Group Mean checked against the corrected v2 aggregate CSV."
     },
-    "editable_main_docx_contains_four_native_tables_eight_figures_ten_equations_and_55_ieee_refs": {
+    "editable_main_docx_contains_four_native_tables_eight_figures_ten_equations_and_complete_ieee_refs": {
       "status": "PASS",
-      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=4, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=124, references=55; table labels=['TABLE I', 'TABLE II', 'TABLE III', 'TABLE IV']."
+      "detail": "DOCX package PAPER_DRAFT_v5.docx: manuscript tables=4, numbered equation layout tables=10, figures=8, display math lines=15, inline math objects=103, references=58/58; Table captions=['1', '2', '3', '4']."
     }
   },
   "passed_count": 42,
