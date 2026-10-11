@@ -103,6 +103,14 @@ def test_student_inference_does_not_accept_teacher_outputs():
     torch.testing.assert_close(first, second)
 
 
+def test_portable_source_identity_excludes_machine_home():
+    from scripts.run_counterfactual_merge_pilot import portable_parquet_identity
+    source = r"C:\Users\example\.cache\huggingface\hub\datasets--evanarlian--imagenet_1k_resized_256\snapshots\abc\data\val.parquet"
+    identity = portable_parquet_identity(source)
+    assert identity == "datasets--evanarlian--imagenet_1k_resized_256/snapshots/abc/data/val.parquet"
+    assert "Users" not in identity
+
+
 def test_candidate_batch_matches_legacy_suffix():
     timm = pytest.importorskip("timm")
     torch.manual_seed(47)

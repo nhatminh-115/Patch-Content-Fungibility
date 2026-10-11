@@ -35,6 +35,15 @@ SEED_BOOTSTRAP = 64012
 MODEL_CONFIG = (("deit_small", 8, 0), ("vit_base", 7, 1000003))
 
 
+def portable_parquet_identity(path):
+    """Keep the exact public dataset snapshot without a machine-local home path."""
+    normalized = str(path).replace("\\", "/")
+    marker = "datasets--evanarlian--imagenet_1k_resized_256/"
+    if marker not in normalized:
+        raise ValueError("Unexpected ImageNet parquet source")
+    return marker + normalized.split(marker, 1)[1]
+
+
 def sync():
     if torch.cuda.is_available():
         torch.cuda.synchronize()
@@ -245,7 +254,9 @@ def main():
     else:
         selected = [r for r in records if r["cohort"] == "train"][:args.train_limit]
     image_bytes(selected)
-    pd.DataFrame([{k: v for k, v in r.items() if k != "image_bytes"} for r in selected]).to_csv(out / "source_image_ids.csv", index=False)
+    pd.DataFrame([{k: (portable_parquet_identity(v) if k == "parquet_path" else v)
+                   for k, v in r.items() if k != "image_bytes"} for r in selected]).to_csv(
+                       out / "source_image_ids.csv", index=False)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     manifest = {
         "protocol_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
@@ -254,7 +265,7 @@ def main():
         "cohort": args.cohort, "pilot_n": args.pilot_limit, "stability_n": args.stability_limit,
         "train_n": args.train_limit if args.cohort == "train" else 0,
         "candidate_count": 32, "candidate_batch_size": args.candidate_batch_size,
-        "source_parquets": [{"path": p, "size_bytes": os.path.getsize(p)} for p in paths],
+        "source_parquets": [{"path": portable_parquet_identity(p), "size_bytes": os.path.getsize(p)} for p in paths],
         "torch": torch.__version__, "timm": timm.__version__, "scipy": scipy.__version__,
         "python": platform.python_version(), "gpu": torch.cuda.get_device_name() if torch.cuda.is_available() else None,
         "models": {}, "parity": {},

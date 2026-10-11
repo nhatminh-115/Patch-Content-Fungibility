@@ -12,11 +12,11 @@
   "candidate_batch_size": 8,
   "source_parquets": [
     {
-      "path": "C:\\Users\\Minh/.cache/huggingface/hub\\datasets--evanarlian--imagenet_1k_resized_256\\snapshots\\8de107e08d1f61884d5a4ec2dea8740667264a60\\data\\val-00000-of-00002-b5248be478d25e41.parquet",
+      "path": "datasets--evanarlian--imagenet_1k_resized_256/snapshots/8de107e08d1f61884d5a4ec2dea8740667264a60/data/val-00000-of-00002-b5248be478d25e41.parquet",
       "size_bytes": 449401116
     },
     {
-      "path": "C:\\Users\\Minh/.cache/huggingface/hub\\datasets--evanarlian--imagenet_1k_resized_256\\snapshots\\8de107e08d1f61884d5a4ec2dea8740667264a60\\data\\val-00001-of-00002-85f3d9c8fa1edb63.parquet",
+      "path": "datasets--evanarlian--imagenet_1k_resized_256/snapshots/8de107e08d1f61884d5a4ec2dea8740667264a60/data/val-00001-of-00002-85f3d9c8fa1edb63.parquet",
       "size_bytes": 419982685
     }
   ],
