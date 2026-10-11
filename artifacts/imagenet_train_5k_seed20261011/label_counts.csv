@@ -1,0 +1,2001 @@
+split,label_index,label_name,count
+finetune_train,0,"tench, Tinca tinca",6
+finetune_train,1,"goldfish, Carassius auratus",4
+finetune_train,2,"great white shark, white shark, man-eater, man-eating shark, Carcharodon carcharias",3
+finetune_train,3,"tiger shark, Galeocerdo cuvieri",1
+finetune_train,4,"hammerhead, hammerhead shark",4
+finetune_train,5,"electric ray, crampfish, numbfish, torpedo",7
+finetune_train,6,stingray,6
+finetune_train,7,cock,4
+finetune_train,8,hen,3
+finetune_train,9,"ostrich, Struthio camelus",7
+finetune_train,10,"brambling, Fringilla montifringilla",8
+finetune_train,11,"goldfinch, Carduelis carduelis",6
+finetune_train,12,"house finch, linnet, Carpodacus mexicanus",3
+finetune_train,13,"junco, snowbird",2
+finetune_train,14,"indigo bunting, indigo finch, indigo bird, Passerina cyanea",3
+finetune_train,15,"robin, American robin, Turdus migratorius",5
+finetune_train,16,bulbul,3
+finetune_train,17,jay,5
+finetune_train,18,magpie,5
+finetune_train,19,chickadee,3
+finetune_train,20,"water ouzel, dipper",1
+finetune_train,21,kite,4
+finetune_train,22,"bald eagle, American eagle, Haliaeetus leucocephalus",6
+finetune_train,23,vulture,5
+finetune_train,24,"great grey owl, great gray owl, Strix nebulosa",8
+finetune_train,25,"European fire salamander, Salamandra salamandra",5
+finetune_train,26,"common newt, Triturus vulgaris",4
+finetune_train,27,eft,5
+finetune_train,28,"spotted salamander, Ambystoma maculatum",6
+finetune_train,29,"axolotl, mud puppy, Ambystoma mexicanum",6
+finetune_train,30,"bullfrog, Rana catesbeiana",8
+finetune_train,31,"tree frog, tree-frog",4
+finetune_train,32,"tailed frog, bell toad, ribbed toad, tailed toad, Ascaphus trui",3
+finetune_train,33,"loggerhead, loggerhead turtle, Caretta caretta",3
+finetune_train,34,"leatherback turtle, leatherback, leathery turtle, Dermochelys coriacea",6
+finetune_train,35,mud turtle,1
+finetune_train,36,terrapin,1
+finetune_train,37,"box turtle, box tortoise",4
+finetune_train,38,banded gecko,8
+finetune_train,39,"common iguana, iguana, Iguana iguana",3
+finetune_train,40,"American chameleon, anole, Anolis carolinensis",2
+finetune_train,41,"whiptail, whiptail lizard",3
+finetune_train,42,agama,10
+finetune_train,43,"frilled lizard, Chlamydosaurus kingi",8
+finetune_train,44,alligator lizard,4
+finetune_train,45,"Gila monster, Heloderma suspectum",3
+finetune_train,46,"green lizard, Lacerta viridis",3
+finetune_train,47,"African chameleon, Chamaeleo chamaeleon",5
+finetune_train,48,"Komodo dragon, Komodo lizard, dragon lizard, giant lizard, Varanus komodoensis",5
+finetune_train,49,"African crocodile, Nile crocodile, Crocodylus niloticus",0
+finetune_train,50,"American alligator, Alligator mississipiensis",4
+finetune_train,51,triceratops,3
+finetune_train,52,"thunder snake, worm snake, Carphophis amoenus",3
+finetune_train,53,"ringneck snake, ring-necked snake, ring snake",5
+finetune_train,54,"hognose snake, puff adder, sand viper",1
+finetune_train,55,"green snake, grass snake",3
+finetune_train,56,"king snake, kingsnake",5
+finetune_train,57,"garter snake, grass snake",3
+finetune_train,58,water snake,5
+finetune_train,59,vine snake,3
+finetune_train,60,"night snake, Hypsiglena torquata",5
+finetune_train,61,"boa constrictor, Constrictor constrictor",3
+finetune_train,62,"rock python, rock snake, Python sebae",7
+finetune_train,63,"Indian cobra, Naja naja",8
+finetune_train,64,green mamba,4
+finetune_train,65,sea snake,3
+finetune_train,66,"horned viper, cerastes, sand viper, horned asp, Cerastes cornutus",3
+finetune_train,67,"diamondback, diamondback rattlesnake, Crotalus adamanteus",7
+finetune_train,68,"sidewinder, horned rattlesnake, Crotalus cerastes",6
+finetune_train,69,trilobite,4
+finetune_train,70,"harvestman, daddy longlegs, Phalangium opilio",3
+finetune_train,71,scorpion,4
+finetune_train,72,"black and gold garden spider, Argiope aurantia",4
+finetune_train,73,"barn spider, Araneus cavaticus",3
+finetune_train,74,"garden spider, Aranea diademata",2
+finetune_train,75,"black widow, Latrodectus mactans",3
+finetune_train,76,tarantula,5
+finetune_train,77,"wolf spider, hunting spider",5
+finetune_train,78,tick,9
+finetune_train,79,centipede,3
+finetune_train,80,black grouse,6
+finetune_train,81,ptarmigan,2
+finetune_train,82,"ruffed grouse, partridge, Bonasa umbellus",3
+finetune_train,83,"prairie chicken, prairie grouse, prairie fowl",6
+finetune_train,84,peacock,4
+finetune_train,85,quail,7
+finetune_train,86,partridge,0
+finetune_train,87,"African grey, African gray, Psittacus erithacus",4
+finetune_train,88,macaw,4
+finetune_train,89,"sulphur-crested cockatoo, Kakatoe galerita, Cacatua galerita",5
+finetune_train,90,lorikeet,6
+finetune_train,91,coucal,5
+finetune_train,92,bee eater,6
+finetune_train,93,hornbill,3
+finetune_train,94,hummingbird,4
+finetune_train,95,jacamar,8
+finetune_train,96,toucan,2
+finetune_train,97,drake,5
+finetune_train,98,"red-breasted merganser, Mergus serrator",3
+finetune_train,99,goose,2
+finetune_train,100,"black swan, Cygnus atratus",2
+finetune_train,101,tusker,1
+finetune_train,102,"echidna, spiny anteater, anteater",3
+finetune_train,103,"platypus, duckbill, duckbilled platypus, duck-billed platypus, Ornithorhynchus anatinus",4
+finetune_train,104,"wallaby, brush kangaroo",8
+finetune_train,105,"koala, koala bear, kangaroo bear, native bear, Phascolarctos cinereus",7
+finetune_train,106,wombat,3
+finetune_train,107,jellyfish,2
+finetune_train,108,"sea anemone, anemone",5
+finetune_train,109,brain coral,1
+finetune_train,110,"flatworm, platyhelminth",4
+finetune_train,111,"nematode, nematode worm, roundworm",3
+finetune_train,112,conch,1
+finetune_train,113,snail,4
+finetune_train,114,slug,6
+finetune_train,115,"sea slug, nudibranch",0
+finetune_train,116,"chiton, coat-of-mail shell, sea cradle, polyplacophore",3
+finetune_train,117,"chambered nautilus, pearly nautilus, nautilus",6
+finetune_train,118,"Dungeness crab, Cancer magister",0
+finetune_train,119,"rock crab, Cancer irroratus",4
+finetune_train,120,fiddler crab,5
+finetune_train,121,"king crab, Alaska crab, Alaskan king crab, Alaska king crab, Paralithodes camtschatica",1
+finetune_train,122,"American lobster, Northern lobster, Maine lobster, Homarus americanus",4
+finetune_train,123,"spiny lobster, langouste, rock lobster, crawfish, crayfish, sea crawfish",3
+finetune_train,124,"crayfish, crawfish, crawdad, crawdaddy",2
+finetune_train,125,hermit crab,2
+finetune_train,126,isopod,2
+finetune_train,127,"white stork, Ciconia ciconia",5
+finetune_train,128,"black stork, Ciconia nigra",4
+finetune_train,129,spoonbill,4
+finetune_train,130,flamingo,4
+finetune_train,131,"little blue heron, Egretta caerulea",4
+finetune_train,132,"American egret, great white heron, Egretta albus",6
+finetune_train,133,bittern,3
+finetune_train,134,crane,1
+finetune_train,135,"limpkin, Aramus pictus",2
+finetune_train,136,"European gallinule, Porphyrio porphyrio",4
+finetune_train,137,"American coot, marsh hen, mud hen, water hen, Fulica americana",3
+finetune_train,138,bustard,4
+finetune_train,139,"ruddy turnstone, Arenaria interpres",4
+finetune_train,140,"red-backed sandpiper, dunlin, Erolia alpina",3
+finetune_train,141,"redshank, Tringa totanus",4
+finetune_train,142,dowitcher,1
+finetune_train,143,"oystercatcher, oyster catcher",3
+finetune_train,144,pelican,1
+finetune_train,145,"king penguin, Aptenodytes patagonica",6
+finetune_train,146,"albatross, mollymawk",2
+finetune_train,147,"grey whale, gray whale, devilfish, Eschrichtius gibbosus, Eschrichtius robustus",5
+finetune_train,148,"killer whale, killer, orca, grampus, sea wolf, Orcinus orca",3
+finetune_train,149,"dugong, Dugong dugon",1
+finetune_train,150,sea lion,3
+finetune_train,151,Chihuahua,3
+finetune_train,152,Japanese spaniel,0
+finetune_train,153,"Maltese dog, Maltese terrier, Maltese",5
+finetune_train,154,"Pekinese, Pekingese, Peke",4
+finetune_train,155,Shih-Tzu,2
+finetune_train,156,Blenheim spaniel,6
+finetune_train,157,papillon,6
+finetune_train,158,toy terrier,1
+finetune_train,159,Rhodesian ridgeback,3
+finetune_train,160,"Afghan hound, Afghan",5
+finetune_train,161,"basset, basset hound",2
+finetune_train,162,beagle,2
+finetune_train,163,"bloodhound, sleuthhound",3
+finetune_train,164,bluetick,2
+finetune_train,165,black-and-tan coonhound,0
+finetune_train,166,"Walker hound, Walker foxhound",5
+finetune_train,167,English foxhound,2
+finetune_train,168,redbone,4
+finetune_train,169,"borzoi, Russian wolfhound",6
+finetune_train,170,Irish wolfhound,7
+finetune_train,171,Italian greyhound,5
+finetune_train,172,whippet,5
+finetune_train,173,"Ibizan hound, Ibizan Podenco",1
+finetune_train,174,"Norwegian elkhound, elkhound",3
+finetune_train,175,"otterhound, otter hound",2
+finetune_train,176,"Saluki, gazelle hound",8
+finetune_train,177,"Scottish deerhound, deerhound",2
+finetune_train,178,Weimaraner,5
+finetune_train,179,"Staffordshire bullterrier, Staffordshire bull terrier",3
+finetune_train,180,"American Staffordshire terrier, Staffordshire terrier, American pit bull terrier, pit bull terrier",2
+finetune_train,181,Bedlington terrier,3
+finetune_train,182,Border terrier,5
+finetune_train,183,Kerry blue terrier,8
+finetune_train,184,Irish terrier,4
+finetune_train,185,Norfolk terrier,3
+finetune_train,186,Norwich terrier,6
+finetune_train,187,Yorkshire terrier,3
+finetune_train,188,wire-haired fox terrier,2
+finetune_train,189,Lakeland terrier,2
+finetune_train,190,"Sealyham terrier, Sealyham",3
+finetune_train,191,"Airedale, Airedale terrier",4
+finetune_train,192,"cairn, cairn terrier",4
+finetune_train,193,Australian terrier,3
+finetune_train,194,"Dandie Dinmont, Dandie Dinmont terrier",2
+finetune_train,195,"Boston bull, Boston terrier",2
+finetune_train,196,miniature schnauzer,4
+finetune_train,197,giant schnauzer,3
+finetune_train,198,standard schnauzer,6
+finetune_train,199,"Scotch terrier, Scottish terrier, Scottie",10
+finetune_train,200,"Tibetan terrier, chrysanthemum dog",5
+finetune_train,201,"silky terrier, Sydney silky",1
+finetune_train,202,soft-coated wheaten terrier,2
+finetune_train,203,West Highland white terrier,4
+finetune_train,204,"Lhasa, Lhasa apso",2
+finetune_train,205,flat-coated retriever,4
+finetune_train,206,curly-coated retriever,4
+finetune_train,207,golden retriever,6
+finetune_train,208,Labrador retriever,3
+finetune_train,209,Chesapeake Bay retriever,6
+finetune_train,210,German short-haired pointer,2
+finetune_train,211,"vizsla, Hungarian pointer",3
+finetune_train,212,English setter,2
+finetune_train,213,"Irish setter, red setter",1
+finetune_train,214,Gordon setter,2
+finetune_train,215,Brittany spaniel,1
+finetune_train,216,"clumber, clumber spaniel",1
+finetune_train,217,"English springer, English springer spaniel",3
+finetune_train,218,Welsh springer spaniel,8
+finetune_train,219,"cocker spaniel, English cocker spaniel, cocker",7
+finetune_train,220,Sussex spaniel,3
+finetune_train,221,Irish water spaniel,7
+finetune_train,222,kuvasz,2
+finetune_train,223,schipperke,8
+finetune_train,224,groenendael,2
+finetune_train,225,malinois,7
+finetune_train,226,briard,7
+finetune_train,227,kelpie,4
+finetune_train,228,komondor,6
+finetune_train,229,"Old English sheepdog, bobtail",1
+finetune_train,230,"Shetland sheepdog, Shetland sheep dog, Shetland",9
+finetune_train,231,collie,7
+finetune_train,232,Border collie,1
+finetune_train,233,"Bouvier des Flandres, Bouviers des Flandres",7
+finetune_train,234,Rottweiler,8
+finetune_train,235,"German shepherd, German shepherd dog, German police dog, alsatian",3
+finetune_train,236,"Doberman, Doberman pinscher",2
+finetune_train,237,miniature pinscher,5
+finetune_train,238,Greater Swiss Mountain dog,4
+finetune_train,239,Bernese mountain dog,5
+finetune_train,240,Appenzeller,5
+finetune_train,241,EntleBucher,2
+finetune_train,242,boxer,5
+finetune_train,243,bull mastiff,1
+finetune_train,244,Tibetan mastiff,6
+finetune_train,245,French bulldog,7
+finetune_train,246,Great Dane,2
+finetune_train,247,"Saint Bernard, St Bernard",5
+finetune_train,248,"Eskimo dog, husky",4
+finetune_train,249,"malamute, malemute, Alaskan malamute",3
+finetune_train,250,Siberian husky,5
+finetune_train,251,"dalmatian, coach dog, carriage dog",6
+finetune_train,252,"affenpinscher, monkey pinscher, monkey dog",4
+finetune_train,253,basenji,3
+finetune_train,254,"pug, pug-dog",3
+finetune_train,255,Leonberg,2
+finetune_train,256,"Newfoundland, Newfoundland dog",3
+finetune_train,257,Great Pyrenees,4
+finetune_train,258,"Samoyed, Samoyede",3
+finetune_train,259,Pomeranian,5
+finetune_train,260,"chow, chow chow",5
+finetune_train,261,keeshond,4
+finetune_train,262,Brabancon griffon,4
+finetune_train,263,"Pembroke, Pembroke Welsh corgi",3
+finetune_train,264,"Cardigan, Cardigan Welsh corgi",2
+finetune_train,265,toy poodle,6
+finetune_train,266,miniature poodle,2
+finetune_train,267,standard poodle,5
+finetune_train,268,Mexican hairless,1
+finetune_train,269,"timber wolf, grey wolf, gray wolf, Canis lupus",4
+finetune_train,270,"white wolf, Arctic wolf, Canis lupus tundrarum",5
+finetune_train,271,"red wolf, maned wolf, Canis rufus, Canis niger",4
+finetune_train,272,"coyote, prairie wolf, brush wolf, Canis latrans",4
+finetune_train,273,"dingo, warrigal, warragal, Canis dingo",4
+finetune_train,274,"dhole, Cuon alpinus",2
+finetune_train,275,"African hunting dog, hyena dog, Cape hunting dog, Lycaon pictus",8
+finetune_train,276,"hyena, hyaena",5
+finetune_train,277,"red fox, Vulpes vulpes",2
+finetune_train,278,"kit fox, Vulpes macrotis",2
+finetune_train,279,"Arctic fox, white fox, Alopex lagopus",1
+finetune_train,280,"grey fox, gray fox, Urocyon cinereoargenteus",1
+finetune_train,281,"tabby, tabby cat",7
+finetune_train,282,tiger cat,3
+finetune_train,283,Persian cat,4
+finetune_train,284,"Siamese cat, Siamese",4
+finetune_train,285,Egyptian cat,2
+finetune_train,286,"cougar, puma, catamount, mountain lion, painter, panther, Felis concolor",9
+finetune_train,287,"lynx, catamount",5
+finetune_train,288,"leopard, Panthera pardus",8
+finetune_train,289,"snow leopard, ounce, Panthera uncia",5
+finetune_train,290,"jaguar, panther, Panthera onca, Felis onca",7
+finetune_train,291,"lion, king of beasts, Panthera leo",6
+finetune_train,292,"tiger, Panthera tigris",4
+finetune_train,293,"cheetah, chetah, Acinonyx jubatus",5
+finetune_train,294,"brown bear, bruin, Ursus arctos",4
+finetune_train,295,"American black bear, black bear, Ursus americanus, Euarctos americanus",6
+finetune_train,296,"ice bear, polar bear, Ursus Maritimus, Thalarctos maritimus",4
+finetune_train,297,"sloth bear, Melursus ursinus, Ursus ursinus",6
+finetune_train,298,mongoose,4
+finetune_train,299,"meerkat, mierkat",5
+finetune_train,300,tiger beetle,5
+finetune_train,301,"ladybug, ladybeetle, lady beetle, ladybird, ladybird beetle",5
+finetune_train,302,"ground beetle, carabid beetle",6
+finetune_train,303,"long-horned beetle, longicorn, longicorn beetle",2
+finetune_train,304,"leaf beetle, chrysomelid",6
+finetune_train,305,dung beetle,7
+finetune_train,306,rhinoceros beetle,0
+finetune_train,307,weevil,3
+finetune_train,308,fly,1
+finetune_train,309,bee,5
+finetune_train,310,"ant, emmet, pismire",2
+finetune_train,311,"grasshopper, hopper",7
+finetune_train,312,cricket,3
+finetune_train,313,"walking stick, walkingstick, stick insect",8
+finetune_train,314,"cockroach, roach",5
+finetune_train,315,"mantis, mantid",5
+finetune_train,316,"cicada, cicala",2
+finetune_train,317,leafhopper,2
+finetune_train,318,"lacewing, lacewing fly",8
+finetune_train,319,"dragonfly, darning needle, devil's darning needle, sewing needle, snake feeder, snake doctor, mosquito hawk, skeeter hawk",10
+finetune_train,320,damselfly,2
+finetune_train,321,admiral,5
+finetune_train,322,"ringlet, ringlet butterfly",6
+finetune_train,323,"monarch, monarch butterfly, milkweed butterfly, Danaus plexippus",5
+finetune_train,324,cabbage butterfly,3
+finetune_train,325,"sulphur butterfly, sulfur butterfly",2
+finetune_train,326,"lycaenid, lycaenid butterfly",4
+finetune_train,327,"starfish, sea star",1
+finetune_train,328,sea urchin,2
+finetune_train,329,"sea cucumber, holothurian",5
+finetune_train,330,"wood rabbit, cottontail, cottontail rabbit",6
+finetune_train,331,hare,5
+finetune_train,332,"Angora, Angora rabbit",7
+finetune_train,333,hamster,4
+finetune_train,334,"porcupine, hedgehog",4
+finetune_train,335,"fox squirrel, eastern fox squirrel, Sciurus niger",3
+finetune_train,336,marmot,3
+finetune_train,337,beaver,3
+finetune_train,338,"guinea pig, Cavia cobaya",4
+finetune_train,339,sorrel,5
+finetune_train,340,zebra,5
+finetune_train,341,"hog, pig, grunter, squealer, Sus scrofa",7
+finetune_train,342,"wild boar, boar, Sus scrofa",5
+finetune_train,343,warthog,4
+finetune_train,344,"hippopotamus, hippo, river horse, Hippopotamus amphibius",7
+finetune_train,345,ox,1
+finetune_train,346,"water buffalo, water ox, Asiatic buffalo, Bubalus bubalis",4
+finetune_train,347,bison,5
+finetune_train,348,"ram, tup",6
+finetune_train,349,"bighorn, bighorn sheep, cimarron, Rocky Mountain bighorn, Rocky Mountain sheep, Ovis canadensis",0
+finetune_train,350,"ibex, Capra ibex",3
+finetune_train,351,hartebeest,1
+finetune_train,352,"impala, Aepyceros melampus",2
+finetune_train,353,gazelle,4
+finetune_train,354,"Arabian camel, dromedary, Camelus dromedarius",4
+finetune_train,355,llama,3
+finetune_train,356,weasel,3
+finetune_train,357,mink,6
+finetune_train,358,"polecat, fitch, foulmart, foumart, Mustela putorius",4
+finetune_train,359,"black-footed ferret, ferret, Mustela nigripes",4
+finetune_train,360,otter,4
+finetune_train,361,"skunk, polecat, wood pussy",3
+finetune_train,362,badger,5
+finetune_train,363,armadillo,3
+finetune_train,364,"three-toed sloth, ai, Bradypus tridactylus",8
+finetune_train,365,"orangutan, orang, orangutang, Pongo pygmaeus",5
+finetune_train,366,"gorilla, Gorilla gorilla",5
+finetune_train,367,"chimpanzee, chimp, Pan troglodytes",5
+finetune_train,368,"gibbon, Hylobates lar",6
+finetune_train,369,"siamang, Hylobates syndactylus, Symphalangus syndactylus",6
+finetune_train,370,"guenon, guenon monkey",3
+finetune_train,371,"patas, hussar monkey, Erythrocebus patas",7
+finetune_train,372,baboon,3
+finetune_train,373,macaque,3
+finetune_train,374,langur,4
+finetune_train,375,"colobus, colobus monkey",3
+finetune_train,376,"proboscis monkey, Nasalis larvatus",1
+finetune_train,377,marmoset,2
+finetune_train,378,"capuchin, ringtail, Cebus capucinus",4
+finetune_train,379,"howler monkey, howler",4
+finetune_train,380,"titi, titi monkey",5
+finetune_train,381,"spider monkey, Ateles geoffroyi",7
+finetune_train,382,"squirrel monkey, Saimiri sciureus",2
+finetune_train,383,"Madagascar cat, ring-tailed lemur, Lemur catta",4
+finetune_train,384,"indri, indris, Indri indri, Indri brevicaudatus",4
+finetune_train,385,"Indian elephant, Elephas maximus",1
+finetune_train,386,"African elephant, Loxodonta africana",2
+finetune_train,387,"lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens",4
+finetune_train,388,"giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca",4
+finetune_train,389,"barracouta, snoek",2
+finetune_train,390,eel,3
+finetune_train,391,"coho, cohoe, coho salmon, blue jack, silver salmon, Oncorhynchus kisutch",4
+finetune_train,392,"rock beauty, Holocanthus tricolor",3
+finetune_train,393,anemone fish,2
+finetune_train,394,sturgeon,3
+finetune_train,395,"gar, garfish, garpike, billfish, Lepisosteus osseus",6
+finetune_train,396,lionfish,4
+finetune_train,397,"puffer, pufferfish, blowfish, globefish",2
+finetune_train,398,abacus,3
+finetune_train,399,abaya,3
+finetune_train,400,"academic gown, academic robe, judge's robe",4
+finetune_train,401,"accordion, piano accordion, squeeze box",5
+finetune_train,402,acoustic guitar,3
+finetune_train,403,"aircraft carrier, carrier, flattop, attack aircraft carrier",4
+finetune_train,404,airliner,6
+finetune_train,405,"airship, dirigible",2
+finetune_train,406,altar,5
+finetune_train,407,ambulance,6
+finetune_train,408,"amphibian, amphibious vehicle",4
+finetune_train,409,analog clock,2
+finetune_train,410,"apiary, bee house",1
+finetune_train,411,apron,5
+finetune_train,412,"ashcan, trash can, garbage can, wastebin, ash bin, ash-bin, ashbin, dustbin, trash barrel, trash bin",0
+finetune_train,413,"assault rifle, assault gun",7
+finetune_train,414,"backpack, back pack, knapsack, packsack, rucksack, haversack",5
+finetune_train,415,"bakery, bakeshop, bakehouse",2
+finetune_train,416,"balance beam, beam",6
+finetune_train,417,balloon,4
+finetune_train,418,"ballpoint, ballpoint pen, ballpen, Biro",4
+finetune_train,419,Band Aid,4
+finetune_train,420,banjo,3
+finetune_train,421,"bannister, banister, balustrade, balusters, handrail",2
+finetune_train,422,barbell,4
+finetune_train,423,barber chair,1
+finetune_train,424,barbershop,2
+finetune_train,425,barn,3
+finetune_train,426,barometer,3
+finetune_train,427,"barrel, cask",3
+finetune_train,428,"barrow, garden cart, lawn cart, wheelbarrow",4
+finetune_train,429,baseball,2
+finetune_train,430,basketball,1
+finetune_train,431,bassinet,4
+finetune_train,432,bassoon,8
+finetune_train,433,"bathing cap, swimming cap",3
+finetune_train,434,bath towel,5
+finetune_train,435,"bathtub, bathing tub, bath, tub",5
+finetune_train,436,"beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",7
+finetune_train,437,"beacon, lighthouse, beacon light, pharos",4
+finetune_train,438,beaker,2
+finetune_train,439,"bearskin, busby, shako",0
+finetune_train,440,beer bottle,4
+finetune_train,441,beer glass,7
+finetune_train,442,"bell cote, bell cot",8
+finetune_train,443,bib,2
+finetune_train,444,"bicycle-built-for-two, tandem bicycle, tandem",1
+finetune_train,445,"bikini, two-piece",3
+finetune_train,446,"binder, ring-binder",8
+finetune_train,447,"binoculars, field glasses, opera glasses",7
+finetune_train,448,birdhouse,1
+finetune_train,449,boathouse,4
+finetune_train,450,"bobsled, bobsleigh, bob",2
+finetune_train,451,"bolo tie, bolo, bola tie, bola",6
+finetune_train,452,"bonnet, poke bonnet",4
+finetune_train,453,bookcase,3
+finetune_train,454,"bookshop, bookstore, bookstall",6
+finetune_train,455,bottlecap,6
+finetune_train,456,bow,6
+finetune_train,457,"bow tie, bow-tie, bowtie",5
+finetune_train,458,"brass, memorial tablet, plaque",5
+finetune_train,459,"brassiere, bra, bandeau",3
+finetune_train,460,"breakwater, groin, groyne, mole, bulwark, seawall, jetty",7
+finetune_train,461,"breastplate, aegis, egis",5
+finetune_train,462,broom,0
+finetune_train,463,"bucket, pail",3
+finetune_train,464,buckle,4
+finetune_train,465,bulletproof vest,2
+finetune_train,466,"bullet train, bullet",5
+finetune_train,467,"butcher shop, meat market",6
+finetune_train,468,"cab, hack, taxi, taxicab",3
+finetune_train,469,"caldron, cauldron",3
+finetune_train,470,"candle, taper, wax light",4
+finetune_train,471,cannon,4
+finetune_train,472,canoe,4
+finetune_train,473,"can opener, tin opener",4
+finetune_train,474,cardigan,2
+finetune_train,475,car mirror,5
+finetune_train,476,"carousel, carrousel, merry-go-round, roundabout, whirligig",7
+finetune_train,477,"carpenter's kit, tool kit",2
+finetune_train,478,carton,0
+finetune_train,479,car wheel,5
+finetune_train,480,"cash machine, cash dispenser, automated teller machine, automatic teller machine, automated teller, automatic teller, ATM",2
+finetune_train,481,cassette,6
+finetune_train,482,cassette player,4
+finetune_train,483,castle,7
+finetune_train,484,catamaran,3
+finetune_train,485,CD player,8
+finetune_train,486,"cello, violoncello",3
+finetune_train,487,"cellular telephone, cellular phone, cellphone, cell, mobile phone",9
+finetune_train,488,chain,3
+finetune_train,489,chainlink fence,5
+finetune_train,490,"chain mail, ring mail, mail, chain armor, chain armour, ring armor, ring armour",3
+finetune_train,491,"chain saw, chainsaw",4
+finetune_train,492,chest,3
+finetune_train,493,"chiffonier, commode",4
+finetune_train,494,"chime, bell, gong",3
+finetune_train,495,"china cabinet, china closet",5
+finetune_train,496,Christmas stocking,4
+finetune_train,497,"church, church building",6
+finetune_train,498,"cinema, movie theater, movie theatre, movie house, picture palace",4
+finetune_train,499,"cleaver, meat cleaver, chopper",7
+finetune_train,500,cliff dwelling,6
+finetune_train,501,cloak,2
+finetune_train,502,"clog, geta, patten, sabot",5
+finetune_train,503,cocktail shaker,4
+finetune_train,504,coffee mug,6
+finetune_train,505,coffeepot,4
+finetune_train,506,"coil, spiral, volute, whorl, helix",5
+finetune_train,507,combination lock,1
+finetune_train,508,"computer keyboard, keypad",1
+finetune_train,509,"confectionery, confectionary, candy store",5
+finetune_train,510,"container ship, containership, container vessel",6
+finetune_train,511,convertible,4
+finetune_train,512,"corkscrew, bottle screw",1
+finetune_train,513,"cornet, horn, trumpet, trump",6
+finetune_train,514,cowboy boot,2
+finetune_train,515,"cowboy hat, ten-gallon hat",8
+finetune_train,516,cradle,0
+finetune_train,517,crane2,6
+finetune_train,518,crash helmet,1
+finetune_train,519,crate,5
+finetune_train,520,"crib, cot",8
+finetune_train,521,Crock Pot,0
+finetune_train,522,croquet ball,4
+finetune_train,523,crutch,1
+finetune_train,524,cuirass,3
+finetune_train,525,"dam, dike, dyke",5
+finetune_train,526,desk,4
+finetune_train,527,desktop computer,4
+finetune_train,528,"dial telephone, dial phone",5
+finetune_train,529,"diaper, nappy, napkin",4
+finetune_train,530,digital clock,2
+finetune_train,531,digital watch,4
+finetune_train,532,"dining table, board",5
+finetune_train,533,"dishrag, dishcloth",2
+finetune_train,534,"dishwasher, dish washer, dishwashing machine",5
+finetune_train,535,"disk brake, disc brake",4
+finetune_train,536,"dock, dockage, docking facility",3
+finetune_train,537,"dogsled, dog sled, dog sleigh",2
+finetune_train,538,dome,4
+finetune_train,539,"doormat, welcome mat",5
+finetune_train,540,"drilling platform, offshore rig",5
+finetune_train,541,"drum, membranophone, tympan",4
+finetune_train,542,drumstick,4
+finetune_train,543,dumbbell,5
+finetune_train,544,Dutch oven,3
+finetune_train,545,"electric fan, blower",5
+finetune_train,546,electric guitar,2
+finetune_train,547,electric locomotive,3
+finetune_train,548,entertainment center,3
+finetune_train,549,envelope,3
+finetune_train,550,espresso maker,2
+finetune_train,551,face powder,2
+finetune_train,552,"feather boa, boa",2
+finetune_train,553,"file, file cabinet, filing cabinet",8
+finetune_train,554,fireboat,7
+finetune_train,555,"fire engine, fire truck",1
+finetune_train,556,"fire screen, fireguard",1
+finetune_train,557,"flagpole, flagstaff",6
+finetune_train,558,"flute, transverse flute",4
+finetune_train,559,folding chair,9
+finetune_train,560,football helmet,2
+finetune_train,561,forklift,5
+finetune_train,562,fountain,4
+finetune_train,563,fountain pen,8
+finetune_train,564,four-poster,1
+finetune_train,565,freight car,3
+finetune_train,566,"French horn, horn",6
+finetune_train,567,"frying pan, frypan, skillet",3
+finetune_train,568,fur coat,2
+finetune_train,569,"garbage truck, dustcart",4
+finetune_train,570,"gasmask, respirator, gas helmet",4
+finetune_train,571,"gas pump, gasoline pump, petrol pump, island dispenser",3
+finetune_train,572,goblet,3
+finetune_train,573,go-kart,3
+finetune_train,574,golf ball,5
+finetune_train,575,"golfcart, golf cart",4
+finetune_train,576,gondola,3
+finetune_train,577,"gong, tam-tam",7
+finetune_train,578,gown,3
+finetune_train,579,"grand piano, grand",6
+finetune_train,580,"greenhouse, nursery, glasshouse",3
+finetune_train,581,"grille, radiator grille",6
+finetune_train,582,"grocery store, grocery, food market, market",6
+finetune_train,583,guillotine,6
+finetune_train,584,hair slide,4
+finetune_train,585,hair spray,2
+finetune_train,586,half track,2
+finetune_train,587,hammer,3
+finetune_train,588,hamper,7
+finetune_train,589,"hand blower, blow dryer, blow drier, hair dryer, hair drier",3
+finetune_train,590,"hand-held computer, hand-held microcomputer",2
+finetune_train,591,"handkerchief, hankie, hanky, hankey",5
+finetune_train,592,"hard disc, hard disk, fixed disk",5
+finetune_train,593,"harmonica, mouth organ, harp, mouth harp",6
+finetune_train,594,harp,6
+finetune_train,595,"harvester, reaper",3
+finetune_train,596,hatchet,3
+finetune_train,597,holster,2
+finetune_train,598,"home theater, home theatre",10
+finetune_train,599,honeycomb,3
+finetune_train,600,"hook, claw",2
+finetune_train,601,"hoopskirt, crinoline",6
+finetune_train,602,"horizontal bar, high bar",5
+finetune_train,603,"horse cart, horse-cart",3
+finetune_train,604,hourglass,6
+finetune_train,605,iPod,2
+finetune_train,606,"iron, smoothing iron",0
+finetune_train,607,jack-o'-lantern,4
+finetune_train,608,"jean, blue jean, denim",4
+finetune_train,609,"jeep, landrover",3
+finetune_train,610,"jersey, T-shirt, tee shirt",5
+finetune_train,611,jigsaw puzzle,1
+finetune_train,612,"jinrikisha, ricksha, rickshaw",5
+finetune_train,613,joystick,6
+finetune_train,614,kimono,6
+finetune_train,615,knee pad,3
+finetune_train,616,knot,5
+finetune_train,617,"lab coat, laboratory coat",6
+finetune_train,618,ladle,1
+finetune_train,619,"lampshade, lamp shade",4
+finetune_train,620,"laptop, laptop computer",5
+finetune_train,621,"lawn mower, mower",0
+finetune_train,622,"lens cap, lens cover",4
+finetune_train,623,"letter opener, paper knife, paperknife",3
+finetune_train,624,library,4
+finetune_train,625,lifeboat,4
+finetune_train,626,"lighter, light, igniter, ignitor",8
+finetune_train,627,"limousine, limo",5
+finetune_train,628,"liner, ocean liner",4
+finetune_train,629,"lipstick, lip rouge",4
+finetune_train,630,Loafer,2
+finetune_train,631,lotion,5
+finetune_train,632,"loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",5
+finetune_train,633,"loupe, jeweler's loupe",4
+finetune_train,634,"lumbermill, sawmill",5
+finetune_train,635,magnetic compass,4
+finetune_train,636,"mailbag, postbag",2
+finetune_train,637,"mailbox, letter box",4
+finetune_train,638,maillot,8
+finetune_train,639,"maillot, tank suit",5
+finetune_train,640,manhole cover,5
+finetune_train,641,maraca,2
+finetune_train,642,"marimba, xylophone",7
+finetune_train,643,mask,4
+finetune_train,644,matchstick,2
+finetune_train,645,maypole,7
+finetune_train,646,"maze, labyrinth",4
+finetune_train,647,measuring cup,7
+finetune_train,648,"medicine chest, medicine cabinet",1
+finetune_train,649,"megalith, megalithic structure",5
+finetune_train,650,"microphone, mike",8
+finetune_train,651,"microwave, microwave oven",1
+finetune_train,652,military uniform,4
+finetune_train,653,milk can,6
+finetune_train,654,minibus,5
+finetune_train,655,"miniskirt, mini",2
+finetune_train,656,minivan,9
+finetune_train,657,missile,4
+finetune_train,658,mitten,5
+finetune_train,659,mixing bowl,4
+finetune_train,660,"mobile home, manufactured home",2
+finetune_train,661,Model T,8
+finetune_train,662,modem,5
+finetune_train,663,monastery,2
+finetune_train,664,monitor,3
+finetune_train,665,moped,5
+finetune_train,666,mortar,4
+finetune_train,667,mortarboard,3
+finetune_train,668,mosque,4
+finetune_train,669,mosquito net,7
+finetune_train,670,"motor scooter, scooter",7
+finetune_train,671,"mountain bike, all-terrain bike, off-roader",1
+finetune_train,672,mountain tent,4
+finetune_train,673,"mouse, computer mouse",5
+finetune_train,674,mousetrap,3
+finetune_train,675,moving van,5
+finetune_train,676,muzzle,2
+finetune_train,677,nail,7
+finetune_train,678,neck brace,2
+finetune_train,679,necklace,7
+finetune_train,680,nipple,6
+finetune_train,681,"notebook, notebook computer",6
+finetune_train,682,obelisk,1
+finetune_train,683,"oboe, hautboy, hautbois",7
+finetune_train,684,"ocarina, sweet potato",5
+finetune_train,685,"odometer, hodometer, mileometer, milometer",4
+finetune_train,686,oil filter,5
+finetune_train,687,"organ, pipe organ",6
+finetune_train,688,"oscilloscope, scope, cathode-ray oscilloscope, CRO",0
+finetune_train,689,overskirt,1
+finetune_train,690,oxcart,3
+finetune_train,691,oxygen mask,0
+finetune_train,692,packet,5
+finetune_train,693,"paddle, boat paddle",2
+finetune_train,694,"paddlewheel, paddle wheel",7
+finetune_train,695,padlock,5
+finetune_train,696,paintbrush,2
+finetune_train,697,"pajama, pyjama, pj's, jammies",6
+finetune_train,698,palace,2
+finetune_train,699,"panpipe, pandean pipe, syrinx",5
+finetune_train,700,paper towel,1
+finetune_train,701,"parachute, chute",7
+finetune_train,702,"parallel bars, bars",4
+finetune_train,703,park bench,5
+finetune_train,704,parking meter,4
+finetune_train,705,"passenger car, coach, carriage",2
+finetune_train,706,"patio, terrace",1
+finetune_train,707,"pay-phone, pay-station",3
+finetune_train,708,"pedestal, plinth, footstall",3
+finetune_train,709,"pencil box, pencil case",5
+finetune_train,710,pencil sharpener,3
+finetune_train,711,"perfume, essence",8
+finetune_train,712,Petri dish,2
+finetune_train,713,photocopier,5
+finetune_train,714,"pick, plectrum, plectron",5
+finetune_train,715,pickelhaube,6
+finetune_train,716,"picket fence, paling",2
+finetune_train,717,"pickup, pickup truck",3
+finetune_train,718,pier,9
+finetune_train,719,"piggy bank, penny bank",9
+finetune_train,720,pill bottle,6
+finetune_train,721,pillow,2
+finetune_train,722,ping-pong ball,2
+finetune_train,723,pinwheel,4
+finetune_train,724,"pirate, pirate ship",2
+finetune_train,725,"pitcher, ewer",4
+finetune_train,726,"plane, carpenter's plane, woodworking plane",4
+finetune_train,727,planetarium,2
+finetune_train,728,plastic bag,2
+finetune_train,729,plate rack,3
+finetune_train,730,"plow, plough",3
+finetune_train,731,"plunger, plumber's helper",4
+finetune_train,732,"Polaroid camera, Polaroid Land camera",2
+finetune_train,733,pole,0
+finetune_train,734,"police van, police wagon, paddy wagon, patrol wagon, wagon, black Maria",2
+finetune_train,735,poncho,5
+finetune_train,736,"pool table, billiard table, snooker table",3
+finetune_train,737,"pop bottle, soda bottle",4
+finetune_train,738,"pot, flowerpot",1
+finetune_train,739,potter's wheel,5
+finetune_train,740,power drill,1
+finetune_train,741,"prayer rug, prayer mat",1
+finetune_train,742,printer,5
+finetune_train,743,"prison, prison house",0
+finetune_train,744,"projectile, missile",6
+finetune_train,745,projector,5
+finetune_train,746,"puck, hockey puck",3
+finetune_train,747,"punching bag, punch bag, punching ball, punchball",4
+finetune_train,748,purse,5
+finetune_train,749,"quill, quill pen",6
+finetune_train,750,"quilt, comforter, comfort, puff",3
+finetune_train,751,"racer, race car, racing car",3
+finetune_train,752,"racket, racquet",1
+finetune_train,753,radiator,1
+finetune_train,754,"radio, wireless",5
+finetune_train,755,"radio telescope, radio reflector",4
+finetune_train,756,rain barrel,4
+finetune_train,757,"recreational vehicle, RV, R.V.",7
+finetune_train,758,reel,3
+finetune_train,759,reflex camera,1
+finetune_train,760,"refrigerator, icebox",4
+finetune_train,761,"remote control, remote",4
+finetune_train,762,"restaurant, eating house, eating place, eatery",5
+finetune_train,763,"revolver, six-gun, six-shooter",4
+finetune_train,764,rifle,1
+finetune_train,765,"rocking chair, rocker",7
+finetune_train,766,rotisserie,7
+finetune_train,767,"rubber eraser, rubber, pencil eraser",5
+finetune_train,768,rugby ball,8
+finetune_train,769,"rule, ruler",6
+finetune_train,770,running shoe,3
+finetune_train,771,safe,4
+finetune_train,772,safety pin,3
+finetune_train,773,"saltshaker, salt shaker",2
+finetune_train,774,sandal,4
+finetune_train,775,sarong,6
+finetune_train,776,"sax, saxophone",9
+finetune_train,777,scabbard,5
+finetune_train,778,"scale, weighing machine",5
+finetune_train,779,school bus,3
+finetune_train,780,schooner,4
+finetune_train,781,scoreboard,3
+finetune_train,782,"screen, CRT screen",2
+finetune_train,783,screw,6
+finetune_train,784,screwdriver,2
+finetune_train,785,"seat belt, seatbelt",3
+finetune_train,786,sewing machine,9
+finetune_train,787,"shield, buckler",3
+finetune_train,788,"shoe shop, shoe-shop, shoe store",1
+finetune_train,789,shoji,2
+finetune_train,790,shopping basket,6
+finetune_train,791,shopping cart,7
+finetune_train,792,shovel,2
+finetune_train,793,shower cap,2
+finetune_train,794,shower curtain,5
+finetune_train,795,ski,5
+finetune_train,796,ski mask,1
+finetune_train,797,sleeping bag,1
+finetune_train,798,"slide rule, slipstick",3
+finetune_train,799,sliding door,3
+finetune_train,800,"slot, one-armed bandit",3
+finetune_train,801,snorkel,4
+finetune_train,802,snowmobile,2
+finetune_train,803,"snowplow, snowplough",8
+finetune_train,804,soap dispenser,0
+finetune_train,805,soccer ball,6
+finetune_train,806,sock,3
+finetune_train,807,"solar dish, solar collector, solar furnace",3
+finetune_train,808,sombrero,6
+finetune_train,809,soup bowl,5
+finetune_train,810,space bar,4
+finetune_train,811,space heater,3
+finetune_train,812,space shuttle,4
+finetune_train,813,spatula,7
+finetune_train,814,speedboat,6
+finetune_train,815,"spider web, spider's web",5
+finetune_train,816,spindle,6
+finetune_train,817,"sports car, sport car",4
+finetune_train,818,"spotlight, spot",4
+finetune_train,819,stage,7
+finetune_train,820,steam locomotive,3
+finetune_train,821,steel arch bridge,5
+finetune_train,822,steel drum,8
+finetune_train,823,stethoscope,4
+finetune_train,824,stole,3
+finetune_train,825,stone wall,3
+finetune_train,826,"stopwatch, stop watch",7
+finetune_train,827,stove,8
+finetune_train,828,strainer,2
+finetune_train,829,"streetcar, tram, tramcar, trolley, trolley car",8
+finetune_train,830,stretcher,6
+finetune_train,831,"studio couch, day bed",3
+finetune_train,832,"stupa, tope",7
+finetune_train,833,"submarine, pigboat, sub, U-boat",2
+finetune_train,834,"suit, suit of clothes",4
+finetune_train,835,sundial,2
+finetune_train,836,sunglass,2
+finetune_train,837,"sunglasses, dark glasses, shades",10
+finetune_train,838,"sunscreen, sunblock, sun blocker",4
+finetune_train,839,suspension bridge,4
+finetune_train,840,"swab, swob, mop",6
+finetune_train,841,sweatshirt,3
+finetune_train,842,"swimming trunks, bathing trunks",8
+finetune_train,843,swing,3
+finetune_train,844,"switch, electric switch, electrical switch",6
+finetune_train,845,syringe,2
+finetune_train,846,table lamp,4
+finetune_train,847,"tank, army tank, armored combat vehicle, armoured combat vehicle",5
+finetune_train,848,tape player,6
+finetune_train,849,teapot,1
+finetune_train,850,"teddy, teddy bear",6
+finetune_train,851,"television, television system",4
+finetune_train,852,tennis ball,5
+finetune_train,853,"thatch, thatched roof",7
+finetune_train,854,"theater curtain, theatre curtain",3
+finetune_train,855,thimble,7
+finetune_train,856,"thresher, thrasher, threshing machine",4
+finetune_train,857,throne,3
+finetune_train,858,tile roof,7
+finetune_train,859,toaster,4
+finetune_train,860,"tobacco shop, tobacconist shop, tobacconist",3
+finetune_train,861,toilet seat,3
+finetune_train,862,torch,4
+finetune_train,863,totem pole,5
+finetune_train,864,"tow truck, tow car, wrecker",4
+finetune_train,865,toyshop,5
+finetune_train,866,tractor,2
+finetune_train,867,"trailer truck, tractor trailer, trucking rig, rig, articulated lorry, semi",4
+finetune_train,868,tray,7
+finetune_train,869,trench coat,2
+finetune_train,870,"tricycle, trike, velocipede",2
+finetune_train,871,trimaran,6
+finetune_train,872,tripod,2
+finetune_train,873,triumphal arch,6
+finetune_train,874,"trolleybus, trolley coach, trackless trolley",6
+finetune_train,875,trombone,2
+finetune_train,876,"tub, vat",6
+finetune_train,877,turnstile,6
+finetune_train,878,typewriter keyboard,0
+finetune_train,879,umbrella,3
+finetune_train,880,"unicycle, monocycle",5
+finetune_train,881,"upright, upright piano",6
+finetune_train,882,"vacuum, vacuum cleaner",2
+finetune_train,883,vase,4
+finetune_train,884,vault,0
+finetune_train,885,velvet,7
+finetune_train,886,vending machine,4
+finetune_train,887,vestment,4
+finetune_train,888,viaduct,4
+finetune_train,889,"violin, fiddle",7
+finetune_train,890,volleyball,6
+finetune_train,891,waffle iron,5
+finetune_train,892,wall clock,3
+finetune_train,893,"wallet, billfold, notecase, pocketbook",5
+finetune_train,894,"wardrobe, closet, press",3
+finetune_train,895,"warplane, military plane",9
+finetune_train,896,"washbasin, handbasin, washbowl, lavabo, wash-hand basin",6
+finetune_train,897,"washer, automatic washer, washing machine",5
+finetune_train,898,water bottle,4
+finetune_train,899,water jug,3
+finetune_train,900,water tower,2
+finetune_train,901,whiskey jug,2
+finetune_train,902,whistle,8
+finetune_train,903,wig,0
+finetune_train,904,window screen,4
+finetune_train,905,window shade,5
+finetune_train,906,Windsor tie,1
+finetune_train,907,wine bottle,3
+finetune_train,908,wing,5
+finetune_train,909,wok,4
+finetune_train,910,wooden spoon,3
+finetune_train,911,"wool, woolen, woollen",2
+finetune_train,912,"worm fence, snake fence, snake-rail fence, Virginia fence",3
+finetune_train,913,wreck,5
+finetune_train,914,yawl,4
+finetune_train,915,yurt,2
+finetune_train,916,"web site, website, internet site, site",3
+finetune_train,917,comic book,4
+finetune_train,918,"crossword puzzle, crossword",5
+finetune_train,919,street sign,2
+finetune_train,920,"traffic light, traffic signal, stoplight",6
+finetune_train,921,"book jacket, dust cover, dust jacket, dust wrapper",2
+finetune_train,922,menu,2
+finetune_train,923,plate,3
+finetune_train,924,guacamole,4
+finetune_train,925,consomme,4
+finetune_train,926,"hot pot, hotpot",5
+finetune_train,927,trifle,4
+finetune_train,928,"ice cream, icecream",4
+finetune_train,929,"ice lolly, lolly, lollipop, popsicle",3
+finetune_train,930,French loaf,8
+finetune_train,931,"bagel, beigel",5
+finetune_train,932,pretzel,3
+finetune_train,933,cheeseburger,3
+finetune_train,934,"hotdog, hot dog, red hot",7
+finetune_train,935,mashed potato,10
+finetune_train,936,head cabbage,3
+finetune_train,937,broccoli,3
+finetune_train,938,cauliflower,7
+finetune_train,939,"zucchini, courgette",2
+finetune_train,940,spaghetti squash,6
+finetune_train,941,acorn squash,2
+finetune_train,942,butternut squash,1
+finetune_train,943,"cucumber, cuke",3
+finetune_train,944,"artichoke, globe artichoke",2
+finetune_train,945,bell pepper,2
+finetune_train,946,cardoon,5
+finetune_train,947,mushroom,5
+finetune_train,948,Granny Smith,5
+finetune_train,949,strawberry,2
+finetune_train,950,orange,4
+finetune_train,951,lemon,2
+finetune_train,952,fig,9
+finetune_train,953,"pineapple, ananas",2
+finetune_train,954,banana,2
+finetune_train,955,"jackfruit, jak, jack",3
+finetune_train,956,custard apple,4
+finetune_train,957,pomegranate,0
+finetune_train,958,hay,2
+finetune_train,959,carbonara,2
+finetune_train,960,"chocolate sauce, chocolate syrup",2
+finetune_train,961,dough,6
+finetune_train,962,"meat loaf, meatloaf",3
+finetune_train,963,"pizza, pizza pie",2
+finetune_train,964,potpie,4
+finetune_train,965,burrito,2
+finetune_train,966,red wine,2
+finetune_train,967,espresso,9
+finetune_train,968,cup,3
+finetune_train,969,eggnog,3
+finetune_train,970,alp,3
+finetune_train,971,bubble,5
+finetune_train,972,"cliff, drop, drop-off",2
+finetune_train,973,coral reef,4
+finetune_train,974,geyser,5
+finetune_train,975,"lakeside, lakeshore",4
+finetune_train,976,"promontory, headland, head, foreland",3
+finetune_train,977,"sandbar, sand bar",4
+finetune_train,978,"seashore, coast, seacoast, sea-coast",6
+finetune_train,979,"valley, vale",3
+finetune_train,980,volcano,6
+finetune_train,981,"ballplayer, baseball player",5
+finetune_train,982,"groom, bridegroom",2
+finetune_train,983,scuba diver,2
+finetune_train,984,rapeseed,5
+finetune_train,985,daisy,0
+finetune_train,986,"yellow lady's slipper, yellow lady-slipper, Cypripedium calceolus, Cypripedium parviflorum",1
+finetune_train,987,corn,4
+finetune_train,988,acorn,2
+finetune_train,989,"hip, rose hip, rosehip",2
+finetune_train,990,"buckeye, horse chestnut, conker",5
+finetune_train,991,coral fungus,2
+finetune_train,992,agaric,5
+finetune_train,993,gyromitra,6
+finetune_train,994,"stinkhorn, carrion fungus",1
+finetune_train,995,earthstar,6
+finetune_train,996,"hen-of-the-woods, hen of the woods, Polyporus frondosus, Grifola frondosa",1
+finetune_train,997,bolete,2
+finetune_train,998,"ear, spike, capitulum",2
+finetune_train,999,"toilet tissue, toilet paper, bathroom tissue",4
+dev_train,0,"tench, Tinca tinca",0
+dev_train,1,"goldfish, Carassius auratus",0
+dev_train,2,"great white shark, white shark, man-eater, man-eating shark, Carcharodon carcharias",0
+dev_train,3,"tiger shark, Galeocerdo cuvieri",1
+dev_train,4,"hammerhead, hammerhead shark",2
+dev_train,5,"electric ray, crampfish, numbfish, torpedo",0
+dev_train,6,stingray,1
+dev_train,7,cock,3
+dev_train,8,hen,2
+dev_train,9,"ostrich, Struthio camelus",1
+dev_train,10,"brambling, Fringilla montifringilla",2
+dev_train,11,"goldfinch, Carduelis carduelis",3
+dev_train,12,"house finch, linnet, Carpodacus mexicanus",1
+dev_train,13,"junco, snowbird",0
+dev_train,14,"indigo bunting, indigo finch, indigo bird, Passerina cyanea",0
+dev_train,15,"robin, American robin, Turdus migratorius",1
+dev_train,16,bulbul,0
+dev_train,17,jay,1
+dev_train,18,magpie,1
+dev_train,19,chickadee,1
+dev_train,20,"water ouzel, dipper",1
+dev_train,21,kite,0
+dev_train,22,"bald eagle, American eagle, Haliaeetus leucocephalus",0
+dev_train,23,vulture,1
+dev_train,24,"great grey owl, great gray owl, Strix nebulosa",3
+dev_train,25,"European fire salamander, Salamandra salamandra",2
+dev_train,26,"common newt, Triturus vulgaris",2
+dev_train,27,eft,1
+dev_train,28,"spotted salamander, Ambystoma maculatum",0
+dev_train,29,"axolotl, mud puppy, Ambystoma mexicanum",2
+dev_train,30,"bullfrog, Rana catesbeiana",0
+dev_train,31,"tree frog, tree-frog",1
+dev_train,32,"tailed frog, bell toad, ribbed toad, tailed toad, Ascaphus trui",1
+dev_train,33,"loggerhead, loggerhead turtle, Caretta caretta",3
+dev_train,34,"leatherback turtle, leatherback, leathery turtle, Dermochelys coriacea",1
+dev_train,35,mud turtle,1
+dev_train,36,terrapin,2
+dev_train,37,"box turtle, box tortoise",1
+dev_train,38,banded gecko,0
+dev_train,39,"common iguana, iguana, Iguana iguana",4
+dev_train,40,"American chameleon, anole, Anolis carolinensis",1
+dev_train,41,"whiptail, whiptail lizard",0
+dev_train,42,agama,3
+dev_train,43,"frilled lizard, Chlamydosaurus kingi",0
+dev_train,44,alligator lizard,1
+dev_train,45,"Gila monster, Heloderma suspectum",0
+dev_train,46,"green lizard, Lacerta viridis",0
+dev_train,47,"African chameleon, Chamaeleo chamaeleon",1
+dev_train,48,"Komodo dragon, Komodo lizard, dragon lizard, giant lizard, Varanus komodoensis",0
+dev_train,49,"African crocodile, Nile crocodile, Crocodylus niloticus",2
+dev_train,50,"American alligator, Alligator mississipiensis",1
+dev_train,51,triceratops,2
+dev_train,52,"thunder snake, worm snake, Carphophis amoenus",2
+dev_train,53,"ringneck snake, ring-necked snake, ring snake",1
+dev_train,54,"hognose snake, puff adder, sand viper",0
+dev_train,55,"green snake, grass snake",0
+dev_train,56,"king snake, kingsnake",1
+dev_train,57,"garter snake, grass snake",0
+dev_train,58,water snake,0
+dev_train,59,vine snake,1
+dev_train,60,"night snake, Hypsiglena torquata",2
+dev_train,61,"boa constrictor, Constrictor constrictor",0
+dev_train,62,"rock python, rock snake, Python sebae",2
+dev_train,63,"Indian cobra, Naja naja",0
+dev_train,64,green mamba,1
+dev_train,65,sea snake,2
+dev_train,66,"horned viper, cerastes, sand viper, horned asp, Cerastes cornutus",3
+dev_train,67,"diamondback, diamondback rattlesnake, Crotalus adamanteus",1
+dev_train,68,"sidewinder, horned rattlesnake, Crotalus cerastes",0
+dev_train,69,trilobite,1
+dev_train,70,"harvestman, daddy longlegs, Phalangium opilio",1
+dev_train,71,scorpion,0
+dev_train,72,"black and gold garden spider, Argiope aurantia",2
+dev_train,73,"barn spider, Araneus cavaticus",0
+dev_train,74,"garden spider, Aranea diademata",2
+dev_train,75,"black widow, Latrodectus mactans",2
+dev_train,76,tarantula,2
+dev_train,77,"wolf spider, hunting spider",1
+dev_train,78,tick,2
+dev_train,79,centipede,0
+dev_train,80,black grouse,0
+dev_train,81,ptarmigan,1
+dev_train,82,"ruffed grouse, partridge, Bonasa umbellus",0
+dev_train,83,"prairie chicken, prairie grouse, prairie fowl",0
+dev_train,84,peacock,2
+dev_train,85,quail,1
+dev_train,86,partridge,2
+dev_train,87,"African grey, African gray, Psittacus erithacus",1
+dev_train,88,macaw,5
+dev_train,89,"sulphur-crested cockatoo, Kakatoe galerita, Cacatua galerita",1
+dev_train,90,lorikeet,1
+dev_train,91,coucal,0
+dev_train,92,bee eater,1
+dev_train,93,hornbill,0
+dev_train,94,hummingbird,1
+dev_train,95,jacamar,0
+dev_train,96,toucan,2
+dev_train,97,drake,0
+dev_train,98,"red-breasted merganser, Mergus serrator",1
+dev_train,99,goose,0
+dev_train,100,"black swan, Cygnus atratus",0
+dev_train,101,tusker,0
+dev_train,102,"echidna, spiny anteater, anteater",0
+dev_train,103,"platypus, duckbill, duckbilled platypus, duck-billed platypus, Ornithorhynchus anatinus",2
+dev_train,104,"wallaby, brush kangaroo",2
+dev_train,105,"koala, koala bear, kangaroo bear, native bear, Phascolarctos cinereus",0
+dev_train,106,wombat,0
+dev_train,107,jellyfish,0
+dev_train,108,"sea anemone, anemone",2
+dev_train,109,brain coral,1
+dev_train,110,"flatworm, platyhelminth",1
+dev_train,111,"nematode, nematode worm, roundworm",2
+dev_train,112,conch,0
+dev_train,113,snail,1
+dev_train,114,slug,4
+dev_train,115,"sea slug, nudibranch",1
+dev_train,116,"chiton, coat-of-mail shell, sea cradle, polyplacophore",2
+dev_train,117,"chambered nautilus, pearly nautilus, nautilus",0
+dev_train,118,"Dungeness crab, Cancer magister",1
+dev_train,119,"rock crab, Cancer irroratus",2
+dev_train,120,fiddler crab,0
+dev_train,121,"king crab, Alaska crab, Alaskan king crab, Alaska king crab, Paralithodes camtschatica",0
+dev_train,122,"American lobster, Northern lobster, Maine lobster, Homarus americanus",0
+dev_train,123,"spiny lobster, langouste, rock lobster, crawfish, crayfish, sea crawfish",0
+dev_train,124,"crayfish, crawfish, crawdad, crawdaddy",0
+dev_train,125,hermit crab,1
+dev_train,126,isopod,0
+dev_train,127,"white stork, Ciconia ciconia",0
+dev_train,128,"black stork, Ciconia nigra",1
+dev_train,129,spoonbill,4
+dev_train,130,flamingo,2
+dev_train,131,"little blue heron, Egretta caerulea",1
+dev_train,132,"American egret, great white heron, Egretta albus",1
+dev_train,133,bittern,2
+dev_train,134,crane,2
+dev_train,135,"limpkin, Aramus pictus",3
+dev_train,136,"European gallinule, Porphyrio porphyrio",6
+dev_train,137,"American coot, marsh hen, mud hen, water hen, Fulica americana",0
+dev_train,138,bustard,0
+dev_train,139,"ruddy turnstone, Arenaria interpres",4
+dev_train,140,"red-backed sandpiper, dunlin, Erolia alpina",1
+dev_train,141,"redshank, Tringa totanus",2
+dev_train,142,dowitcher,1
+dev_train,143,"oystercatcher, oyster catcher",1
+dev_train,144,pelican,2
+dev_train,145,"king penguin, Aptenodytes patagonica",0
+dev_train,146,"albatross, mollymawk",1
+dev_train,147,"grey whale, gray whale, devilfish, Eschrichtius gibbosus, Eschrichtius robustus",1
+dev_train,148,"killer whale, killer, orca, grampus, sea wolf, Orcinus orca",0
+dev_train,149,"dugong, Dugong dugon",0
+dev_train,150,sea lion,2
+dev_train,151,Chihuahua,0
+dev_train,152,Japanese spaniel,1
+dev_train,153,"Maltese dog, Maltese terrier, Maltese",1
+dev_train,154,"Pekinese, Pekingese, Peke",4
+dev_train,155,Shih-Tzu,0
+dev_train,156,Blenheim spaniel,1
+dev_train,157,papillon,1
+dev_train,158,toy terrier,3
+dev_train,159,Rhodesian ridgeback,0
+dev_train,160,"Afghan hound, Afghan",1
+dev_train,161,"basset, basset hound",0
+dev_train,162,beagle,1
+dev_train,163,"bloodhound, sleuthhound",0
+dev_train,164,bluetick,1
+dev_train,165,black-and-tan coonhound,2
+dev_train,166,"Walker hound, Walker foxhound",0
+dev_train,167,English foxhound,0
+dev_train,168,redbone,1
+dev_train,169,"borzoi, Russian wolfhound",1
+dev_train,170,Irish wolfhound,1
+dev_train,171,Italian greyhound,0
+dev_train,172,whippet,1
+dev_train,173,"Ibizan hound, Ibizan Podenco",2
+dev_train,174,"Norwegian elkhound, elkhound",5
+dev_train,175,"otterhound, otter hound",0
+dev_train,176,"Saluki, gazelle hound",3
+dev_train,177,"Scottish deerhound, deerhound",1
+dev_train,178,Weimaraner,0
+dev_train,179,"Staffordshire bullterrier, Staffordshire bull terrier",2
+dev_train,180,"American Staffordshire terrier, Staffordshire terrier, American pit bull terrier, pit bull terrier",0
+dev_train,181,Bedlington terrier,1
+dev_train,182,Border terrier,1
+dev_train,183,Kerry blue terrier,0
+dev_train,184,Irish terrier,0
+dev_train,185,Norfolk terrier,3
+dev_train,186,Norwich terrier,2
+dev_train,187,Yorkshire terrier,1
+dev_train,188,wire-haired fox terrier,0
+dev_train,189,Lakeland terrier,1
+dev_train,190,"Sealyham terrier, Sealyham",2
+dev_train,191,"Airedale, Airedale terrier",1
+dev_train,192,"cairn, cairn terrier",3
+dev_train,193,Australian terrier,1
+dev_train,194,"Dandie Dinmont, Dandie Dinmont terrier",0
+dev_train,195,"Boston bull, Boston terrier",0
+dev_train,196,miniature schnauzer,1
+dev_train,197,giant schnauzer,0
+dev_train,198,standard schnauzer,1
+dev_train,199,"Scotch terrier, Scottish terrier, Scottie",0
+dev_train,200,"Tibetan terrier, chrysanthemum dog",0
+dev_train,201,"silky terrier, Sydney silky",1
+dev_train,202,soft-coated wheaten terrier,1
+dev_train,203,West Highland white terrier,1
+dev_train,204,"Lhasa, Lhasa apso",1
+dev_train,205,flat-coated retriever,1
+dev_train,206,curly-coated retriever,2
+dev_train,207,golden retriever,0
+dev_train,208,Labrador retriever,1
+dev_train,209,Chesapeake Bay retriever,0
+dev_train,210,German short-haired pointer,3
+dev_train,211,"vizsla, Hungarian pointer",3
+dev_train,212,English setter,0
+dev_train,213,"Irish setter, red setter",2
+dev_train,214,Gordon setter,1
+dev_train,215,Brittany spaniel,0
+dev_train,216,"clumber, clumber spaniel",1
+dev_train,217,"English springer, English springer spaniel",1
+dev_train,218,Welsh springer spaniel,1
+dev_train,219,"cocker spaniel, English cocker spaniel, cocker",1
+dev_train,220,Sussex spaniel,2
+dev_train,221,Irish water spaniel,3
+dev_train,222,kuvasz,2
+dev_train,223,schipperke,3
+dev_train,224,groenendael,1
+dev_train,225,malinois,0
+dev_train,226,briard,5
+dev_train,227,kelpie,2
+dev_train,228,komondor,0
+dev_train,229,"Old English sheepdog, bobtail",2
+dev_train,230,"Shetland sheepdog, Shetland sheep dog, Shetland",0
+dev_train,231,collie,0
+dev_train,232,Border collie,1
+dev_train,233,"Bouvier des Flandres, Bouviers des Flandres",0
+dev_train,234,Rottweiler,1
+dev_train,235,"German shepherd, German shepherd dog, German police dog, alsatian",1
+dev_train,236,"Doberman, Doberman pinscher",0
+dev_train,237,miniature pinscher,1
+dev_train,238,Greater Swiss Mountain dog,1
+dev_train,239,Bernese mountain dog,2
+dev_train,240,Appenzeller,2
+dev_train,241,EntleBucher,3
+dev_train,242,boxer,0
+dev_train,243,bull mastiff,1
+dev_train,244,Tibetan mastiff,1
+dev_train,245,French bulldog,0
+dev_train,246,Great Dane,1
+dev_train,247,"Saint Bernard, St Bernard",3
+dev_train,248,"Eskimo dog, husky",3
+dev_train,249,"malamute, malemute, Alaskan malamute",1
+dev_train,250,Siberian husky,0
+dev_train,251,"dalmatian, coach dog, carriage dog",1
+dev_train,252,"affenpinscher, monkey pinscher, monkey dog",2
+dev_train,253,basenji,0
+dev_train,254,"pug, pug-dog",2
+dev_train,255,Leonberg,1
+dev_train,256,"Newfoundland, Newfoundland dog",2
+dev_train,257,Great Pyrenees,2
+dev_train,258,"Samoyed, Samoyede",0
+dev_train,259,Pomeranian,1
+dev_train,260,"chow, chow chow",0
+dev_train,261,keeshond,0
+dev_train,262,Brabancon griffon,1
+dev_train,263,"Pembroke, Pembroke Welsh corgi",1
+dev_train,264,"Cardigan, Cardigan Welsh corgi",1
+dev_train,265,toy poodle,1
+dev_train,266,miniature poodle,1
+dev_train,267,standard poodle,1
+dev_train,268,Mexican hairless,2
+dev_train,269,"timber wolf, grey wolf, gray wolf, Canis lupus",2
+dev_train,270,"white wolf, Arctic wolf, Canis lupus tundrarum",0
+dev_train,271,"red wolf, maned wolf, Canis rufus, Canis niger",2
+dev_train,272,"coyote, prairie wolf, brush wolf, Canis latrans",1
+dev_train,273,"dingo, warrigal, warragal, Canis dingo",0
+dev_train,274,"dhole, Cuon alpinus",1
+dev_train,275,"African hunting dog, hyena dog, Cape hunting dog, Lycaon pictus",0
+dev_train,276,"hyena, hyaena",0
+dev_train,277,"red fox, Vulpes vulpes",4
+dev_train,278,"kit fox, Vulpes macrotis",1
+dev_train,279,"Arctic fox, white fox, Alopex lagopus",1
+dev_train,280,"grey fox, gray fox, Urocyon cinereoargenteus",0
+dev_train,281,"tabby, tabby cat",2
+dev_train,282,tiger cat,2
+dev_train,283,Persian cat,0
+dev_train,284,"Siamese cat, Siamese",3
+dev_train,285,Egyptian cat,0
+dev_train,286,"cougar, puma, catamount, mountain lion, painter, panther, Felis concolor",1
+dev_train,287,"lynx, catamount",0
+dev_train,288,"leopard, Panthera pardus",0
+dev_train,289,"snow leopard, ounce, Panthera uncia",3
+dev_train,290,"jaguar, panther, Panthera onca, Felis onca",3
+dev_train,291,"lion, king of beasts, Panthera leo",1
+dev_train,292,"tiger, Panthera tigris",0
+dev_train,293,"cheetah, chetah, Acinonyx jubatus",0
+dev_train,294,"brown bear, bruin, Ursus arctos",2
+dev_train,295,"American black bear, black bear, Ursus americanus, Euarctos americanus",1
+dev_train,296,"ice bear, polar bear, Ursus Maritimus, Thalarctos maritimus",1
+dev_train,297,"sloth bear, Melursus ursinus, Ursus ursinus",0
+dev_train,298,mongoose,1
+dev_train,299,"meerkat, mierkat",0
+dev_train,300,tiger beetle,0
+dev_train,301,"ladybug, ladybeetle, lady beetle, ladybird, ladybird beetle",1
+dev_train,302,"ground beetle, carabid beetle",2
+dev_train,303,"long-horned beetle, longicorn, longicorn beetle",0
+dev_train,304,"leaf beetle, chrysomelid",3
+dev_train,305,dung beetle,0
+dev_train,306,rhinoceros beetle,1
+dev_train,307,weevil,0
+dev_train,308,fly,2
+dev_train,309,bee,0
+dev_train,310,"ant, emmet, pismire",1
+dev_train,311,"grasshopper, hopper",1
+dev_train,312,cricket,2
+dev_train,313,"walking stick, walkingstick, stick insect",0
+dev_train,314,"cockroach, roach",1
+dev_train,315,"mantis, mantid",1
+dev_train,316,"cicada, cicala",0
+dev_train,317,leafhopper,4
+dev_train,318,"lacewing, lacewing fly",2
+dev_train,319,"dragonfly, darning needle, devil's darning needle, sewing needle, snake feeder, snake doctor, mosquito hawk, skeeter hawk",1
+dev_train,320,damselfly,2
+dev_train,321,admiral,0
+dev_train,322,"ringlet, ringlet butterfly",1
+dev_train,323,"monarch, monarch butterfly, milkweed butterfly, Danaus plexippus",1
+dev_train,324,cabbage butterfly,1
+dev_train,325,"sulphur butterfly, sulfur butterfly",0
+dev_train,326,"lycaenid, lycaenid butterfly",1
+dev_train,327,"starfish, sea star",3
+dev_train,328,sea urchin,1
+dev_train,329,"sea cucumber, holothurian",2
+dev_train,330,"wood rabbit, cottontail, cottontail rabbit",0
+dev_train,331,hare,1
+dev_train,332,"Angora, Angora rabbit",1
+dev_train,333,hamster,1
+dev_train,334,"porcupine, hedgehog",1
+dev_train,335,"fox squirrel, eastern fox squirrel, Sciurus niger",0
+dev_train,336,marmot,3
+dev_train,337,beaver,0
+dev_train,338,"guinea pig, Cavia cobaya",1
+dev_train,339,sorrel,2
+dev_train,340,zebra,0
+dev_train,341,"hog, pig, grunter, squealer, Sus scrofa",1
+dev_train,342,"wild boar, boar, Sus scrofa",1
+dev_train,343,warthog,3
+dev_train,344,"hippopotamus, hippo, river horse, Hippopotamus amphibius",0
+dev_train,345,ox,1
+dev_train,346,"water buffalo, water ox, Asiatic buffalo, Bubalus bubalis",1
+dev_train,347,bison,2
+dev_train,348,"ram, tup",1
+dev_train,349,"bighorn, bighorn sheep, cimarron, Rocky Mountain bighorn, Rocky Mountain sheep, Ovis canadensis",1
+dev_train,350,"ibex, Capra ibex",1
+dev_train,351,hartebeest,1
+dev_train,352,"impala, Aepyceros melampus",1
+dev_train,353,gazelle,3
+dev_train,354,"Arabian camel, dromedary, Camelus dromedarius",1
+dev_train,355,llama,0
+dev_train,356,weasel,2
+dev_train,357,mink,2
+dev_train,358,"polecat, fitch, foulmart, foumart, Mustela putorius",3
+dev_train,359,"black-footed ferret, ferret, Mustela nigripes",0
+dev_train,360,otter,2
+dev_train,361,"skunk, polecat, wood pussy",1
+dev_train,362,badger,0
+dev_train,363,armadillo,2
+dev_train,364,"three-toed sloth, ai, Bradypus tridactylus",0
+dev_train,365,"orangutan, orang, orangutang, Pongo pygmaeus",0
+dev_train,366,"gorilla, Gorilla gorilla",2
+dev_train,367,"chimpanzee, chimp, Pan troglodytes",0
+dev_train,368,"gibbon, Hylobates lar",1
+dev_train,369,"siamang, Hylobates syndactylus, Symphalangus syndactylus",2
+dev_train,370,"guenon, guenon monkey",1
+dev_train,371,"patas, hussar monkey, Erythrocebus patas",1
+dev_train,372,baboon,0
+dev_train,373,macaque,1
+dev_train,374,langur,2
+dev_train,375,"colobus, colobus monkey",1
+dev_train,376,"proboscis monkey, Nasalis larvatus",3
+dev_train,377,marmoset,1
+dev_train,378,"capuchin, ringtail, Cebus capucinus",0
+dev_train,379,"howler monkey, howler",2
+dev_train,380,"titi, titi monkey",1
+dev_train,381,"spider monkey, Ateles geoffroyi",2
+dev_train,382,"squirrel monkey, Saimiri sciureus",0
+dev_train,383,"Madagascar cat, ring-tailed lemur, Lemur catta",2
+dev_train,384,"indri, indris, Indri indri, Indri brevicaudatus",0
+dev_train,385,"Indian elephant, Elephas maximus",0
+dev_train,386,"African elephant, Loxodonta africana",2
+dev_train,387,"lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens",1
+dev_train,388,"giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca",0
+dev_train,389,"barracouta, snoek",2
+dev_train,390,eel,0
+dev_train,391,"coho, cohoe, coho salmon, blue jack, silver salmon, Oncorhynchus kisutch",0
+dev_train,392,"rock beauty, Holocanthus tricolor",1
+dev_train,393,anemone fish,1
+dev_train,394,sturgeon,0
+dev_train,395,"gar, garfish, garpike, billfish, Lepisosteus osseus",0
+dev_train,396,lionfish,1
+dev_train,397,"puffer, pufferfish, blowfish, globefish",2
+dev_train,398,abacus,2
+dev_train,399,abaya,3
+dev_train,400,"academic gown, academic robe, judge's robe",0
+dev_train,401,"accordion, piano accordion, squeeze box",0
+dev_train,402,acoustic guitar,4
+dev_train,403,"aircraft carrier, carrier, flattop, attack aircraft carrier",0
+dev_train,404,airliner,1
+dev_train,405,"airship, dirigible",1
+dev_train,406,altar,1
+dev_train,407,ambulance,1
+dev_train,408,"amphibian, amphibious vehicle",1
+dev_train,409,analog clock,0
+dev_train,410,"apiary, bee house",1
+dev_train,411,apron,0
+dev_train,412,"ashcan, trash can, garbage can, wastebin, ash bin, ash-bin, ashbin, dustbin, trash barrel, trash bin",1
+dev_train,413,"assault rifle, assault gun",0
+dev_train,414,"backpack, back pack, knapsack, packsack, rucksack, haversack",0
+dev_train,415,"bakery, bakeshop, bakehouse",1
+dev_train,416,"balance beam, beam",1
+dev_train,417,balloon,2
+dev_train,418,"ballpoint, ballpoint pen, ballpen, Biro",2
+dev_train,419,Band Aid,0
+dev_train,420,banjo,0
+dev_train,421,"bannister, banister, balustrade, balusters, handrail",0
+dev_train,422,barbell,0
+dev_train,423,barber chair,1
+dev_train,424,barbershop,0
+dev_train,425,barn,3
+dev_train,426,barometer,2
+dev_train,427,"barrel, cask",2
+dev_train,428,"barrow, garden cart, lawn cart, wheelbarrow",1
+dev_train,429,baseball,0
+dev_train,430,basketball,1
+dev_train,431,bassinet,1
+dev_train,432,bassoon,1
+dev_train,433,"bathing cap, swimming cap",1
+dev_train,434,bath towel,1
+dev_train,435,"bathtub, bathing tub, bath, tub",0
+dev_train,436,"beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",1
+dev_train,437,"beacon, lighthouse, beacon light, pharos",0
+dev_train,438,beaker,0
+dev_train,439,"bearskin, busby, shako",0
+dev_train,440,beer bottle,1
+dev_train,441,beer glass,0
+dev_train,442,"bell cote, bell cot",0
+dev_train,443,bib,2
+dev_train,444,"bicycle-built-for-two, tandem bicycle, tandem",2
+dev_train,445,"bikini, two-piece",1
+dev_train,446,"binder, ring-binder",2
+dev_train,447,"binoculars, field glasses, opera glasses",2
+dev_train,448,birdhouse,1
+dev_train,449,boathouse,1
+dev_train,450,"bobsled, bobsleigh, bob",0
+dev_train,451,"bolo tie, bolo, bola tie, bola",0
+dev_train,452,"bonnet, poke bonnet",2
+dev_train,453,bookcase,0
+dev_train,454,"bookshop, bookstore, bookstall",0
+dev_train,455,bottlecap,0
+dev_train,456,bow,2
+dev_train,457,"bow tie, bow-tie, bowtie",1
+dev_train,458,"brass, memorial tablet, plaque",3
+dev_train,459,"brassiere, bra, bandeau",1
+dev_train,460,"breakwater, groin, groyne, mole, bulwark, seawall, jetty",3
+dev_train,461,"breastplate, aegis, egis",0
+dev_train,462,broom,0
+dev_train,463,"bucket, pail",3
+dev_train,464,buckle,0
+dev_train,465,bulletproof vest,1
+dev_train,466,"bullet train, bullet",1
+dev_train,467,"butcher shop, meat market",2
+dev_train,468,"cab, hack, taxi, taxicab",3
+dev_train,469,"caldron, cauldron",1
+dev_train,470,"candle, taper, wax light",1
+dev_train,471,cannon,1
+dev_train,472,canoe,0
+dev_train,473,"can opener, tin opener",2
+dev_train,474,cardigan,2
+dev_train,475,car mirror,0
+dev_train,476,"carousel, carrousel, merry-go-round, roundabout, whirligig",1
+dev_train,477,"carpenter's kit, tool kit",0
+dev_train,478,carton,1
+dev_train,479,car wheel,1
+dev_train,480,"cash machine, cash dispenser, automated teller machine, automatic teller machine, automated teller, automatic teller, ATM",1
+dev_train,481,cassette,1
+dev_train,482,cassette player,0
+dev_train,483,castle,1
+dev_train,484,catamaran,0
+dev_train,485,CD player,2
+dev_train,486,"cello, violoncello",0
+dev_train,487,"cellular telephone, cellular phone, cellphone, cell, mobile phone",1
+dev_train,488,chain,0
+dev_train,489,chainlink fence,2
+dev_train,490,"chain mail, ring mail, mail, chain armor, chain armour, ring armor, ring armour",2
+dev_train,491,"chain saw, chainsaw",0
+dev_train,492,chest,1
+dev_train,493,"chiffonier, commode",1
+dev_train,494,"chime, bell, gong",0
+dev_train,495,"china cabinet, china closet",0
+dev_train,496,Christmas stocking,2
+dev_train,497,"church, church building",1
+dev_train,498,"cinema, movie theater, movie theatre, movie house, picture palace",0
+dev_train,499,"cleaver, meat cleaver, chopper",0
+dev_train,500,cliff dwelling,0
+dev_train,501,cloak,0
+dev_train,502,"clog, geta, patten, sabot",2
+dev_train,503,cocktail shaker,0
+dev_train,504,coffee mug,0
+dev_train,505,coffeepot,0
+dev_train,506,"coil, spiral, volute, whorl, helix",1
+dev_train,507,combination lock,1
+dev_train,508,"computer keyboard, keypad",1
+dev_train,509,"confectionery, confectionary, candy store",2
+dev_train,510,"container ship, containership, container vessel",1
+dev_train,511,convertible,1
+dev_train,512,"corkscrew, bottle screw",0
+dev_train,513,"cornet, horn, trumpet, trump",2
+dev_train,514,cowboy boot,2
+dev_train,515,"cowboy hat, ten-gallon hat",2
+dev_train,516,cradle,0
+dev_train,517,crane2,1
+dev_train,518,crash helmet,1
+dev_train,519,crate,0
+dev_train,520,"crib, cot",1
+dev_train,521,Crock Pot,0
+dev_train,522,croquet ball,1
+dev_train,523,crutch,1
+dev_train,524,cuirass,0
+dev_train,525,"dam, dike, dyke",1
+dev_train,526,desk,1
+dev_train,527,desktop computer,0
+dev_train,528,"dial telephone, dial phone",3
+dev_train,529,"diaper, nappy, napkin",1
+dev_train,530,digital clock,1
+dev_train,531,digital watch,1
+dev_train,532,"dining table, board",0
+dev_train,533,"dishrag, dishcloth",2
+dev_train,534,"dishwasher, dish washer, dishwashing machine",1
+dev_train,535,"disk brake, disc brake",3
+dev_train,536,"dock, dockage, docking facility",2
+dev_train,537,"dogsled, dog sled, dog sleigh",1
+dev_train,538,dome,0
+dev_train,539,"doormat, welcome mat",0
+dev_train,540,"drilling platform, offshore rig",0
+dev_train,541,"drum, membranophone, tympan",1
+dev_train,542,drumstick,0
+dev_train,543,dumbbell,1
+dev_train,544,Dutch oven,2
+dev_train,545,"electric fan, blower",2
+dev_train,546,electric guitar,1
+dev_train,547,electric locomotive,1
+dev_train,548,entertainment center,0
+dev_train,549,envelope,1
+dev_train,550,espresso maker,3
+dev_train,551,face powder,1
+dev_train,552,"feather boa, boa",0
+dev_train,553,"file, file cabinet, filing cabinet",0
+dev_train,554,fireboat,0
+dev_train,555,"fire engine, fire truck",1
+dev_train,556,"fire screen, fireguard",1
+dev_train,557,"flagpole, flagstaff",1
+dev_train,558,"flute, transverse flute",2
+dev_train,559,folding chair,1
+dev_train,560,football helmet,0
+dev_train,561,forklift,1
+dev_train,562,fountain,2
+dev_train,563,fountain pen,0
+dev_train,564,four-poster,2
+dev_train,565,freight car,0
+dev_train,566,"French horn, horn",0
+dev_train,567,"frying pan, frypan, skillet",5
+dev_train,568,fur coat,0
+dev_train,569,"garbage truck, dustcart",2
+dev_train,570,"gasmask, respirator, gas helmet",1
+dev_train,571,"gas pump, gasoline pump, petrol pump, island dispenser",0
+dev_train,572,goblet,0
+dev_train,573,go-kart,1
+dev_train,574,golf ball,1
+dev_train,575,"golfcart, golf cart",0
+dev_train,576,gondola,1
+dev_train,577,"gong, tam-tam",2
+dev_train,578,gown,1
+dev_train,579,"grand piano, grand",0
+dev_train,580,"greenhouse, nursery, glasshouse",0
+dev_train,581,"grille, radiator grille",1
+dev_train,582,"grocery store, grocery, food market, market",1
+dev_train,583,guillotine,1
+dev_train,584,hair slide,1
+dev_train,585,hair spray,0
+dev_train,586,half track,1
+dev_train,587,hammer,0
+dev_train,588,hamper,0
+dev_train,589,"hand blower, blow dryer, blow drier, hair dryer, hair drier",0
+dev_train,590,"hand-held computer, hand-held microcomputer",0
+dev_train,591,"handkerchief, hankie, hanky, hankey",0
+dev_train,592,"hard disc, hard disk, fixed disk",0
+dev_train,593,"harmonica, mouth organ, harp, mouth harp",0
+dev_train,594,harp,1
+dev_train,595,"harvester, reaper",2
+dev_train,596,hatchet,0
+dev_train,597,holster,1
+dev_train,598,"home theater, home theatre",1
+dev_train,599,honeycomb,1
+dev_train,600,"hook, claw",0
+dev_train,601,"hoopskirt, crinoline",0
+dev_train,602,"horizontal bar, high bar",1
+dev_train,603,"horse cart, horse-cart",2
+dev_train,604,hourglass,0
+dev_train,605,iPod,0
+dev_train,606,"iron, smoothing iron",0
+dev_train,607,jack-o'-lantern,2
+dev_train,608,"jean, blue jean, denim",1
+dev_train,609,"jeep, landrover",3
+dev_train,610,"jersey, T-shirt, tee shirt",0
+dev_train,611,jigsaw puzzle,0
+dev_train,612,"jinrikisha, ricksha, rickshaw",0
+dev_train,613,joystick,0
+dev_train,614,kimono,0
+dev_train,615,knee pad,1
+dev_train,616,knot,1
+dev_train,617,"lab coat, laboratory coat",0
+dev_train,618,ladle,0
+dev_train,619,"lampshade, lamp shade",1
+dev_train,620,"laptop, laptop computer",1
+dev_train,621,"lawn mower, mower",2
+dev_train,622,"lens cap, lens cover",1
+dev_train,623,"letter opener, paper knife, paperknife",0
+dev_train,624,library,2
+dev_train,625,lifeboat,0
+dev_train,626,"lighter, light, igniter, ignitor",1
+dev_train,627,"limousine, limo",1
+dev_train,628,"liner, ocean liner",1
+dev_train,629,"lipstick, lip rouge",0
+dev_train,630,Loafer,0
+dev_train,631,lotion,0
+dev_train,632,"loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",0
+dev_train,633,"loupe, jeweler's loupe",1
+dev_train,634,"lumbermill, sawmill",5
+dev_train,635,magnetic compass,1
+dev_train,636,"mailbag, postbag",1
+dev_train,637,"mailbox, letter box",1
+dev_train,638,maillot,2
+dev_train,639,"maillot, tank suit",2
+dev_train,640,manhole cover,1
+dev_train,641,maraca,1
+dev_train,642,"marimba, xylophone",1
+dev_train,643,mask,0
+dev_train,644,matchstick,1
+dev_train,645,maypole,1
+dev_train,646,"maze, labyrinth",0
+dev_train,647,measuring cup,1
+dev_train,648,"medicine chest, medicine cabinet",0
+dev_train,649,"megalith, megalithic structure",0
+dev_train,650,"microphone, mike",0
+dev_train,651,"microwave, microwave oven",2
+dev_train,652,military uniform,2
+dev_train,653,milk can,0
+dev_train,654,minibus,0
+dev_train,655,"miniskirt, mini",1
+dev_train,656,minivan,2
+dev_train,657,missile,2
+dev_train,658,mitten,1
+dev_train,659,mixing bowl,1
+dev_train,660,"mobile home, manufactured home",2
+dev_train,661,Model T,1
+dev_train,662,modem,5
+dev_train,663,monastery,0
+dev_train,664,monitor,3
+dev_train,665,moped,0
+dev_train,666,mortar,3
+dev_train,667,mortarboard,3
+dev_train,668,mosque,2
+dev_train,669,mosquito net,3
+dev_train,670,"motor scooter, scooter",1
+dev_train,671,"mountain bike, all-terrain bike, off-roader",3
+dev_train,672,mountain tent,0
+dev_train,673,"mouse, computer mouse",1
+dev_train,674,mousetrap,2
+dev_train,675,moving van,2
+dev_train,676,muzzle,0
+dev_train,677,nail,1
+dev_train,678,neck brace,0
+dev_train,679,necklace,1
+dev_train,680,nipple,0
+dev_train,681,"notebook, notebook computer",0
+dev_train,682,obelisk,2
+dev_train,683,"oboe, hautboy, hautbois",2
+dev_train,684,"ocarina, sweet potato",0
+dev_train,685,"odometer, hodometer, mileometer, milometer",0
+dev_train,686,oil filter,0
+dev_train,687,"organ, pipe organ",0
+dev_train,688,"oscilloscope, scope, cathode-ray oscilloscope, CRO",2
+dev_train,689,overskirt,2
+dev_train,690,oxcart,2
+dev_train,691,oxygen mask,2
+dev_train,692,packet,0
+dev_train,693,"paddle, boat paddle",3
+dev_train,694,"paddlewheel, paddle wheel",1
+dev_train,695,padlock,0
+dev_train,696,paintbrush,1
+dev_train,697,"pajama, pyjama, pj's, jammies",0
+dev_train,698,palace,2
+dev_train,699,"panpipe, pandean pipe, syrinx",0
+dev_train,700,paper towel,1
+dev_train,701,"parachute, chute",2
+dev_train,702,"parallel bars, bars",0
+dev_train,703,park bench,0
+dev_train,704,parking meter,0
+dev_train,705,"passenger car, coach, carriage",2
+dev_train,706,"patio, terrace",2
+dev_train,707,"pay-phone, pay-station",1
+dev_train,708,"pedestal, plinth, footstall",1
+dev_train,709,"pencil box, pencil case",0
+dev_train,710,pencil sharpener,0
+dev_train,711,"perfume, essence",1
+dev_train,712,Petri dish,0
+dev_train,713,photocopier,2
+dev_train,714,"pick, plectrum, plectron",2
+dev_train,715,pickelhaube,2
+dev_train,716,"picket fence, paling",2
+dev_train,717,"pickup, pickup truck",2
+dev_train,718,pier,3
+dev_train,719,"piggy bank, penny bank",3
+dev_train,720,pill bottle,1
+dev_train,721,pillow,3
+dev_train,722,ping-pong ball,0
+dev_train,723,pinwheel,1
+dev_train,724,"pirate, pirate ship",1
+dev_train,725,"pitcher, ewer",0
+dev_train,726,"plane, carpenter's plane, woodworking plane",2
+dev_train,727,planetarium,1
+dev_train,728,plastic bag,0
+dev_train,729,plate rack,0
+dev_train,730,"plow, plough",1
+dev_train,731,"plunger, plumber's helper",0
+dev_train,732,"Polaroid camera, Polaroid Land camera",0
+dev_train,733,pole,2
+dev_train,734,"police van, police wagon, paddy wagon, patrol wagon, wagon, black Maria",1
+dev_train,735,poncho,0
+dev_train,736,"pool table, billiard table, snooker table",1
+dev_train,737,"pop bottle, soda bottle",1
+dev_train,738,"pot, flowerpot",0
+dev_train,739,potter's wheel,0
+dev_train,740,power drill,1
+dev_train,741,"prayer rug, prayer mat",4
+dev_train,742,printer,2
+dev_train,743,"prison, prison house",1
+dev_train,744,"projectile, missile",2
+dev_train,745,projector,1
+dev_train,746,"puck, hockey puck",0
+dev_train,747,"punching bag, punch bag, punching ball, punchball",0
+dev_train,748,purse,2
+dev_train,749,"quill, quill pen",1
+dev_train,750,"quilt, comforter, comfort, puff",2
+dev_train,751,"racer, race car, racing car",1
+dev_train,752,"racket, racquet",0
+dev_train,753,radiator,1
+dev_train,754,"radio, wireless",0
+dev_train,755,"radio telescope, radio reflector",0
+dev_train,756,rain barrel,0
+dev_train,757,"recreational vehicle, RV, R.V.",3
+dev_train,758,reel,0
+dev_train,759,reflex camera,3
+dev_train,760,"refrigerator, icebox",1
+dev_train,761,"remote control, remote",2
+dev_train,762,"restaurant, eating house, eating place, eatery",0
+dev_train,763,"revolver, six-gun, six-shooter",3
+dev_train,764,rifle,0
+dev_train,765,"rocking chair, rocker",0
+dev_train,766,rotisserie,0
+dev_train,767,"rubber eraser, rubber, pencil eraser",0
+dev_train,768,rugby ball,0
+dev_train,769,"rule, ruler",0
+dev_train,770,running shoe,1
+dev_train,771,safe,0
+dev_train,772,safety pin,0
+dev_train,773,"saltshaker, salt shaker",0
+dev_train,774,sandal,2
+dev_train,775,sarong,0
+dev_train,776,"sax, saxophone",0
+dev_train,777,scabbard,0
+dev_train,778,"scale, weighing machine",0
+dev_train,779,school bus,1
+dev_train,780,schooner,1
+dev_train,781,scoreboard,2
+dev_train,782,"screen, CRT screen",0
+dev_train,783,screw,2
+dev_train,784,screwdriver,0
+dev_train,785,"seat belt, seatbelt",2
+dev_train,786,sewing machine,0
+dev_train,787,"shield, buckler",0
+dev_train,788,"shoe shop, shoe-shop, shoe store",2
+dev_train,789,shoji,2
+dev_train,790,shopping basket,1
+dev_train,791,shopping cart,0
+dev_train,792,shovel,3
+dev_train,793,shower cap,2
+dev_train,794,shower curtain,2
+dev_train,795,ski,3
+dev_train,796,ski mask,0
+dev_train,797,sleeping bag,2
+dev_train,798,"slide rule, slipstick",1
+dev_train,799,sliding door,1
+dev_train,800,"slot, one-armed bandit",3
+dev_train,801,snorkel,2
+dev_train,802,snowmobile,2
+dev_train,803,"snowplow, snowplough",3
+dev_train,804,soap dispenser,0
+dev_train,805,soccer ball,1
+dev_train,806,sock,0
+dev_train,807,"solar dish, solar collector, solar furnace",1
+dev_train,808,sombrero,2
+dev_train,809,soup bowl,0
+dev_train,810,space bar,0
+dev_train,811,space heater,1
+dev_train,812,space shuttle,1
+dev_train,813,spatula,0
+dev_train,814,speedboat,1
+dev_train,815,"spider web, spider's web",0
+dev_train,816,spindle,1
+dev_train,817,"sports car, sport car",1
+dev_train,818,"spotlight, spot",2
+dev_train,819,stage,1
+dev_train,820,steam locomotive,0
+dev_train,821,steel arch bridge,0
+dev_train,822,steel drum,1
+dev_train,823,stethoscope,0
+dev_train,824,stole,0
+dev_train,825,stone wall,0
+dev_train,826,"stopwatch, stop watch",1
+dev_train,827,stove,3
+dev_train,828,strainer,1
+dev_train,829,"streetcar, tram, tramcar, trolley, trolley car",3
+dev_train,830,stretcher,0
+dev_train,831,"studio couch, day bed",0
+dev_train,832,"stupa, tope",0
+dev_train,833,"submarine, pigboat, sub, U-boat",2
+dev_train,834,"suit, suit of clothes",0
+dev_train,835,sundial,0
+dev_train,836,sunglass,0
+dev_train,837,"sunglasses, dark glasses, shades",2
+dev_train,838,"sunscreen, sunblock, sun blocker",0
+dev_train,839,suspension bridge,1
+dev_train,840,"swab, swob, mop",0
+dev_train,841,sweatshirt,0
+dev_train,842,"swimming trunks, bathing trunks",1
+dev_train,843,swing,1
+dev_train,844,"switch, electric switch, electrical switch",0
+dev_train,845,syringe,0
+dev_train,846,table lamp,1
+dev_train,847,"tank, army tank, armored combat vehicle, armoured combat vehicle",0
+dev_train,848,tape player,0
+dev_train,849,teapot,1
+dev_train,850,"teddy, teddy bear",1
+dev_train,851,"television, television system",0
+dev_train,852,tennis ball,1
+dev_train,853,"thatch, thatched roof",1
+dev_train,854,"theater curtain, theatre curtain",0
+dev_train,855,thimble,2
+dev_train,856,"thresher, thrasher, threshing machine",2
+dev_train,857,throne,1
+dev_train,858,tile roof,0
+dev_train,859,toaster,1
+dev_train,860,"tobacco shop, tobacconist shop, tobacconist",0
+dev_train,861,toilet seat,0
+dev_train,862,torch,0
+dev_train,863,totem pole,0
+dev_train,864,"tow truck, tow car, wrecker",3
+dev_train,865,toyshop,0
+dev_train,866,tractor,2
+dev_train,867,"trailer truck, tractor trailer, trucking rig, rig, articulated lorry, semi",2
+dev_train,868,tray,0
+dev_train,869,trench coat,2
+dev_train,870,"tricycle, trike, velocipede",0
+dev_train,871,trimaran,0
+dev_train,872,tripod,0
+dev_train,873,triumphal arch,1
+dev_train,874,"trolleybus, trolley coach, trackless trolley",1
+dev_train,875,trombone,1
+dev_train,876,"tub, vat",0
+dev_train,877,turnstile,0
+dev_train,878,typewriter keyboard,1
+dev_train,879,umbrella,0
+dev_train,880,"unicycle, monocycle",1
+dev_train,881,"upright, upright piano",1
+dev_train,882,"vacuum, vacuum cleaner",0
+dev_train,883,vase,3
+dev_train,884,vault,0
+dev_train,885,velvet,2
+dev_train,886,vending machine,0
+dev_train,887,vestment,2
+dev_train,888,viaduct,1
+dev_train,889,"violin, fiddle",0
+dev_train,890,volleyball,2
+dev_train,891,waffle iron,0
+dev_train,892,wall clock,1
+dev_train,893,"wallet, billfold, notecase, pocketbook",2
+dev_train,894,"wardrobe, closet, press",0
+dev_train,895,"warplane, military plane",0
+dev_train,896,"washbasin, handbasin, washbowl, lavabo, wash-hand basin",0
+dev_train,897,"washer, automatic washer, washing machine",0
+dev_train,898,water bottle,2
+dev_train,899,water jug,1
+dev_train,900,water tower,0
+dev_train,901,whiskey jug,1
+dev_train,902,whistle,0
+dev_train,903,wig,3
+dev_train,904,window screen,1
+dev_train,905,window shade,1
+dev_train,906,Windsor tie,1
+dev_train,907,wine bottle,0
+dev_train,908,wing,1
+dev_train,909,wok,1
+dev_train,910,wooden spoon,0
+dev_train,911,"wool, woolen, woollen",2
+dev_train,912,"worm fence, snake fence, snake-rail fence, Virginia fence",1
+dev_train,913,wreck,1
+dev_train,914,yawl,2
+dev_train,915,yurt,0
+dev_train,916,"web site, website, internet site, site",2
+dev_train,917,comic book,2
+dev_train,918,"crossword puzzle, crossword",2
+dev_train,919,street sign,3
+dev_train,920,"traffic light, traffic signal, stoplight",1
+dev_train,921,"book jacket, dust cover, dust jacket, dust wrapper",0
+dev_train,922,menu,0
+dev_train,923,plate,2
+dev_train,924,guacamole,0
+dev_train,925,consomme,0
+dev_train,926,"hot pot, hotpot",0
+dev_train,927,trifle,0
+dev_train,928,"ice cream, icecream",1
+dev_train,929,"ice lolly, lolly, lollipop, popsicle",3
+dev_train,930,French loaf,1
+dev_train,931,"bagel, beigel",2
+dev_train,932,pretzel,0
+dev_train,933,cheeseburger,1
+dev_train,934,"hotdog, hot dog, red hot",0
+dev_train,935,mashed potato,0
+dev_train,936,head cabbage,1
+dev_train,937,broccoli,0
+dev_train,938,cauliflower,3
+dev_train,939,"zucchini, courgette",1
+dev_train,940,spaghetti squash,2
+dev_train,941,acorn squash,3
+dev_train,942,butternut squash,0
+dev_train,943,"cucumber, cuke",3
+dev_train,944,"artichoke, globe artichoke",2
+dev_train,945,bell pepper,0
+dev_train,946,cardoon,1
+dev_train,947,mushroom,3
+dev_train,948,Granny Smith,0
+dev_train,949,strawberry,1
+dev_train,950,orange,2
+dev_train,951,lemon,2
+dev_train,952,fig,1
+dev_train,953,"pineapple, ananas",0
+dev_train,954,banana,0
+dev_train,955,"jackfruit, jak, jack",1
+dev_train,956,custard apple,6
+dev_train,957,pomegranate,1
+dev_train,958,hay,1
+dev_train,959,carbonara,0
+dev_train,960,"chocolate sauce, chocolate syrup",1
+dev_train,961,dough,2
+dev_train,962,"meat loaf, meatloaf",1
+dev_train,963,"pizza, pizza pie",0
+dev_train,964,potpie,0
+dev_train,965,burrito,1
+dev_train,966,red wine,0
+dev_train,967,espresso,0
+dev_train,968,cup,1
+dev_train,969,eggnog,1
+dev_train,970,alp,0
+dev_train,971,bubble,1
+dev_train,972,"cliff, drop, drop-off",2
+dev_train,973,coral reef,3
+dev_train,974,geyser,1
+dev_train,975,"lakeside, lakeshore",0
+dev_train,976,"promontory, headland, head, foreland",1
+dev_train,977,"sandbar, sand bar",0
+dev_train,978,"seashore, coast, seacoast, sea-coast",2
+dev_train,979,"valley, vale",0
+dev_train,980,volcano,0
+dev_train,981,"ballplayer, baseball player",2
+dev_train,982,"groom, bridegroom",0
+dev_train,983,scuba diver,1
+dev_train,984,rapeseed,0
+dev_train,985,daisy,2
+dev_train,986,"yellow lady's slipper, yellow lady-slipper, Cypripedium calceolus, Cypripedium parviflorum",0
+dev_train,987,corn,0
+dev_train,988,acorn,2
+dev_train,989,"hip, rose hip, rosehip",1
+dev_train,990,"buckeye, horse chestnut, conker",1
+dev_train,991,coral fungus,1
+dev_train,992,agaric,0
+dev_train,993,gyromitra,2
+dev_train,994,"stinkhorn, carrion fungus",1
+dev_train,995,earthstar,0
+dev_train,996,"hen-of-the-woods, hen of the woods, Polyporus frondosus, Grifola frondosa",0
+dev_train,997,bolete,0
+dev_train,998,"ear, spike, capitulum",0
+dev_train,999,"toilet tissue, toilet paper, bathroom tissue",0

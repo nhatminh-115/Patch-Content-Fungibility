@@ -220,3 +220,6 @@ __marimo__/
 # PyTorch checkpoints and temporary scratch
 *.pt
 scratch/
+
+# Local ImageNet pilot images are licensed dataset material and must stay local.
+/local_data/
