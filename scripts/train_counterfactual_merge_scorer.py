@@ -363,17 +363,26 @@ def main():
     ).reset_index()
     summary.to_csv(out / "rollout_summary.csv", index=False)
     decisions = {}
+    bootstrap_rng = np.random.RandomState(64051)
     for model in ("deit_small", "vit_base"):
         for budget in (98, 49):
             cell = summary[(summary.model == model) & (summary.budget == budget)]
             proposed = cell[cell.method == "counterfactual_pair"].iloc[0]
             controls = cell[cell.method.isin(["cosine", "fixed_rank", "fixed_regression", "embedding_no_teacher"])]
             strongest = controls.loc[controls.mean_distortion.idxmin()]
+            paired = rollout[(rollout.model == model) & (rollout.budget == budget) &
+                             (rollout.method.isin(["counterfactual_pair", strongest.method]))]
+            wide = paired.pivot(index="global_index", columns="method", values="distortion")
+            improvement = (wide[strongest.method] - wide["counterfactual_pair"]).to_numpy()
+            boot = improvement[bootstrap_rng.randint(len(improvement), size=(2000, len(improvement)))].mean(axis=1)
+            ci_low, ci_high = np.percentile(boot, [2.5, 97.5])
             decisions[f"{model}_{budget}"] = {
                 "best_same_schedule_control": strongest.method,
                 "distortion_advantage": float(strongest.mean_distortion - proposed.mean_distortion),
+                "paired_bootstrap_95_low": float(ci_low),
+                "paired_bootstrap_95_high": float(ci_high),
                 "accuracy_difference_pp": float(100 * (proposed.top1_accuracy - strongest.top1_accuracy)),
-                "pass": bool(proposed.mean_distortion < strongest.mean_distortion and
+                "pass": bool(ci_low > 0 and proposed.mean_distortion < strongest.mean_distortion and
                              proposed.top1_accuracy >= strongest.top1_accuracy - 0.01),
             }
     decisions["G2_pass"] = all(value["pass"] for value in decisions.values())

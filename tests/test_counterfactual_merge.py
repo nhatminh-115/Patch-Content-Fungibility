@@ -71,12 +71,36 @@ def test_simultaneous_matching_assignments_and_weighted_carrier():
         apply_actions(state, [(0, 1), (1, 3)])
 
 
+def test_intermediate_state_matches_existing_tome_implementation():
+    from patch_fungibility.operator_compression_confirmatory import tome_bipartite_merge
+    state = make_state()
+    for target in (147, 98):
+        expected_patches, expected_mass = tome_bipartite_merge(state.patches, target)
+        actual = baseline_state(state, target)
+        torch.testing.assert_close(actual.patches, expected_patches, atol=1e-6, rtol=1e-6)
+        torch.testing.assert_close(actual.multiplicities, expected_mass)
+
+
 def test_calibration_partition_is_disjoint_from_reserved_ids():
     order = np.random.RandomState(64011).permutation(1000)
     pilot, stability, reserved = order[:128], order[128:192], order[192:]
     assert len(set(pilot) & set(stability)) == 0
     assert len(set(pilot) & set(reserved)) == 0
     assert len(set(stability) & set(reserved)) == 0
+
+
+def test_student_inference_does_not_accept_teacher_outputs():
+    from scripts.train_counterfactual_merge_scorer import PairScorer
+    scorer = PairScorer(16).eval()
+    tokens = torch.randn(1, 32, 2, 16)
+    local_features = torch.randn(1, 32, 10)
+    teacher_costs = torch.randn(1, 32)
+    with torch.inference_mode():
+        first = scorer(tokens, local_features)
+        teacher_costs.fill_(1e6)
+        second = scorer(tokens, local_features)
+    assert first.shape == (1, 32)
+    torch.testing.assert_close(first, second)
 
 
 def test_candidate_batch_matches_legacy_suffix():

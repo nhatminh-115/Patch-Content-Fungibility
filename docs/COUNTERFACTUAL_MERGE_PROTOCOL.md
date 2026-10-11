@@ -41,6 +41,12 @@ G3: Only after G2, implement batched student scoring without suffix calls. Bench
 
 No final canonical N=1,000 evaluation, extra architecture replication, or manuscript changes are authorized by this protocol.
 
+### Phase II/III operational details, fixed before student results
+
+The reserved 808 calibration images provide training counterfactuals; the 64-image stability cohort is the only internal validation cohort. Train a D→16 shared pair projection and 64/32 hidden-unit score MLP with a within-state top-action listwise cross-entropy. Controls are cosine, a fixed-feature MLP trained on the same teacher rank target, a fixed-feature MLP regressing absolute distortion, and a D→16 projection trained to reconstruct the input cosine without teacher costs. Select epochs by internal-validation regret; no seed-9201 data is used. Rollout selects at most 16 unique even-source edges per round from the same deterministic 32-edge construction, permits shared odd destinations, and repeats until 98 or 49 patch tokens remain. Evaluate the existing ToMe and Hybrid Group Mean implementations alongside these same-schedule methods.
+
+For G2, compare the proposed model with the lowest-distortion same-schedule control in each architecture–budget cell. Require a positive 95% paired image-bootstrap lower bound (2,000 resamples, seed 64051) on the control-minus-proposed completed-state distortion in all four cells and no more than a 1 percentage point Top-1 regression in any cell. This makes “reproducible improvement” operational before observing student outcomes.
+
 ## Prior-art audit (scope of claim)
 
 - [ToMe](https://arxiv.org/abs/2210.09461) uses fast bipartite similarity matching and size-weighted merging, without per-action suffix counterfactual labels.
