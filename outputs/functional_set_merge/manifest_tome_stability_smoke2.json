@@ -1,0 +1,31 @@
+{
+  "protocol_commit": "216406b",
+  "phase": "TOME",
+  "cohort": "stability",
+  "smoke_limit": 2,
+  "image_ids": [
+    10090,
+    41167
+  ],
+  "source_parquet_filenames": [
+    "val-00000-of-00002-b5248be478d25e41.parquet",
+    "val-00001-of-00002-85f3d9c8fa1edb63.parquet"
+  ],
+  "model_hashes": {
+    "deit_small": "9cc8d3502a88115f32ba516560697d043dc82e00144147347f559adf5dc377f6",
+    "vit_base": "167c33a7ad88a6ace79d302775d7d89aa3c3967c597fa9e45259a0a14be75d68"
+  },
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+  "torch": "2.11.0+cu128",
+  "python": "3.11.9",
+  "batch_size": 8,
+  "candidate_seed": "64021+global_index+1009*196+model_offset",
+  "projection_dimensions": null,
+  "projection_seed": null,
+  "teacher_sets": 4,
+  "teacher_seconds": 0.012764499988406897,
+  "max_parity_error": 2.0265579223632812e-06,
+  "elapsed_seconds": 2.7853780000004917,
+  "peak_gpu_mib": 350.47119140625
+}

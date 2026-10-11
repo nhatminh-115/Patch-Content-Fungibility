@@ -1,0 +1,5 @@
+model,cohort,global_index,parity_max_abs,teacher_sets,teacher_seconds
+deit_small,stability,10090,0.0,48,0.05468919998384081
+deit_small,stability,41167,0.0,44,0.03861650003818795
+vit_base,stability,10090,0.0,39,0.07595510000828654
+vit_base,stability,41167,0.0,44,0.08473490015603602
