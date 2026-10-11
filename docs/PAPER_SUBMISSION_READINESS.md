@@ -1,22 +1,23 @@
 # Paper Submission Readiness
 
-**Status: Current manuscript and publication assets validated (2026-10-10).**
+**Status:** Structural validation passes; final page-layout review is blocked because the bundled DOCX renderer cannot find LibreOffice.
 
-The current editable manuscript contains eight main-text figures. The supplementary document contains Figures S1–S14 and Supplementary Tables S1–S4, in addition to the evidence-map table.
+The manuscript contains eight main figures, four numbered main tables (Table 1–4), 58 references, and ten numbered equations. The Supplementary displays ten figures (S1–S10) and retains Supplementary Tables S1–S6, the evidence map, and methods/data/negative findings in prose where figures were removed. Generator/source IDs remain unchanged in filenames and map to the final display labels in `figures/paper_final_v4/FIGURE_MANIFEST.md`.
 
 ## Verified checks
 
-- [x] The current manuscript DOCX contains eight main-text figures, three manuscript data tables, ten numbered equations, and 51 references.
-- [x] The supplementary DOCX contains 14 supplementary figures and five tables: the evidence map plus Supplementary Tables S1–S4.
-- [x] Figure and table callouts, object labels, captions, paths, and placement resolve in the current manuscript package.
-- [x] The bibliography contains 51 complete, unique published records; in-text citations resolve and are ordered consistently.
-- [x] `outputs/fungibility_real_final/validation_manifest.json` records an authoritative PASS, 12/12 checks.
-- [x] `outputs/fungibility_real_final/paper_final_validation.json` records PASS, 29/29 checks for the current publication package.
+- [x] The main DOCX retains eight figure drawings, four numbered table captions, ten equation blocks, and 58 references.
+- [x] The Supplementary DOCX contains ten figures with captions S1–S10 in order and retains Supplementary Tables S1–S6.
+- [x] Figure/table labels, caption order, Markdown paths, and main-to-supplementary callouts resolve.
+- [x] `outputs/fungibility_real_final/validation_manifest.json` records PASS, 12/12 benchmark checks.
+- [x] `scripts/validate_paper_final.py` passes 42/42 checks for the current publication package.
+- [x] `git diff --check` passes.
+- [ ] Render and visually inspect all pages; `render_docx.py` cannot run because bundled `soffice.exe` is unavailable.
 
 ## Validation artifacts
 
 - `outputs/fungibility_real_final/validation_manifest.json`
 - `outputs/fungibility_real_final/paper_final_validation.json`
-- `docs/PAPER_FIGURE_REVIEW_V4.md`
+- `docs/FINAL_SUPPLEMENTARY_STREAMLINING.md`
 - `docs/PAPER_DRAFT_v5.docx`
 - `docs/PAPER_SUPPLEMENTARY.docx`

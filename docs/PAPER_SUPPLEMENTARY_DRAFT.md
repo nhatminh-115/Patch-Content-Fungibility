@@ -72,9 +72,9 @@ For DINOv2, Top-1 stays between 0.06% and 0.18% over K=1 to 256, and the paired 
 
 The K=1 and full-diversity endpoints were compared with archived shared- and independent-Gaussian controls. All eight model-by-endpoint-by-metric comparisons fell within two combined standard errors. Evaluation images are the statistical unit; seeds and patch positions are not pooled as additional observations. DeiT uses three grouped-K seeds; ViT-B and DINOv2 use five. Each architecture uses 1,000 evaluation images and disjoint calibration data.
 
-![Supplementary Figure S10. DINOv2 true-class margin across grouped diversity.](../figures/paper_final_v4/supp/figureS10_dinov2_margin_diversity.svg)
+![Supplementary Figure S3. DINOv2 true-class margin across grouped diversity.](../figures/paper_final_v4/supp/figureS10_dinov2_margin_diversity.svg)
 
-**Supplementary Figure S10. DINOv2 margin across token diversity.** Mean true-class logit margin under complete patch replacement at Block 8 as K varies from 1 to 256; points and error bars show the mean and standard deviation across five seeds.
+**Supplementary Figure S3. DINOv2 margin across token diversity.** Mean true-class logit margin under complete patch replacement at Block 8 as K varies from 1 to 256; points and error bars show the mean and standard deviation across five seeds.
 
 ## S6. Low-dimensional variation and amplitude controls
 
@@ -82,19 +82,15 @@ The low-dimensional variation experiment tests whether replacement must vary acr
 
 At 100% replacement at Block 8, mean Top-1 for PC1 versus the energy-matched random direction is 18.64% versus 10.80% for DeiT-Tiny and 28.08% versus 20.78% for DeiT-Small; ViT-B/16 AugReg reaches 40.10% versus 6.70%. DINOv2 remains near the accuracy floor (0.17% versus 0.00%), while its mean true-class margin is −8.438 for PC1 and −8.654 for the random direction. The direction comparison is therefore strongest in Top-1 for ViT-B and in the margin observable for DINOv2.
 
-Amplitude controls show that direction alone is insufficient. DeiT-Tiny exhibits a non-monotonic response to PC1 scale, while DeiT-Small tolerates a broader high-amplitude range; earlier apparent rank-one saturation in DeiT-Small was partly amplitude-confounded. Because coefficients vary independently by token position, a one-dimensional feature direction does not imply a shared surrogate across all tokens. The evidence supports the bounded claim that calibration-derived low-dimensional variation can outperform a matched random direction in tested conditions; it does not establish rank-1 sufficiency or an intrinsically one-dimensional patch stream. Supplementary Figures S3–S5 show the rank comparison, PC1 amplitude response, and effective-rank propagation.
+Across the five seeds in the PCA-rank sweep, natural versus energy-matched PCA Top-1 at rank 1 was 18.66% versus 17.18% for DeiT-Tiny and 27.86% versus 46.18% for DeiT-Small; at rank 64, it was 22.48% versus 21.76% and 43.70% versus 44.64%, respectively. The rank response therefore differs by model.
 
-![Supplementary Figure S3. Natural versus energy-matched PCA rank.](../figures/paper_final/supp/figS03_pca_rank.png)
+In the separate rank-propagation run (seed 16001), effective rank of the natural rank-1 replacement rose from 1 at Block 8 to 1.25 in DeiT-Tiny and 1.79 in DeiT-Small at Block 11, while static-centroid effective rank remained near zero.
 
-**Supplementary Figure S3. Natural versus energy-matched PCA rank.** Accuracy comparison across the tested low-rank replacement conditions.
+Amplitude controls show that direction alone is insufficient. DeiT-Tiny exhibits a non-monotonic response to PC1 scale, while DeiT-Small tolerates a broader high-amplitude range; earlier apparent rank-one saturation in DeiT-Small was partly amplitude-confounded. Because coefficients vary independently by token position, a one-dimensional feature direction does not imply a shared surrogate across all tokens. The evidence supports the bounded claim that calibration-derived low-dimensional variation can outperform a matched random direction in tested conditions; it does not establish rank-1 sufficiency or an intrinsically one-dimensional patch stream. Supplementary Figure S4 shows the PC1 amplitude response.
 
 ![Supplementary Figure S4. PC1 amplitude sensitivity.](../figures/paper_final/supp/figS04_pc1_amplitude.png)
 
 **Supplementary Figure S4. PC1 amplitude sensitivity.** Classification response across the tested amplitudes of the calibration-derived first principal component.
-
-![Supplementary Figure S5. Effective-rank propagation.](../figures/paper_final/supp/figS05_rank_propagation.png)
-
-**Supplementary Figure S5. Effective-rank propagation.** Effective-rank measurements across the downstream propagation analysis.
 
 ## S7. Cross-model forward-parity and readout controls
 
@@ -110,21 +106,9 @@ For the evaluated downstream ViT blocks, \(m\) identical centroid tokens can be 
 
 Sequence reduction produces real computational savings. At batch size 16 on the evaluated RTX 5070 Laptop GPU, the tested ViT-B operating point reduces end-to-end latency from 72.96 ms to 49.42 ms (32.3%), DeiT-Small from 20.06 ms to 16.36 ms (18.4%), and DINOv2 from 27.97 ms to 25.20 ms (9.9%). DeiT-Tiny becomes slower because implementation overhead dominates at its scale.
 
-The carrier is nevertheless not a competitive compression rule. At matched downstream token budgets, random pruning and an unweighted centroid match or outperform the multiplicity-aware carrier. For example, at the tested ViT-B budget, random pruning reaches 72.48% accuracy versus 68.70% for the weighted carrier; in DINOv2 the corresponding values are 77.40% and 71.48%. The measured latency reduction therefore reflects shorter sequences, not a superior carrier mechanism. Supplementary Figures S6–S8 show the equivalence check and the corresponding accuracy-token and accuracy-latency comparisons.
+The carrier is nevertheless not a competitive compression rule. At matched downstream token budgets, random pruning and an unweighted centroid match or outperform the multiplicity-aware carrier. For example, at the tested ViT-B budget, random pruning reaches 72.48% accuracy versus 68.70% for the weighted carrier; in DINOv2 the corresponding values are 77.40% and 71.48%. The measured latency reduction therefore reflects shorter sequences, not a superior carrier mechanism.
 
 Other exploratory correction variants also failed to provide a general practical remedy: single-token attempts, scalar layer prediction, out-of-sample dynamic-α prediction, a shared linear envelope with K≤64, and dynamic-operator prediction did not establish consistent classifier or throughput gains. These secondary results do not change the distinction between operator-space performance and held-out classification.
-
-![Supplementary Figure S6. Exact multiplicity-aware carrier equivalence.](../figures/paper_final/supp/figS06_carrier_equivalence.png)
-
-**Supplementary Figure S6. Exact multiplicity-aware carrier equivalence.** Forward-output comparison for the multiplicity-aware representation of identical tokens.
-
-![Supplementary Figure S7. Accuracy versus downstream token count.](../figures/paper_final/supp/figS07_accuracy_vs_tokens.png)
-
-**Supplementary Figure S7. Accuracy versus downstream token count.** Held-out classification accuracy across the tested retained-token budgets.
-
-![Supplementary Figure S8. Accuracy versus measured GPU latency.](../figures/paper_final/supp/figS08_accuracy_vs_latency.png)
-
-**Supplementary Figure S8. Accuracy versus measured GPU latency.** Held-out classification accuracy against measured end-to-end latency under the reported setup.
 
 ## S9. Synthetic carrier banks at matched token budgets
 
@@ -132,11 +116,11 @@ At a fixed downstream token budget \(B\), this analysis tests whether synthetic 
 
 Across all four architectures, both tested budgets per architecture, all three bank families, and five spatial masks, no synthetic bank outperforms the \(K=0\) random-pruning baseline. Increasing \(K\) generally reduces accuracy because each synthetic slot displaces one real image-conditioned patch. This is an empirical token-budget tradeoff; we do not claim to have directly measured mutual information.
 
-The result establishes the boundary summarized in the main text: **replaceability under preserved sequence structure is not equivalent to usefulness under scarce token capacity**. Supplementary Figure S9 summarizes these matched-budget comparisons.
+The result establishes the boundary summarized in the main text: **replaceability under preserved sequence structure is not equivalent to usefulness under scarce token capacity**. Supplementary Figure S5 summarizes these matched-budget comparisons.
 
-![Supplementary Figure S9. Synthetic geometry-bank delta relative to random pruning.](../figures/paper_final/supp/figS09_geometry_bank_vs_pruning.png)
+![Supplementary Figure S5. Synthetic geometry-bank delta relative to random pruning.](../figures/paper_final/supp/figS09_geometry_bank_vs_pruning.png)
 
-**Supplementary Figure S9. Synthetic geometry-bank delta relative to random pruning.** Accuracy difference for synthetic carrier banks relative to the matched random-pruning baseline.
+**Supplementary Figure S5. Synthetic geometry-bank delta relative to random pruning.** Accuracy difference for synthetic carrier banks relative to the matched random-pruning baseline.
 
 ## S10. Statistical and reproducibility notes
 
@@ -155,7 +139,7 @@ The confirmatory operator-residual correlations summarize 30,000 method/budget/s
 | Figure 3(a): DeiT geometry controls | Calibration 9101; evaluation 9201; mask 9601 | Coordinate-permutation seeds 9801–9803; centroid and sign-inversion controls are single-run estimates. |
 | Figure 3(a): ViT-B/DINOv2 geometry controls | Calibration 9101; evaluation 9201; mask 21001 | Coordinate-permutation seeds 23001–23003; centroid and sign-inversion controls are single-run estimates. |
 | Figure 3(b): DeiT grouped diversity | Calibration 9101; evaluation 9201 | Grouped-Gaussian seeds 15001–15003; means and sample SDs are across seeds. |
-| Figure 3(b) and Figure S10: ViT-B/DINOv2 grouped diversity | Calibration 9101; evaluation 9201 | Grouped-Gaussian seeds 26001–26005; means and sample SDs are across seeds; paired tests use per-image means across seeds. |
+| Figure 3(b) and Figure S3: ViT-B/DINOv2 grouped diversity | Calibration 9101; evaluation 9201 | Grouped-Gaussian seeds 26001–26005; means and sample SDs are across seeds; paired tests use per-image means across seeds. |
 | Figure 3(c), Section 4.2: PCA-aligned versus random directions | Calibration 9101; evaluation 9201 | DeiT natural-PC1 identity seeds 17001–17005 and matched-random-direction seeds 18001–18005; ViT-B/DINOv2 use seeds 25001–25003. |
 | Supplementary dense-fraction sweep | Calibration 9101; evaluation 9201; spatial masks 31001–31005 | Gaussian seeds 32001–32003; average within each mask first, then summarize across five masks. |
 | Strict confirmatory compression | Calibration 9101; evaluation 9201 | Random-pruning and random-grouping seeds 31001–31005; paired method comparisons use the shared held-out image cohort. |
@@ -178,9 +162,9 @@ For the PC ratio, the denominator \(v_{\mathrm{bottom}}^\top M_\ell v_{\mathrm{b
 
 The attention audit includes complete Q/K/V decomposition and coherence-gap attribution for DeiT-Small at Block 8 and ViT-B/16 AugReg at Block 7. DeiT-Tiny and DINOv2 have reduced Block-8 replications only. For the reduced models, full-perturbation signed true-class logit drops across coherent, random-sign, and checkerboard patterns are 0.02437, −0.00105, and −0.00655 for DeiT-Tiny, and 0.10434, −0.00319, and 0.00583 for DINOv2. Under frozen-attention V-only with the residual perturbed, the corresponding drops are 0.02444, −0.00248, and −0.00628 for DeiT-Tiny, and 0.10749, −0.00142, and 0.00516 for DINOv2. These are signed logit outcomes; the main Figure 5 instead reports immediate-readout L2 magnitudes. The coherent frozen/full readout-norm ratios are 100.1% and 100.8%, respectively. Directions were estimated from the first four images, and outcomes use \(N=100\) images per model.
 
-![Supplementary Figure S11. Reduced Value-path replication in DeiT-Tiny and DINOv2.](../figures/paper_final_v4/supp/figureS11_value_path_replication.svg)
+![Supplementary Figure S6. Reduced Value-path replication in DeiT-Tiny and DINOv2.](../figures/paper_final_v4/supp/figureS11_value_path_replication.svg)
 
-**Supplementary Figure S11.** Signed true-class logit drop (clean target logit minus perturbed target logit) under full perturbation and frozen-attention V-only transmission with the perturbed residual, for coherent, random-sign, and checkerboard patterns at Block 8. Each model uses one fixed \(N=100\)-image outcome cohort; the \(J\)-top feature direction was estimated from the first four images. Bars are cohort means without seed-based error bars. The panels show the reduced replication and do not represent a complete Q/K/V decomposition.
+**Supplementary Figure S6.** Signed true-class logit drop (clean target logit minus perturbed target logit) under full perturbation and frozen-attention V-only transmission with the perturbed residual, for coherent, random-sign, and checkerboard patterns at Block 8. Each model uses one fixed \(N=100\)-image outcome cohort; the \(J\)-top feature direction was estimated from the first four images. Bars are cohort means without seed-based error bars. The panels show the reduced replication and do not represent a complete Q/K/V decomposition.
 
 The multi-block prediction extension evaluates 100 perturbation vectors per model at Block 8 and scale \(s=0.4\), with 25 vectors from each of four prescribed families. Each vector is scored on a fixed 20-image reference batch. The bootstrap resamples perturbation vectors within family; it does not treat images or token positions as independent correlation observations.
 
@@ -202,17 +186,17 @@ Within-family correlations are retained in the extension output directory. They 
 
 The joint token–feature grid uses the same perturbation definition and logit outcome as main Figure 6. The primary depth grid contains DeiT-Small at Blocks 5, 8, and 10 and ViT-B/16 AugReg at Blocks 5, 7, and 10. Each model uses the same 100 calibration images to construct the covariance and margin-gradient directions and to evaluate the perturbation outcomes. DeiT-Tiny and DINOv2 have reduced Block-8 replications only; these are not included in the full-factorial depth grid.
 
-![Supplementary Figure S14. Joint token–feature geometry across depth.](../figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg)
+![Supplementary Figure S7. Joint token–feature geometry across depth.](../figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg)
 
-**Supplementary Figure S14. Joint token–feature geometry across depth.** Mean per-image Euclidean final-logit \(L_2\) change at \(s=1.0\) for the eight token patterns and five feature directions in each panel: (a–c) DeiT-Small Blocks 5, 8, and 10; (d–f) ViT-B/16 AugReg Blocks 5, 7, and 10. All panels use one logarithmic color scale shared with main Figure 6. Each panel summarizes the same \(N=100\) calibration images used to construct its directions; these outcomes are within-cohort descriptive summaries. Reduced Block-8 replications in DeiT-Tiny and DINOv2 are reported separately and are not included in this six-panel full-factorial grid.
+**Supplementary Figure S7. Joint token–feature geometry across depth.** Mean per-image Euclidean final-logit \(L_2\) change at \(s=1.0\) for the eight token patterns and five feature directions in each panel: (a–c) DeiT-Small Blocks 5, 8, and 10; (d–f) ViT-B/16 AugReg Blocks 5, 7, and 10. All panels use one logarithmic color scale shared with main Figure 6. Each panel summarizes the same \(N=100\) calibration images used to construct its directions; these outcomes are within-cohort descriptive summaries. Reduced Block-8 replications in DeiT-Tiny and DINOv2 are reported separately and are not included in this six-panel full-factorial grid.
 
 ## S12. Primary Q/K/V projection-path comparison
 
 The primary projection-path audit compares V-only and \(K+V\) interventions for DeiT-Small at Block 8 and ViT-B/16 AugReg at Block 7. V-only perturbs \(V\) while keeping \(Q\), \(K\), and the residual clean. \(K+V\) perturbs \(K\) and \(V\) while keeping \(Q\) and the residual clean, and recomputes attention. Both conditions use the same \(N=100\) image cohort and the same mean per-image Euclidean \(L_2\) immediate-readout metric. The coherent V-only/\(K+V\) ratios are 97.4% and 99.4%, with \(K+V\) as the denominator. This primary decomposition is available only for these two architectures.
 
-![Supplementary Figure S12. Primary Q/K/V projection-path comparison.](../figures/paper_final_v4/supp/figureS12_primary_qkv_decomposition.svg)
+![Supplementary Figure S8. Primary Q/K/V projection-path comparison.](../figures/paper_final_v4/supp/figureS12_primary_qkv_decomposition.svg)
 
-**Supplementary Figure S12.** Mean per-image Euclidean \(L_2\) change in the immediate readout for V-only and \(K+V\) at (a) DeiT-Small, Block 8, and (b) ViT-B/16 AugReg, Block 7. V-only perturbs \(V\) with clean \(Q\), \(K\), and residual; \(K+V\) perturbs \(K,V\) with clean \(Q\) and residual and recomputes attention. Coherent, random-sign, and checkerboard patterns are shown in that order. Each panel uses its own y-axis scale; \(N=100\) outcome images per model.
+**Supplementary Figure S8.** Mean per-image Euclidean \(L_2\) change in the immediate readout for V-only and \(K+V\) at (a) DeiT-Small, Block 8, and (b) ViT-B/16 AugReg, Block 7. V-only perturbs \(V\) with clean \(Q\), \(K\), and residual; \(K+V\) perturbs \(K,V\) with clean \(Q\) and residual and recomputes attention. Coherent, random-sign, and checkerboard patterns are shown in that order. Each panel uses its own y-axis scale; \(N=100\) outcome images per model.
 
 The signed true-class logit drop is the clean target-class logit minus the perturbed target-class logit, averaged across the same (N=100) outcome images. For condition (c), we define
 
@@ -235,9 +219,9 @@ The contrasts use `feature_dir=jac_top` and (s=1.0). Both ViT-B/16 AugReg contra
 
 The held-out classifier-carrier study measures nonlinear accuracy and full-model throughput using calibration-frozen carrier corrections. Its measured frontier contains one narrow ViT-B/16 AugReg q=16 operating point; the result does not imply a general deployment gain.
 
-![Supplementary Figure S13. Measured classifier-carrier accuracy–throughput boundary.](../figures/paper_final_v4/supp/figureS13_real_carrier_boundary.svg)
+![Supplementary Figure S9. Measured classifier-carrier accuracy–throughput boundary.](../figures/paper_final_v4/supp/figureS13_real_carrier_boundary.svg)
 
-**Supplementary Figure S13.** Held-out classifier-carrier accuracy and measured full-model throughput at batch size 64, shown with architecture-specific throughput axes. q=16 contributes a narrow ViT-B/16 AugReg frontier point.
+**Supplementary Figure S9.** Held-out classifier-carrier accuracy and measured full-model throughput at batch size 64, shown with architecture-specific throughput axes. q=16 contributes a narrow ViT-B/16 AugReg frontier point.
 
 ### S13.1 Calibration-Frozen Feature-PCA Approximation
 
@@ -299,12 +283,12 @@ We evaluated frozen DeiT-Tiny, DeiT-Small, and ViT-B/16 AugReg at retained-token
 
 Factor 10 was at the cell maximum or tied in five of eight configurations and within 0.5 percentage points of the cell maximum in the other three. It attained the maximum uniquely in two cells, tied in three, and the maximum factor was not universal. Mean nonlinear logit \(L_2\) damage at factor 10 was lower than Group Mean in all eight cells. At factor 10, the cell-mean \(\mathrm{tr}(H_J)/d_s\) ranged from 0.00914 to 34.6746 and the effective absolute lambda ranged from 0.0914 to 346.746; absolute values are model- and budget-dependent because of the trace scaling.
 
-Across all eight cells, decreasing \(f\) reduced mean \(\left\|JE\right\|\) and increased mean carrier displacement; increasing \(f\) moved the solution toward Group Mean. The lowest linearized residual therefore did not consistently correspond to the highest nonlinear Top-1. Figure S15 shows all seven factors for Top-1, logit damage, operator residual, and carrier displacement; the exact means and standard deviations for every endpoint and factor are retained in the aggregated CSV, with per-image values in the raw CSV.
+Across all eight cells, decreasing \(f\) reduced mean \(\left\|JE\right\|\) and increased mean carrier displacement; increasing \(f\) moved the solution toward Group Mean. The lowest linearized residual therefore did not consistently correspond to the highest nonlinear Top-1. Figure S10 shows all seven factors for Top-1, logit damage, operator residual, and carrier displacement; the exact means and standard deviations for every endpoint and factor are retained in the aggregated CSV, with per-image values in the raw CSV.
 
 Paired comparisons use images as the unit and compare factor 10 with 3 and 30 within each model–budget cell. Across cells, mean paired Top-1 differences were −0.5 to +2.5 percentage points for 10 versus 3 and −0.5 to +1.5 points for 10 versus 30; paired-difference SDs ranged from 0 to 27.3 and 0 to 15.8 percentage points, respectively, and every 95% interval included zero. No exact McNemar test had an unadjusted \(p<0.05\) among the 16 contrasts. These results do not establish equivalence. Images are reused across factors and budgets, so the cellwise comparisons are dependent and are not treated as independent replications.
 
 The original exploratory cohort selected the first 200 sorted class labels. The cohorts share only 32 image IDs, so this is a descriptive cohort comparison, not a paired comparison. Factor-10 Top-1 was 1.0–7.5 points higher and Group Mean Top-1 was 5.0–9.0 points higher on the original subset; the factor attaining the Top-1 maximum also changed across most cells. The monotone residual–displacement tradeoff replicated, but absolute accuracy and factor ranking showed class-composition sensitivity. The corrected study supports factor 10 as a reasonable empirical middle setting for these measurements, not as a global optimum or proof of preregistered historical selection. This analysis is post-hoc and does not revise the held-out confirmatory benchmark.
 
-![Supplementary Figure S15. Post-hoc regularization sensitivity on the class-randomized calibration cohort.](../figures/paper_final_v4/supp/figureS15_regularization_sensitivity.svg)
+![Supplementary Figure S10. Post-hoc regularization sensitivity on the class-randomized calibration cohort.](../figures/paper_final_v4/supp/figureS15_regularization_sensitivity.svg)
 
-**Supplementary Figure S15.** Calibration-cohort means across the seven dimensionless regularization factors. Panels show (a) nonlinear Top-1 accuracy, (b) clean-to-compressed final-logit \(L_2\) damage, (c) linearized operator residual \(\left\|JE\right\|\), and (d) carrier displacement \(\left\|C_{opt}-C_{mean}\right\|_F\). Colors identify architecture and solid/dashed lines identify the two model-specific token budgets. Each point uses the same 200 calibration images within its model–budget cell; the figure is descriptive and does not treat factors or budgets as independent samples. Data are from the corrected v2 class-randomized cohort; Group Mean is tabulated in Table S6 but is not a regularization-factor curve.
+**Supplementary Figure S10.** Calibration-cohort means across the seven dimensionless regularization factors. Panels show (a) nonlinear Top-1 accuracy, (b) clean-to-compressed final-logit \(L_2\) damage, (c) linearized operator residual \(\left\|JE\right\|\), and (d) carrier displacement \(\left\|C_{opt}-C_{mean}\right\|_F\). Colors identify architecture and solid/dashed lines identify the two model-specific token budgets. Each point uses the same 200 calibration images within its model–budget cell; the figure is descriptive and does not treat factors or budgets as independent samples. Data are from the corrected v2 class-randomized cohort; Group Mean is tabulated in Table S6 but is not a regularization-factor curve.

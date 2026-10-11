@@ -67,7 +67,7 @@
     },
     "supplementary_docx_embeds_all_figures_and_tables": {
       "status": "PASS",
-      "detail": "Supplementary DOCX contains 15 figure drawings/15 image assets and 8 table elements; required 15 figures and eight tables (evidence map, Tables S1\u2013S6, and one display-equation layout), including verified S4/S5/S6 values=True/True/True."
+      "detail": "Supplementary DOCX contains 10 figure drawings/10 image assets and 8 table elements; requires ten S1\u2013S10 captions in order and eight table elements (evidence map, Tables S1\u2013S6, and one display-equation layout), including verified S4/S5/S6 values=True/True/True; captions=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10']."
     },
     "main_docx_has_separate_correct_limitations_and_conclusion_headings": {
       "status": "PASS",
@@ -75,7 +75,7 @@
     },
     "sensitivity_word_exports_match_scientific_wording": {
       "status": "PASS",
-      "detail": "Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains S15/Table S6 and practical Table S5=True."
+      "detail": "Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains Figure S10/Table S6 and practical Table S5=True."
     },
     "corrected_sensitivity_manuscript_claims_match_v2_csvs": {
       "status": "PASS",
@@ -127,7 +127,7 @@
     },
     "figure_cross_references_resolve_and_precede_objects": {
       "status": "PASS",
-      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7', '8']; captions=['1', '2', '3', '4', '5', '6', '7', '8']; callouts=['1', '2', '3', '4', '5', '6', '7', '8', 'S10', 'S11', 'S12', 'S14']; supplementary callouts=['S10', 'S11', 'S12', 'S14']; supplement labels=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15']; object/caption/path resolution=True; placement=True; unique S1\u2013S15 numbering=True."
+      "detail": "Main figure objects=['1', '2', '3', '4', '5', '6', '7', '8']; captions=['1', '2', '3', '4', '5', '6', '7', '8']; callouts=['1', '2', '3', '4', '5', '6', '7', '8', 'S3', 'S6', 'S7', 'S8']; supplementary callouts=['S3', 'S6', 'S7', 'S8']; supplement labels=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10']; object/caption/path resolution=True; placement=True; unique S1\u2013S10 numbering=True."
     },
     "table_cross_references_resolve_and_precede_objects": {
       "status": "PASS",

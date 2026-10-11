@@ -77,3 +77,8 @@ These inconsistencies should be reconciled in a separately reviewed evidence/doc
 ## Follow-up proposals
 
 This cleanup makes no destructive or scientific changes. A later, separately reviewed archival step could select a destination for the 23 large output files, copy and verify them by the recorded SHA-256 hashes, test retrieval, and only then consider removing duplicates from the working-tree version. The 17 older manuscript/figure files and the 13 unresolved paths need provenance and citation review before any relocation or deletion. No Git LFS conversion, history rewrite, data upload, tracked-file deletion, manuscript edit, DOCX regeneration, or merge to `main` is included here.
+
+
+## Final Supplementary streamlining addendum (2026-10-11)
+
+This later batch supersedes the figure-count and unresolved S1–S9 package-mismatch statements above. The Supplementary now displays ten figures S1–S10, and the embedded/source comparison found only byte-encoding or outer-canvas differences for retained images; no chart data, labels, axes, or legends differed. The Word documents were edited surgically, with package-level changes recorded in `docs/FINAL_SUPPLEMENTARY_STREAMLINING.md`. The earlier statements remain as a record of the 2026-10-10 cleanup stage.

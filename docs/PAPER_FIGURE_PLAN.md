@@ -46,17 +46,17 @@ The main paper uses **8 figures + 3 data tables**. Submission-facing figures are
 
 ## 2. Supplementary figures
 
-Supplementary Figures S1–S14 retain their existing content and numbering. Current generated SVGs under `figures/paper_final_v4/supp/` include S10–S14. This update adds:
+Generator/source IDs and filenames remain unchanged for traceability. Final Supplementary display numbering follows order of appearance: source S1→S1, S2→S2, S10→S3, S4→S4, S9→S5, S11→S6, S14→S7, S12→S8, S13→S9, and S15→S10. Source figures S3, S5, S6, S7, and S8 are omitted from display; their data and code remain retained. Current generated SVGs under `figures/paper_final_v4/supp/` include source IDs S10–S15. This final display map adds:
 
-### Supplementary Figure S15 — Regularization sensitivity
+### Supplementary Figure S10 (source S15) — Regularization sensitivity
 **Path:** `figures/paper_final_v4/supp/figureS15_regularization_sensitivity.svg`
 
 **Role:** Show the calibration-cohort tradeoff across seven trace-normalized regularization factors for four metrics, using the same 200 class-randomized calibration images for all factors and the two budgets per architecture. The analysis is post-hoc and does not tune on confirmatory evaluation data.
 
-14. **S14 — Joint token–feature response across depth:** `figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg`
+7. **S7 (source S14) — Joint token–feature response across depth:** `figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg`
 
-Figure S14 shows the full six-model–depth joint-stream grid for DeiT-Small and ViT-B/16 AugReg; DeiT-Tiny and DINOv2 appear only in reduced Block-8 replications in the source audit.
+Figure S7 shows the full six-model–depth joint-stream grid for DeiT-Small and ViT-B/16 AugReg; DeiT-Tiny and DINOv2 appear only in reduced Block-8 replications in the source audit.
 
 ## 3. Rendering policy
 
-Historical experiment figures remain in their original directories for auditability. The manuscript references reviewed SVG assets under `figures/paper_final_v4/` and corresponding high-resolution PNG previews. Figure 6 and Supplementary Figure S14 share one logarithmic color scale and are generated from the audited joint-stream directional-curves CSV.
+Historical experiment figures remain in their original directories for auditability. The manuscript references reviewed SVG assets under `figures/paper_final_v4/` and corresponding high-resolution PNG previews. Figure 6 and Supplementary Figure S7 shares one logarithmic color scale and are generated from the audited joint-stream directional-curves CSV.

@@ -294,6 +294,7 @@ def main() -> int:
     supplementary_docx_ok = False
     supp_drawings = supp_media = supp_tables = 0
     s4_present = s5_present = s6_present = False
+    supp_caption_labels: list[str] = []
     if SUPPLEMENTARY_DOCX.is_file():
         try:
             with zipfile.ZipFile(SUPPLEMENTARY_DOCX) as archive:
@@ -308,12 +309,20 @@ def main() -> int:
                              ["Table S5.", "764/1,000", "568/1,000", "76.4%", "56.8%"])
             s6_present = all(value in supp_doc_text for value in
                              ["Table S6.", "71.5", "61327", "within 0.5"])
-            supplementary_docx_ok = (supp_media == 15 and supp_drawings == 15 and supp_tables == 8
+            supp_p_tag = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p"
+            supp_t_tag = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t"
+            for paragraph in supp_xml.iter(supp_p_tag):
+                paragraph_text = "".join(node.text or "" for node in paragraph.iter(supp_t_tag))
+                if match := re.match(r"\s*Supplementary Figure\s+(S\d+)\.", paragraph_text):
+                    supp_caption_labels.append(match.group(1))
+            expected_supp_captions = [f"S{i}" for i in range(1, 11)]
+            supplementary_docx_ok = (supp_media == 10 and supp_drawings == 10 and supp_tables == 8
+                                     and supp_caption_labels == expected_supp_captions
                                      and s4_present and s5_present and s6_present)
         except (OSError, zipfile.BadZipFile, KeyError, ET.ParseError):
             supplementary_docx_ok = False
     record("supplementary_docx_embeds_all_figures_and_tables", supplementary_docx_ok,
-           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} table elements; required 15 figures and eight tables (evidence map, Tables S1–S6, and one display-equation layout), including verified S4/S5/S6 values={s4_present}/{s5_present}/{s6_present}.")
+           f"Supplementary DOCX contains {supp_drawings} figure drawings/{supp_media} image assets and {supp_tables} table elements; requires ten S1–S10 captions in order and eight table elements (evidence map, Tables S1–S6, and one display-equation layout), including verified S4/S5/S6 values={s4_present}/{s5_present}/{s6_present}; captions={supp_caption_labels}.")
 
     # Confirm that the delivered Word files carry the post-hoc wording and table.
     main_doc_text = supp_doc_text = ""
@@ -350,7 +359,7 @@ def main() -> int:
                            and all(value in supp_doc_text for value in ["Table S6.", "71.5", "61327"])
                            and all(value in supp_doc_text for value in ["Table S5.", "764/1,000", "568/1,000"]))
     record("sensitivity_word_exports_match_scientific_wording", docx_sensitivity_ok,
-           f"Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains S15/Table S6 and practical Table S5={docx_sensitivity_ok}.")
+           f"Main DOCX contains corrected post-hoc wording and no unsupported historical pilot sentence; Supplementary DOCX contains Figure S10/Table S6 and practical Table S5={docx_sensitivity_ok}.")
 
     # Reconcile the new post-hoc sensitivity claims to the corrected archived CSVs.
     sensitivity_root = ROOT / "outputs/fungibility_regularization_sensitivity_v2_class_randomized"
@@ -380,7 +389,7 @@ def main() -> int:
                              and logit_better_than_gm and no_significant_mcnemar
                              and "post-hoc" in sensitivity_texts.lower()
                              and "not a demonstrated global optimum" in sensitivity_texts.lower()
-                             and "Table S6" in sensitivity_texts and "Figure S15" in sensitivity_texts)
+                             and "Table S6" in sensitivity_texts and "Figure S10" in sensitivity_texts)
     record("corrected_sensitivity_manuscript_claims_match_v2_csvs", sensitivity_claims_ok,
            f"Corrected cells={len(cells)}; factor rows={len(factor_rows)}; factor 10 at/tied max={max_count}/8; within 0.5 pp all cells={within_half_pp}; logit damage below Group Mean all cells={logit_better_than_gm}; 16 paired McNemar contrasts p>=.05={no_significant_mcnemar}.")
 
@@ -629,7 +638,7 @@ def main() -> int:
         if not target.is_file():
             supplementary_refs_ok = False
     supplementary_labels = sorted(supplementary_objects, key=lambda value: int(value.lstrip("S")))
-    expected_supplementary_labels = [f"S{i}" for i in range(1, 16)]
+    expected_supplementary_labels = [f"S{i}" for i in range(1, 11)]
     supplementary_numbering_ok = (supplementary_labels == expected_supplementary_labels
                                   and all(len(supplementary_objects[label]) == 1
                                           and len(supplementary_captions.get(label, [])) == 1
@@ -640,7 +649,7 @@ def main() -> int:
                                   and "figureS15_regularization_sensitivity.svg" in supplementary_text)
     resolved_figures_ok = resolved_figs == set(fig_labels) | supplementary_refs and supplementary_refs_ok
     record("figure_cross_references_resolve_and_precede_objects", fig_order_ok and fig_placement_ok and resolved_figures_ok and supplementary_numbering_ok,
-           f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement labels={supplementary_labels}; object/caption/path resolution={supplementary_refs_ok}; placement={fig_placement_ok}; unique S1–S15 numbering={supplementary_numbering_ok}.")
+           f"Main figure objects={fig_labels}; captions={cap_labels}; callouts={sorted(resolved_figs)}; supplementary callouts={sorted(supplementary_refs)}; supplement labels={supplementary_labels}; object/caption/path resolution={supplementary_refs_ok}; placement={fig_placement_ok}; unique S1–S10 numbering={supplementary_numbering_ok}.")
     record("table_cross_references_resolve_and_precede_objects", table_order_ok and table_placement_ok and resolved_tables == set(table_labels),
            f"Table headings={table_labels}; captions={table_cap_labels}; callouts={sorted(resolved_tables)}; placement={table_placement_ok}.")
     table_i = markdown_table(text, "1")

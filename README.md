@@ -15,11 +15,11 @@ The experiments cover four pretrained architectures: DeiT-Tiny, DeiT-Small, supe
 
 ## Publication figures and numerical evidence
 
-The current manuscript references main Figure 1–8 SVGs under `figures/paper_final_v4/`; the editable manuscript embeds the corresponding PNGs. The Supplementary Markdown references Figures S1–S9 under `figures/paper_final/supp/` and Figures S10–S15 under `figures/paper_final_v4/supp/`.
+The current manuscript references main Figure 1–8 SVGs under `figures/paper_final_v4/`; the editable manuscript embeds the corresponding PNGs. The Supplementary displays Figures S1–S10 in order of appearance. Generator/source IDs remain unchanged in filenames; see the display mapping in `figures/paper_final_v4/FIGURE_MANIFEST.md`.
 
 - [Main-figure manifest, data sources, filters, and generator](figures/paper_final_v4/FIGURE_MANIFEST.md)
-- [Supplementary Figures S1–S9](figures/paper_final/supp/)
-- [Supplementary Figures S10–S15](figures/paper_final_v4/supp/)
+- [Original supplementary PNG source set (includes retained and omitted source IDs)](figures/paper_final/supp/)
+- [Supplementary figures (v4 SVG sources)](figures/paper_final_v4/supp/)
 - [Final claims table](docs/PAPER_FINAL_CLAIMS_TABLE.md)
 - [Evidence table](docs/PAPER_EVIDENCE_TABLE.md)
 - [Number traceability](docs/PAPER_NUMBER_TRACEABILITY.md)

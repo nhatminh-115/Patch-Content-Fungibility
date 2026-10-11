@@ -37,29 +37,16 @@ Canonical status comes from the manuscript references and DOCX package, not dire
 | Figure 6 | figures/paper_final_v4/figure6_joint_stream_geometry.svg | figures/paper_final_v4/figure6_joint_stream_geometry.png; all eight embedded main-DOCX images match by SHA-256. |
 | Figure 7 | figures/paper_final_v4/figure7_end_to_end_operator.svg | figures/paper_final_v4/figure7_end_to_end_operator.png; all eight embedded main-DOCX images match by SHA-256. |
 | Figure 8 | figures/paper_final_v4/figure8_operator_compression.svg | figures/paper_final_v4/figure8_operator_compression.png; all eight embedded main-DOCX images match by SHA-256. |
-| Supplementary Figure S1 | figures/paper_final/supp/figS01_mask_robustness.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S2 | figures/paper_final/supp/figS02_retention_thresholds.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S3 | figures/paper_final/supp/figS03_pca_rank.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S4 | figures/paper_final/supp/figS04_pc1_amplitude.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S5 | figures/paper_final/supp/figS05_rank_propagation.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S6 | figures/paper_final/supp/figS06_carrier_equivalence.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S7 | figures/paper_final/supp/figS07_accuracy_vs_tokens.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S8 | figures/paper_final/supp/figS08_accuracy_vs_latency.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S9 | figures/paper_final/supp/figS09_geometry_bank_vs_pruning.png | The Supplementary DOCX contains 15 images; embedded S1–S9 pixels do not hash-match these freshly rendered PNGs after upstream commit 8e7e464. Keep both sides unchanged pending review. |
-| Supplementary Figure S10 | figures/paper_final_v4/supp/figureS10_dinov2_margin_diversity.svg | Corresponding v4 PNG is embedded; S10–S15 images match by SHA-256. |
-| Supplementary Figure S11 | figures/paper_final_v4/supp/figureS11_value_path_replication.svg | Corresponding v4 PNG is embedded; S10–S15 images match by SHA-256. |
-| Supplementary Figure S12 | figures/paper_final_v4/supp/figureS12_primary_qkv_decomposition.svg | Corresponding v4 PNG is embedded; S10–S15 images match by SHA-256. |
-| Supplementary Figure S13 | figures/paper_final_v4/supp/figureS13_real_carrier_boundary.svg | Corresponding v4 PNG is embedded; S10–S15 images match by SHA-256. |
-| Supplementary Figure S14 | figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg | Corresponding v4 PNG is embedded; S10–S15 images match by SHA-256. |
-| Supplementary Figure S15 | figures/paper_final_v4/supp/figureS15_regularization_sensitivity.svg | Corresponding v4 PNG is embedded; S10–S15 images match by SHA-256. |
-
-All 23 current Markdown figure references exist; PNG files decode and SVG files parse as XML. The publication validator confirms eight main and fifteen supplementary DOCX figures. The CI-generated figures/paper_final/main set is not linked by the current main manuscript and is not interchangeable with v4.
-
-The cleanup did not write either DOCX. SHA-256 before and after is identical: main docs/PAPER_DRAFT_v5.docx = 8c143da1c05d80d057cdb80d3cb603d843db20ff576949a15fe9c22c13aa2460; supplementary docs/PAPER_SUPPLEMENTARY.docx = c0fd553d76f893b7d768a8f526c30f9a82f0cc8bbc117d7ac280555c4ebfdef0.
-
-## Large-output audit
-
-There are 23 tracked outputs files at or above 1 MiB, totaling 451,595,391 bytes (430.67 MiB). The tracked outputs tree totals 465,649,788 bytes. Eight files exceed 5 MiB and total 419,772,035 bytes. None was moved, deleted, ignored, or rewritten.
+| Supplementary Figure S1 | figures/paper_final/supp/figS01_mask_robustness.png | Source S1 retained as display S1; embedded pixels match source exactly. |
+| Supplementary Figure S2 | figures/paper_final/supp/figS02_retention_thresholds.png | Source S2 retained as display S2; embedded canvas differs by 2×5 px of edge padding only; chart content visually matches. |
+| Supplementary Figure S3 | figures/paper_final_v4/supp/figureS10_dinov2_margin_diversity.svg | Source S10 retained as display S3; embedded PNG matches source bytes exactly. |
+| Supplementary Figure S4 | figures/paper_final/supp/figS04_pc1_amplitude.png | Source S4 retained as display S4; embedded canvas differs by 2 px of outer padding only; chart content visually matches. |
+| Supplementary Figure S5 | figures/paper_final/supp/figS09_geometry_bank_vs_pruning.png | Source S9 retained as display S5; SHA-256 differs but decoded pixel arrays are identical. |
+| Supplementary Figure S6 | figures/paper_final_v4/supp/figureS11_value_path_replication.svg | Source S11 retained as display S6; embedded PNG matches source bytes exactly. |
+| Supplementary Figure S7 | figures/paper_final_v4/supp/figureS14_joint_stream_geometry.svg | Source S14 retained as display S7; embedded PNG matches source bytes exactly. |
+| Supplementary Figure S8 | figures/paper_final_v4/supp/figureS12_primary_qkv_decomposition.svg | Source S12 retained as display S8; embedded PNG matches source bytes exactly. |
+| Supplementary Figure S9 | figures/paper_final_v4/supp/figureS13_real_carrier_boundary.svg | Source S13 retained as display S9; embedded PNG matches source bytes exactly. |
+| Supplementary Figure S10 | figures/paper_final_v4/supp/figureS15_regularization_sensitivity.svg | Source S15 retained as display S10; embedded PNG matches source bytes exactly. |
 
 Two retained calibration-statistics files are byte-identical by SHA-256 (`43e817b90cdf5997df2f4b992499fd4d1893bb570db8219bfe05e5fde745e6ef`): `outputs/fungibility_v1/calibration_statistics.npz` and `outputs/fungibility_v1_grouped_diversity_extension/calibration_statistics_used.npz`. Their matching hash does not establish that either path is redundant: each has a distinct run/provenance role, so both remain tracked unless a future evidence audit verifies equivalence and approves a change.
 
@@ -83,13 +70,13 @@ No independent durable external archive copy was verified. The real-final measur
 | outputs/fungibility_v0_5/experiment_manifest.json | 1,651,607 | a9ec1f4b7c28bebce5914141bff52d939d00ad474b63c9aa781bc1d0975f295e | Large historical V0.5 run manifest and configuration record. Research-history provenance, not a direct current figure/table input. Keep the record; replay requires the V0.5 protocol and model runs. Keep in Git pending explicit approval. |
 | outputs/fungibility_v0_8/small_image_results.parquet | 1,142,202 | ad801c201334586dc728354d1785000486a132def100dc24cd5a130a43f1760a | V0.8 image-level grouped-diversity outcomes. Supports grouped-diversity source rows for Figure 3/Table II. Re-run V0.8 multi-seed model evaluation; retain current result. Keep in Git pending explicit approval. |
 | outputs/fungibility_v0_8/tiny_image_results.parquet | 1,069,318 | 3d5e10c1ac3bc3ab9107c2717ca50c9c471c863934f05b2c2996eb7f72521045 | V0.8 image-level grouped-diversity outcomes. Supports grouped-diversity source rows for Figure 3/Table II. Re-run V0.8 multi-seed model evaluation; retain current result. Keep in Git pending explicit approval. |
-| outputs/fungibility_v0_9/small_image_results.parquet | 2,154,618 | 105a97338b32aa5a54b5026dcf1db65f8a38a15291ca5971000fc7ea934ec881 | V0.9 image-level low-rank/PCA outcomes. Historical/exploratory source supporting Supplementary Figures S3–S5. Re-run V0.9 protocol and model evaluation; retain current result. Keep in Git pending explicit approval. |
-| outputs/fungibility_v0_9/tiny_image_results.parquet | 2,018,726 | 2ccb5f22c73ee3e0e64513fa1247d2a67a1464776759fb030b4e68c610ab7a57 | V0.9 image-level low-rank/PCA outcomes. Historical/exploratory source supporting Supplementary Figures S3–S5. Re-run V0.9 protocol and model evaluation; retain current result. Keep in Git pending explicit approval. |
+| outputs/fungibility_v0_9/small_image_results.parquet | 2,154,618 | 105a97338b32aa5a54b5026dcf1db65f8a38a15291ca5971000fc7ea934ec881 | V0.9 image-level low-rank/PCA outcomes. Retained source results for omitted figures; PCA-rank and effective-rank summaries remain in Supplementary Section S6 prose. Re-run V0.9 protocol and model evaluation; retain current result. Keep in Git pending explicit approval. |
+| outputs/fungibility_v0_9/tiny_image_results.parquet | 2,018,726 | 2ccb5f22c73ee3e0e64513fa1247d2a67a1464776759fb030b4e68c610ab7a57 | V0.9 image-level low-rank/PCA outcomes. Retained source results for omitted figures; PCA-rank and effective-rank summaries remain in Supplementary Section S6 prose. Re-run V0.9 protocol and model evaluation; retain current result. Keep in Git pending explicit approval. |
 | outputs/fungibility_v1/calibration_statistics.npz | 2,787,884 | 43e817b90cdf5997df2f4b992499fd4d1893bb570db8219bfe05e5fde745e6ef | V1 calibration statistics for cross-architecture interventions. Preserves calibration-derived representations used by V1 outcomes. Recompute on calibration images; requires activation extraction. Keep in Git pending explicit approval. |
 | outputs/fungibility_v1/dinov2_image_results.parquet | 3,007,636 | aefb80fe47a34667bf52d1c1821ec98de9428066c5390924ab11a3049f630d53 | DINOv2 V1 per-image geometry/diversity outcomes. Supports V1 geometry/grouped-diversity evidence used by Figure 3/Table II. Re-run scripts/run_fungibility_v1.py; DINOv2/ImageNet inference. Keep in Git pending explicit approval. |
 | outputs/fungibility_v1/vitb_image_results.parquet | 3,005,189 | 8ebbb18720c96808b00ba51c0159b518efba02a46d852132033539fa2b021705 | ViT-B V1 per-image geometry/diversity outcomes. Supports V1 geometry evidence used by Figure 3/Table II. Re-run scripts/run_fungibility_v1.py; ViT-B/ImageNet inference. Keep in Git pending explicit approval. |
 | outputs/fungibility_v1_grouped_diversity_extension/calibration_statistics_used.npz | 2,787,884 | 43e817b90cdf5997df2f4b992499fd4d1893bb570db8219bfe05e5fde745e6ef | Calibration-derived statistics consumed by the grouped-diversity extension. Preserves inputs to cross-architecture group-diversity results. Recompute on the calibration cohort; requires model activation extraction. Keep in Git pending explicit approval. |
-| outputs/fungibility_v1_grouped_diversity_extension/per_image_results.csv | 6,039,283 | 5e2b466020dc49bbaa6f0eb716a0b744f33d7b0270de2fb9073781b0dd7191e0 | Image-level V1 grouped-diversity outcomes over models and seeds. Supports Figure 3 grouped-diversity and Figure S10 source aggregates. Re-run scripts/run_grouped_diversity_extension.py; repeated GPU evaluation. Keep in Git pending explicit approval. |
+| outputs/fungibility_v1_grouped_diversity_extension/per_image_results.csv | 6,039,283 | 5e2b466020dc49bbaa6f0eb716a0b744f33d7b0270de2fb9073781b0dd7191e0 | Image-level V1 grouped-diversity outcomes over models and seeds. Supports main Figure 3 grouped-diversity and current Supplementary Figure S3 (source S10) aggregates. Re-run scripts/run_grouped_diversity_extension.py; repeated GPU evaluation. Keep in Git pending explicit approval. |
 
 Externalizing every listed file could reduce the working-tree checkout by at most 451,595,391 bytes only if later approved and independently archived. It would not erase the existing Git-history blobs. No history rewrite or LFS migration is proposed.
 
@@ -427,18 +414,18 @@ Every path below is classified. Role text identifies its document or experiment;
 | KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS01_mask_robustness.png |
 | KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS02_retention_thresholds.pdf |
 | KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS02_retention_thresholds.png |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS03_pca_rank.pdf |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS03_pca_rank.png |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS03_pca_rank.pdf |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS03_pca_rank.png |
 | KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS04_pc1_amplitude.pdf |
 | KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS04_pc1_amplitude.png |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS05_rank_propagation.pdf |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS05_rank_propagation.png |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS06_carrier_equivalence.pdf |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS06_carrier_equivalence.png |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS07_accuracy_vs_tokens.pdf |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS07_accuracy_vs_tokens.png |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS08_accuracy_vs_latency.pdf |
-| KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS08_accuracy_vs_latency.png |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS05_rank_propagation.pdf |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS05_rank_propagation.png |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS06_carrier_equivalence.pdf |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS06_carrier_equivalence.png |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS07_accuracy_vs_tokens.pdf |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS07_accuracy_vs_tokens.png |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS08_accuracy_vs_latency.pdf |
+| KEEP — Research History | Source figure omitted from current Supplementary display; retain original visual evidence. | figures/paper_final/supp/figS08_accuracy_vs_latency.png |
 | KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS09_geometry_bank_vs_pruning.pdf |
 | KEEP — Essential | Current supplementary S1–S9 PNG or PDF companion. | figures/paper_final/supp/figS09_geometry_bank_vs_pruning.png |
 | ARCHIVE CANDIDATE — retain in place | Superseded manuscript export or earlier figure iteration; details in archive-candidate register. | figures/paper_final_v2/figure1_conceptual_overview.png |
@@ -1040,3 +1027,8 @@ Every path below is classified. Role text identifies its document or experiment;
 - Do not move archive candidates in this first pass.
 - Do not migrate to Git LFS or upload externally without explicit approval and an independently checked archive.
 - The two pre-existing untracked DOCX backups under outputs/ are not part of git ls-files and are not included in the inventory or cleanup commit.
+
+
+## Final Supplementary streamlining update (2026-10-11)
+
+The current DOCX state supersedes the earlier cleanup snapshot above. The final Supplementary displays ten figures in the order and source-ID mapping shown in the current figure table; the five omitted source figures and all associated code/data remain retained. See `docs/FINAL_SUPPLEMENTARY_STREAMLINING.md` for exact DOCX package-part changes and the full 15-image visual audit.

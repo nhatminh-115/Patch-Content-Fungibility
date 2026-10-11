@@ -115,3 +115,8 @@ The four main tables are I–IV; the eight original main figures and ten numbere
 - `python scripts/validate_real_final_benchmark.py`: **PASS, 12/12 checks**.
 - `python scripts/validate_paper_final.py`: **PASS, 42/42 checks**, including independent Table II and Table III source recomputations, Figure 7 correlations/bootstrap intervals and scope, four-table numbering, IEEE citations, and editable DOCX structure.
 - No new experiment was run and no experimental CSV, checkpoint, or scientific result was changed. The numerical validators and audit manifests are the only validation outputs written during this revision.
+
+
+## Final Supplementary streamlining (2026-10-11)
+
+This update supersedes earlier statements in this audit that Supplementary Figures S1–S15 were all displayed. The final DOCX and Markdown display ten figures in appearance order: source S1→S1, S2→S2, S10→S3, S4→S4, S9→S5, S11→S6, S14→S7, S12→S8, S13→S9, and S15→S10. Figures from source S3, S5, S6, S7, and S8 are omitted from display; their data remain retained, and PCA-rank/effective-rank evidence was summarized in Section S6. The Supplementary retains six numbered tables and 58 references. Main figures 1–8 and Tables 1–4 are unchanged. See `docs/FINAL_SUPPLEMENTARY_STREAMLINING.md` for package audit, validation results, and render status.
