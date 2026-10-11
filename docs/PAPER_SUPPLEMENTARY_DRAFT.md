@@ -60,6 +60,14 @@ Across the five tested masks, threshold variability is small relative to the sep
 
 **Supplementary Figure S2. Accuracy-retention thresholds.** Maximum replacement fractions retaining at least 95%, 90%, and 80% of clean accuracy for zero, centroid, and diagonal-Gaussian interventions.
 
+**CLS–patch stream asymmetry control.** At Block 8, frozen DeiT-Tiny and DeiT-Small were evaluated on 1,000 held-out ImageNet-1k validation images per model. The calibration (seed 9101) and evaluation (seed 9201) cohorts had no overlapping global image indices. Clean Top-1 was 67.9% and 76.1%.
+
+With all 196 patches unchanged, replacing only CLS with the calibration-cohort mean CLS vector yielded 66.4% and 74.8%; replacing CLS with a cross-image CLS yielded 62.6% and 67.1%; and zeroing CLS yielded 40.0% and 70.5%. The cross-image donor was a deterministic one-position cyclic roll of CLS activations within each evaluation batch.
+
+In the separate complete-patch condition, the original CLS was retained and every spatial patch was replaced by an identical copy of the calibration-derived global patch centroid (the mean across calibration images and patch positions), yielding 10.2% and 17.0% Top-1. The interventions are unmatched in scale: one CLS token versus 196 patch tokens. Identical-centroid replacement also removes patch-token diversity, so this comparison does not isolate the separate effects of image-specific patch content and patch-token diversity.
+
+These exploratory controls are limited to DeiT-Tiny and DeiT-Small at Block 8 and were not evaluated on other architectures. Mean-CLS replacement retained near-clean accuracy with the patch stream intact, but this does not establish CLS sufficiency as an explanation for patch-content fungibility.
+
 ## S5. Causal isolation of token-to-token diversity
 
 Under complete replacement, the shared-versus-independent comparison holds the Gaussian marginal distribution fixed while changing whether one sampled vector is broadcast to every patch or each patch receives an independent sample.
