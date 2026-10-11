@@ -1,0 +1,280 @@
+{
+  "deit_small": {
+    "diagnostic_signed_variant": "raw_norm",
+    "cosine_minus_signed_mean_d": -4.8959859193131325e-06,
+    "cosine_minus_signed_ci95": [
+      -1.7641896715475195e-05,
+      4.345693543512825e-06
+    ],
+    "signed_better_images": 39,
+    "cosine_better_images": 22,
+    "median_gain": 1.6439014416391726e-07,
+    "largest_signed_failures": [
+      {
+        "global_index": 5934,
+        "cosine_minus_signed_d": -0.000319537935865738
+      },
+      {
+        "global_index": 19243,
+        "cosine_minus_signed_d": -9.899421365840203e-05
+      },
+      {
+        "global_index": 14422,
+        "cosine_minus_signed_d": -5.9191029095018166e-05
+      }
+    ],
+    "largest_signed_wins": [
+      {
+        "global_index": 38428,
+        "cosine_minus_signed_d": 0.00011765347994694007
+      },
+      {
+        "global_index": 27348,
+        "cosine_minus_signed_d": 6.40330175372128e-05
+      },
+      {
+        "global_index": 14057,
+        "cosine_minus_signed_d": 1.635362829688347e-05
+      }
+    ],
+    "mean_candidate_spearman_raw_vs_features": {
+      "cosine": 0.34763906708211134,
+      "attention_importance": 0.538604288856305,
+      "attention_value_distance": 0.8607267228739002,
+      "feature_distance": 0.800970262096774
+    },
+    "inspected_examples": [
+      {
+        "global_index": 5934,
+        "cosine_minus_signed_d": -0.000319537935865738,
+        "picks": {
+          "cosine": {
+            "candidate_index": 0,
+            "source": 118,
+            "destination": 117,
+            "actual_d": 2.7446985768619925e-06,
+            "cosine_cost": -0.915996551513672,
+            "raw_norm": 0.002925680950284,
+            "projected_norm": 0.002842720830813,
+            "attention_importance": 0.0066306199878454
+          },
+          "raw_norm": {
+            "candidate_index": 3,
+            "source": 100,
+            "destination": 137,
+            "actual_d": 0.0003222826344426,
+            "cosine_cost": -0.9028507471084596,
+            "raw_norm": 0.0004234286898281,
+            "projected_norm": 0.0004455976013559,
+            "attention_importance": 0.0010472518624737
+          },
+          "projected_norm": {
+            "candidate_index": 3,
+            "source": 100,
+            "destination": 137,
+            "actual_d": 0.0003222826344426,
+            "cosine_cost": -0.9028507471084596,
+            "raw_norm": 0.0004234286898281,
+            "projected_norm": 0.0004455976013559,
+            "attention_importance": 0.0010472518624737
+          },
+          "actual_d": {
+            "candidate_index": 6,
+            "source": 160,
+            "destination": 161,
+            "actual_d": 2.988747951349069e-07,
+            "cosine_cost": -0.8845452666282654,
+            "raw_norm": 0.0034288747701793,
+            "projected_norm": 0.0032159930560737,
+            "attention_importance": 0.0052169281989336
+          }
+        }
+      },
+      {
+        "global_index": 38428,
+        "cosine_minus_signed_d": 0.00011765347994694007,
+        "picks": {
+          "cosine": {
+            "candidate_index": 0,
+            "source": 138,
+            "destination": 179,
+            "actual_d": 0.0001182400883408,
+            "cosine_cost": -0.9604793190956116,
+            "raw_norm": 0.0440067090094089,
+            "projected_norm": 0.0391761139035224,
+            "attention_importance": 0.0293722134083509
+          },
+          "raw_norm": {
+            "candidate_index": 2,
+            "source": 166,
+            "destination": 167,
+            "actual_d": 5.866083938599331e-07,
+            "cosine_cost": -0.937731146812439,
+            "raw_norm": 0.002844002796337,
+            "projected_norm": 0.0029466955456882,
+            "attention_importance": 0.0038716006092727
+          },
+          "projected_norm": {
+            "candidate_index": 2,
+            "source": 166,
+            "destination": 167,
+            "actual_d": 5.866083938599331e-07,
+            "cosine_cost": -0.937731146812439,
+            "raw_norm": 0.002844002796337,
+            "projected_norm": 0.0029466955456882,
+            "attention_importance": 0.0038716006092727
+          },
+          "actual_d": {
+            "candidate_index": 2,
+            "source": 166,
+            "destination": 167,
+            "actual_d": 5.866083938599331e-07,
+            "cosine_cost": -0.937731146812439,
+            "raw_norm": 0.002844002796337,
+            "projected_norm": 0.0029466955456882,
+            "attention_importance": 0.0038716006092727
+          }
+        }
+      }
+    ]
+  },
+  "vit_base": {
+    "diagnostic_signed_variant": "projected_norm",
+    "cosine_minus_signed_mean_d": -2.9150159232944014e-08,
+    "cosine_minus_signed_ci95": [
+      -7.87886707119084e-08,
+      1.1859749256964998e-08
+    ],
+    "signed_better_images": 14,
+    "cosine_better_images": 25,
+    "median_gain": 0.0,
+    "largest_signed_failures": [
+      {
+        "global_index": 31549,
+        "cosine_minus_signed_d": -1.1608740848600974e-06
+      },
+      {
+        "global_index": 19597,
+        "cosine_minus_signed_d": -6.422992981924835e-07
+      },
+      {
+        "global_index": 5934,
+        "cosine_minus_signed_d": -2.622542680796869e-07
+      }
+    ],
+    "largest_signed_wins": [
+      {
+        "global_index": 46983,
+        "cosine_minus_signed_d": 4.575822458718912e-07
+      },
+      {
+        "global_index": 9051,
+        "cosine_minus_signed_d": 2.73236416603595e-07
+      },
+      {
+        "global_index": 38398,
+        "cosine_minus_signed_d": 1.7434486920819836e-07
+      }
+    ],
+    "mean_candidate_spearman_raw_vs_features": {
+      "cosine": 0.5110715267595307,
+      "attention_importance": 0.26470285007331373,
+      "attention_value_distance": 0.8463388929618767,
+      "feature_distance": 0.6911714167888562
+    },
+    "inspected_examples": [
+      {
+        "global_index": 31549,
+        "cosine_minus_signed_d": -1.1608740848600974e-06,
+        "picks": {
+          "cosine": {
+            "candidate_index": 0,
+            "source": 14,
+            "destination": 13,
+            "actual_d": 6.476222580431569e-08,
+            "cosine_cost": -0.998039484024048,
+            "raw_norm": 0.005095868371427,
+            "projected_norm": 0.0068137943744659,
+            "attention_importance": 0.0797395557165145
+          },
+          "raw_norm": {
+            "candidate_index": 1,
+            "source": 152,
+            "destination": 13,
+            "actual_d": 6.947936981305247e-08,
+            "cosine_cost": -0.9974600076675416,
+            "raw_norm": 0.0046818298287689,
+            "projected_norm": 0.0067900158464908,
+            "attention_importance": 0.0849140435457229
+          },
+          "projected_norm": {
+            "candidate_index": 6,
+            "source": 48,
+            "destination": 49,
+            "actual_d": 1.225636310664413e-06,
+            "cosine_cost": -0.939541220664978,
+            "raw_norm": 0.0047031706199049,
+            "projected_norm": 0.0066011887975037,
+            "attention_importance": 0.0044947965070605
+          },
+          "actual_d": {
+            "candidate_index": 0,
+            "source": 14,
+            "destination": 13,
+            "actual_d": 6.476222580431569e-08,
+            "cosine_cost": -0.998039484024048,
+            "raw_norm": 0.005095868371427,
+            "projected_norm": 0.0068137943744659,
+            "attention_importance": 0.0797395557165145
+          }
+        }
+      },
+      {
+        "global_index": 46983,
+        "cosine_minus_signed_d": 4.575822458718912e-07,
+        "picks": {
+          "cosine": {
+            "candidate_index": 0,
+            "source": 188,
+            "destination": 107,
+            "actual_d": 6.75423825668986e-06,
+            "cosine_cost": -0.9817927479743958,
+            "raw_norm": 0.095402643084526,
+            "projected_norm": 0.1215568110346794,
+            "attention_importance": 0.0807989537715911
+          },
+          "raw_norm": {
+            "candidate_index": 4,
+            "source": 160,
+            "destination": 161,
+            "actual_d": 6.296656010817969e-06,
+            "cosine_cost": -0.9077945947647096,
+            "raw_norm": 0.0009373474167659,
+            "projected_norm": 0.0012601355556398,
+            "attention_importance": 0.002438471885398
+          },
+          "projected_norm": {
+            "candidate_index": 4,
+            "source": 160,
+            "destination": 161,
+            "actual_d": 6.296656010817969e-06,
+            "cosine_cost": -0.9077945947647096,
+            "raw_norm": 0.0009373474167659,
+            "projected_norm": 0.0012601355556398,
+            "attention_importance": 0.002438471885398
+          },
+          "actual_d": {
+            "candidate_index": 6,
+            "source": 172,
+            "destination": 173,
+            "actual_d": 2.889058237087738e-07,
+            "cosine_cost": -0.8985029458999634,
+            "raw_norm": 0.0046414821408689,
+            "projected_norm": 0.0068146446719765,
+            "attention_importance": 0.0031654830090701
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,3 @@
+global_index,label,cohort,canonical_calibration_index,parquet_path,parquet_row
+10090,201,stability,201,datasets--evanarlian--imagenet_1k_resized_256/snapshots/8de107e08d1f61884d5a4ec2dea8740667264a60/data/val-00000-of-00002-b5248be478d25e41.parquet,10090
+41167,823,stability,823,datasets--evanarlian--imagenet_1k_resized_256/snapshots/8de107e08d1f61884d5a4ec2dea8740667264a60/data/val-00001-of-00002-85f3d9c8fa1edb63.parquet,16167

@@ -1,0 +1,22 @@
+{
+  "G0": "GO",
+  "G1_stability": {
+    "status": "KILL",
+    "selected_signed": "raw_norm",
+    "deit_best_scalar": "cosine",
+    "vit_best_scalar": "cosine",
+    "deit_mean_gain": -4.8959859193131325e-06,
+    "deit_relative_gain": -0.8143500068037128,
+    "deit_ci95": [
+      -1.7641896715475195e-05,
+      4.345693543512825e-06
+    ],
+    "vit_mean_gain": -1.5215062255881286e-07,
+    "vit_ci95": [
+      -4.5548094689409165e-07,
+      1.0551720864288454e-08
+    ],
+    "overhead_ok": true
+  },
+  "G1": "KILL"
+}

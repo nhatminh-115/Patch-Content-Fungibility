@@ -1,0 +1,74 @@
+[
+  {
+    "model": "deit_small",
+    "cohort": "stability",
+    "n_images": 64,
+    "oracle_mean_d": 1.5293195316644793e-07,
+    "cosine": {
+      "mean_d": 6.0121395940426064e-06,
+      "mean_regret": 5.8592076408761585e-06,
+      "oracle_agreement": 0.03125,
+      "mean_spearman": 0.36322970124633425
+    },
+    "attention_importance": {
+      "mean_d": 7.009141023206489e-05,
+      "mean_regret": 6.993847827889844e-05,
+      "oracle_agreement": 0.09375,
+      "mean_spearman": 0.3405425219941349
+    },
+    "attention_value_distance": {
+      "mean_d": 2.4422446891825267e-05,
+      "mean_regret": 2.426951493865882e-05,
+      "oracle_agreement": 0.171875,
+      "mean_spearman": 0.6604712701612903
+    },
+    "raw_norm": {
+      "mean_d": 1.0908125513357098e-05,
+      "mean_regret": 1.075519356019065e-05,
+      "oracle_agreement": 0.1875,
+      "mean_spearman": 0.7416491019061584
+    },
+    "projected_norm": {
+      "mean_d": 1.1329428493998123e-05,
+      "mean_regret": 1.1176496540831675e-05,
+      "oracle_agreement": 0.21875,
+      "mean_spearman": 0.7422734145894427
+    }
+  },
+  {
+    "model": "vit_base",
+    "cohort": "stability",
+    "n_images": 64,
+    "oracle_mean_d": 2.442604665915931e-08,
+    "cosine": {
+      "mean_d": 1.5088836409471972e-07,
+      "mean_regret": 1.264623174355604e-07,
+      "oracle_agreement": 0.515625,
+      "mean_spearman": 0.6617084402492668
+    },
+    "attention_importance": {
+      "mean_d": 1.0806653166169512e-05,
+      "mean_regret": 1.0782227119510352e-05,
+      "oracle_agreement": 0.0625,
+      "mean_spearman": 0.03915414222873899
+    },
+    "attention_value_distance": {
+      "mean_d": 5.439740248303938e-07,
+      "mean_regret": 5.195479781712345e-07,
+      "oracle_agreement": 0.109375,
+      "mean_spearman": 0.667023689516129
+    },
+    "raw_norm": {
+      "mean_d": 3.030389866535326e-07,
+      "mean_regret": 2.7861293999437327e-07,
+      "oracle_agreement": 0.375,
+      "mean_spearman": 0.8137371700879765
+    },
+    "projected_norm": {
+      "mean_d": 1.8003852332766374e-07,
+      "mean_regret": 1.5561247666850443e-07,
+      "oracle_agreement": 0.421875,
+      "mean_spearman": 0.8171852089442815
+    }
+  }
+]
