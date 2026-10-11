@@ -1,0 +1,25 @@
+{
+  "deit_small": {
+    "qualified_regimes": [
+      147,
+      196
+    ],
+    "stable_positive_regimes": [
+      147,
+      196
+    ],
+    "pass": true
+  },
+  "vit_base": {
+    "qualified_regimes": [
+      98,
+      147
+    ],
+    "stable_positive_regimes": [
+      98,
+      147
+    ],
+    "pass": true
+  },
+  "G1_pass": true
+}

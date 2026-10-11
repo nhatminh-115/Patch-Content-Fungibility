@@ -1,0 +1,105 @@
+{
+  "train_images": 808,
+  "validation_images": 64,
+  "models": {
+    "deit_small": {
+      "feature_mean": [
+        0.7331693172454834,
+        3.03817081451416,
+        3.5484325885772705,
+        3.5498106479644775,
+        0.9140594005584717,
+        0.9186468124389648,
+        1.4716507196426392,
+        0.0937517061829567,
+        0.09357371926307678,
+        0.75
+      ],
+      "feature_std": [
+        0.2937217950820923,
+        0.5086199641227722,
+        0.3817344605922699,
+        0.380940705537796,
+        0.3162728548049927,
+        0.3212450444698334,
+        0.6747925877571106,
+        0.1220720037817955,
+        0.12227334827184677,
+        0.20412415266036987
+      ],
+      "chosen_epoch": {
+        "counterfactual_pair": 1,
+        "fixed_rank": 7,
+        "fixed_regression": 1
+      },
+      "validation_regret": {
+        "counterfactual_pair": 0.0002911312913056463,
+        "fixed_rank": 0.0005428166477940977,
+        "fixed_regression": 0.00030054108356125653
+      },
+      "parameter_count": {
+        "counterfactual_pair": 13073,
+        "fixed_rank": 897,
+        "fixed_regression": 897,
+        "embedding_no_teacher": 6144
+      }
+    },
+    "vit_base": {
+      "feature_mean": [
+        0.7529309988021851,
+        3.8227579593658447,
+        4.409226894378662,
+        4.411689281463623,
+        0.8892187476158142,
+        0.8914985060691833,
+        1.4671977758407593,
+        0.41190412640571594,
+        0.41225507855415344,
+        0.75
+      ],
+      "feature_std": [
+        0.28386545181274414,
+        0.8027661442756653,
+        0.7808944582939148,
+        0.7812222838401794,
+        0.29419779777526855,
+        0.29587605595588684,
+        0.6839058995246887,
+        0.19946114718914032,
+        0.19981682300567627,
+        0.20412415266036987
+      ],
+      "chosen_epoch": {
+        "counterfactual_pair": 9,
+        "fixed_rank": 1,
+        "fixed_regression": 3
+      },
+      "validation_regret": {
+        "counterfactual_pair": 0.00032047051354311407,
+        "fixed_rank": 0.0005235205753706396,
+        "fixed_regression": 0.00020725758804474026
+      },
+      "parameter_count": {
+        "counterfactual_pair": 19217,
+        "fixed_rank": 897,
+        "fixed_regression": 897,
+        "embedding_no_teacher": 12288
+      }
+    }
+  },
+  "executed_code_commit": "1ccafc3f72b0292036ac9467f9b5adcc56a17e55",
+  "training_seeds": {
+    "pair_ranker": 64041,
+    "fixed_ranker": 64042,
+    "fixed_regression": 64043,
+    "embedding_no_teacher": 64044,
+    "epoch_order": 64031,
+    "unsupervised_order": 64032
+  },
+  "input_sha256": {
+    "outputs\\counterfactual_merge_pilot\\source_image_ids.csv": "4887428489c0bb93c5134658699cddac04b10a347f7ff432b8b01f5b080fc447",
+    "outputs\\counterfactual_merge_train\\source_image_ids.csv": "6bce98f14cc36a96dc68f7ffbdf006a9e8b45ebc0d94ced2cc33c08e07931e0a",
+    "outputs\\counterfactual_merge_pilot\\candidate_results.csv": "398c03832cf9ec4aed40280ee676f2d5591183a8134a3eb5d035f5e8de6fae0b",
+    "outputs\\counterfactual_merge_train\\candidate_results.csv": "215f6dc213f14ba74e3f3e7a0c85cb4cb61e04cca7a80827a75b83480a883afb"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "deit_small_98": {
+    "best_same_schedule_control": "embedding_no_teacher",
+    "distortion_advantage": -0.020443624971449026,
+    "paired_bootstrap_95_low": -0.027209505924565745,
+    "paired_bootstrap_95_high": -0.01324581096855582,
+    "accuracy_difference_pp": -1.5625,
+    "pass": false
+  },
+  "deit_small_49": {
+    "best_same_schedule_control": "embedding_no_teacher",
+    "distortion_advantage": -0.06315453683782835,
+    "paired_bootstrap_95_low": -0.07859893485110661,
+    "paired_bootstrap_95_high": -0.050352677511182276,
+    "accuracy_difference_pp": -4.6875,
+    "pass": false
+  },
+  "vit_base_98": {
+    "best_same_schedule_control": "fixed_regression",
+    "distortion_advantage": -0.0057503907300997525,
+    "paired_bootstrap_95_low": -0.01113412865411192,
+    "paired_bootstrap_95_high": -0.0004463985802885905,
+    "accuracy_difference_pp": -1.5625,
+    "pass": false
+  },
+  "vit_base_49": {
+    "best_same_schedule_control": "fixed_regression",
+    "distortion_advantage": -0.028216289121701266,
+    "paired_bootstrap_95_low": -0.04035416443257418,
+    "paired_bootstrap_95_high": -0.015839831023640734,
+    "accuracy_difference_pp": -3.125,
+    "pass": false
+  },
+  "G2_pass": false
+}
