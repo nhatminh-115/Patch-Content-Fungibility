@@ -1,0 +1,9 @@
+model,cohort,global_index,method,state_policy,count,spearman,top1_agreement,regret
+deit_small,stability,10090,cosine,uncompressed,196,0.3214809384164222,0,4.584088082459914e-07
+deit_small,stability,10090,student,uncompressed,196,0.5813782991202345,1,0.0
+deit_small,stability,41167,cosine,uncompressed,196,0.4464809384164222,0,2.483786829543533e-06
+deit_small,stability,41167,student,uncompressed,196,0.2752932551319648,1,0.0
+vit_base,stability,10090,cosine,uncompressed,196,0.6187683284457477,0,1.1009346878587678e-08
+vit_base,stability,10090,student,uncompressed,196,0.7445014662756598,0,1.1009346878587678e-08
+vit_base,stability,41167,cosine,uncompressed,196,0.813049853372434,0,1.4397526726384058e-08
+vit_base,stability,41167,student,uncompressed,196,0.7027126099706744,1,0.0

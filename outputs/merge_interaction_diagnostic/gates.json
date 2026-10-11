@@ -1,0 +1,20 @@
+{
+  "D1": {
+    "deit_small": true,
+    "vit_base": true
+  },
+  "D2": {
+    "deit_small": true,
+    "vit_base": false
+  },
+  "D3": {
+    "deit_small": true,
+    "vit_base": true
+  },
+  "D4": {
+    "deit_small": true,
+    "vit_base": true
+  },
+  "D_entry": true,
+  "recommended_path": "B"
+}
